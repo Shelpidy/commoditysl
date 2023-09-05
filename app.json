@@ -1,36 +1,44 @@
 {
-   "expo": {
-      "name": "commoditysl",
-      "slug": "commoditysl",
-      "version": "1.0.0",
-      "orientation": "portrait",
-      "icon": "./assets/icon.png",
-      "scheme": "com.commodity.sl",
-      "userInterfaceStyle": "light",
-      "splash": {
-         "image": "./assets/splash.png",
-         "resizeMode": "contain",
-         "backgroundColor": "#ffffff"
-      },
-      "assetBundlePatterns": ["**/*"],
-      "ios": {
-         "supportsTablet": true
-      },
-      "android": {
-         "package": "com.commodity.sl",
-         "googleServicesFile": "./google-services.json",
-         "adaptiveIcon": {
-            "foregroundImage": "./assets/adaptive-icon.png",
-            "backgroundColor": "#ffffff"
-         }
-      },
-      "web": {
-         "favicon": "./assets/favicon.png"
-      },
-      "extra": {
-         "eas": {
-            "projectId": "7823e3c6-b01f-47e6-9f67-ebbd7c6cad28"
-         }
+  "expo": {
+    "name": "commoditysl",
+    "slug": "commoditysl",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "com.commodity.sl",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.commodity.sl",
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       }
-   }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7823e3c6-b01f-47e6-9f67-ebbd7c6cad28"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7823e3c6-b01f-47e6-9f67-ebbd7c6cad28"
+    }
+  }
 }

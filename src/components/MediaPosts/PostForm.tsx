@@ -181,15 +181,16 @@ const PostForm = () => {
             style={styles.formContainer}>
             <TextInput
                contentStyle={{ backgroundColor: theme.colors.inverseOnSurface }}
-               outlineStyle={{ borderColor: "#f0f0f0" }}
+               outlineStyle={{ borderColor:theme.colors.inverseOnSurface}}
                onChangeText={onValueChangeTitle}
                mode="outlined"
-               label="Title"
+               value="Untitled"
             />
-            <Text style={{ marginTop: 5, fontFamily: "Poppins_300Light" }}>
+            {/* <Text style={{ marginTop:15, fontFamily: "Poppins_400Regular",fontSize:13,color:theme.colors.secondary}}>
                Content
-            </Text>
+            </Text> */}
             <RichToolbar
+               style={{backgroundColor: theme.colors.inverseOnSurface,paddingBottom:0,marginBottom:0}}
                editor={richText}
                actions={[
                   actions.setBold,
@@ -211,42 +212,34 @@ const PostForm = () => {
                ]}
             />
             <RichEditor
-               editorStyle={{ backgroundColor: theme.colors.inverseOnSurface }}
-               initialHeight={200}
+               editorStyle={{ backgroundColor: theme.colors.inverseOnSurface}}
+               initialHeight={300}
+               style={{padding:0,marginTop:0}}
                initialContentHTML="<b>Write your content here</b>"
                ref={richText}
                onChange={onValueChangeContent}
             />
-            <Text
-               style={{
-                  textAlign: "center",
-                  marginTop: 10,
-                  fontFamily: "Poppins_300Light",
-               }}>
-               Choose Image or Video
-            </Text>
             <View style={styles.buttonGroup}>
                <Button
-                  style={styles.button}
-                  mode="contained"
+                  style={[styles.button,{backgroundColor:theme.colors.inverseOnSurface}]}
+                  mode="text"
                   onPress={() => setImageOpen(true)}>
                   <AntDesign size={20} name="picture" />
                </Button>
                <Button
-                  style={styles.button}
-                  mode="contained"
+                  style={[styles.button,{backgroundColor:theme.colors.inverseOnSurface}]}
+                  mode="text"
                   onPress={() => setVideoOpen(true)}>
                   <AntDesign size={20} name="videocamera" />
                </Button>
+               <Button
+                  mode="contained"
+                  onPress={handlePost}
+                  disabled={loading}
+                  loading={loading}>
+                  Upload 
+               </Button>
             </View>
-
-            <Button
-               mode="contained"
-               onPress={handlePost}
-               disabled={loading}
-               loading={loading}>
-               Upload <AntDesign size={20} name="upload" />
-            </Button>
          </KeyboardAvoidingView>
       </View>
    );

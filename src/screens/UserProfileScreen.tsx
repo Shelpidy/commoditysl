@@ -394,7 +394,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                style={{ flex: 2 }}
                onPress={() =>
                   navigation.navigate("ChatScreen", {
-                     user: user?.personal,
+                     user: user?.personal as User,
                      roomId,
                   })
                }>

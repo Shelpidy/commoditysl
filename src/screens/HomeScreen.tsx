@@ -1,5 +1,6 @@
 import {
    ActivityIndicator,
+   Dimensions,
    ScrollView,
    StyleSheet,
    Text,
@@ -19,6 +20,9 @@ import {
    TabsProvider,
 } from "react-native-paper-tabs";
 import ForYouBlogsComponent from "../components/MediaPosts/ForYourBlogsComponent";
+import * as Linking from "expo-linking";
+import PostForm from "../components/MediaPosts/PostForm";
+import { Fontisto } from "@expo/vector-icons";
 // import { withTheme,Button,Theme } from "@rneui/themed";
 // import { Theme, Button } from "@rneui/base";
 
@@ -26,6 +30,8 @@ type HomeScreenProps = {
    theme?: any;
    navigation: any;
 };
+
+const {width,height} = Dimensions.get("window")
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
    const currentUser = useCurrentUser();
@@ -40,17 +46,28 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
    return (
        
-         <TabsProvider defaultIndex={0}>
-            <Tabs>
-               <TabScreen label="Following">
+         <TabsProvider defaultIndex={1}>
+            <Tabs style={{justifyContent:"center",width:width - 30}} tabLabelStyle={{fontFamily:"Poppins_400Regular",fontSize:12}} uppercase={false} mode='fixed'  tabHeaderStyle={{justifyContent:'center',alignSelf:'center',padding:0,height:0.05*height,marginBottom:5}}>
+               <TabScreen  label="Following">
+               <ScrollView>
+                  <Button  onPress={()=> Linking.openURL("exp://192.168.1.93:8081/--/notifications")}>Go to Notification</Button>
                <PostProductFormNav page="post" navigation={navigation} />
-         <FindFriendsComponent navigation={navigation} />
+               <FindFriendsComponent navigation={navigation} />
                   <BlogsComponent />
+
+               </ScrollView>
+               
                </TabScreen>
                <TabScreen label="For You">
-               <PostProductFormNav page="post" navigation={navigation} />
-         <FindFriendsComponent navigation={navigation} />
+                  <ScrollView>
+                  <PostProductFormNav page="post" navigation={navigation} />
+                 <FindFriendsComponent navigation={navigation} />
                   <ForYouBlogsComponent />
+                  </ScrollView>
+              
+               </TabScreen>
+               <TabScreen icon='plus' label="New">
+                  <PostForm/>
                </TabScreen>
             </Tabs>
          </TabsProvider>

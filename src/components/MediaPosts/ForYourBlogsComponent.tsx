@@ -39,7 +39,7 @@ const ForYouBlogsComponent = () => {
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
 
    let fetchData = async (pageNum?: number) => {
-      console.log("Fetching posts");
+      console.log("Fetching For You posts");
       let pageNumber = pageNum ?? page.current;
       if (!hasMore) return;
       try {
@@ -83,10 +83,15 @@ const ForYouBlogsComponent = () => {
 
    const handleLoadMore = () => {
       console.log("blogs Reached end");
-      if (loadingFetch) return;
-      fetchData();
-   };
+      if (loadingFetch){
 
+      }
+      else if(blogs && blogs.length < numberOfblogsPerPage){}
+       else{
+         fetchData();
+       }
+   
+   };
    const renderFooter = () => {
       if (!loading) return null;
       return (

@@ -65,6 +65,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
       let pageNumber = pageNum ?? page.current;
       if (!hasMore) return;
       let userId = route.params.userId;
+      if(!userId) return
       console.log({ userId });
       try {
          let { status, data } = await axios.get(
@@ -222,6 +223,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      textAlign: "center",
                      marginTop: 10,
                      fontFamily: "Poppins_500Medium",
+                     color: theme.colors.secondary,
                   }}>
                   {user?.personal?.fullName}
                </Text>

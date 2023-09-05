@@ -45,7 +45,6 @@ import { LoadingBlogComponent } from "./LoadingComponents";
 import { useNavigation } from "@react-navigation/native";
 import { dateAgo } from "../../utils/util";
 
-
 type NSharedBlogComponentProps = {
    blog: Blog;
    commentsCount: number;

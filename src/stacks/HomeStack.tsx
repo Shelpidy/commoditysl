@@ -51,7 +51,6 @@ const RenderHeader = () => {
 };
 
 const HomeStack = (props: HomeStackProps) => {
-   const [socket, _setSocket] = React.useState<Socket | null>(null);
    const isConnectedToInternet = useNetworkStatus();
    const currentUser = useCurrentUser();
    const dispatch = useDispatch();
@@ -61,7 +60,6 @@ const HomeStack = (props: HomeStackProps) => {
          let newSocket = io(
             `http://192.168.1.93:8080/?userId=${currentUser.userId}`
          );
-         _setSocket(newSocket);
          dispatch(setSocket(newSocket));
 
          // cleanup function to close the socket connection when the component unmounts

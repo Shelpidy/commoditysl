@@ -9,10 +9,10 @@ import {
    ScrollView,
    Pressable,
    StatusBar,
+   Dimensions,
 } from "react-native";
 import { Appbar, Avatar, Badge, FAB, useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Drawer } from "react-native-drawer-layout";
 import {
    AntDesign,
    Feather,
@@ -59,14 +59,14 @@ const CustomHeader = () => {
                      setLoading(false);
                   } else {
                      let data = await response.json();
-                     Alert.alert("Failed", data.message);
+                     Alert.alert("Header Failed", data.message);
                   }
                }
 
                setLoading(false);
             } catch (err) {
                console.log(err);
-               Alert.alert("Failed", String(err));
+               Alert.alert("Header Failed", String(err));
                setLoading(false);
             }
          };
@@ -127,8 +127,8 @@ const CustomHeader = () => {
    };
    if (router.name === "ChatScreen") return null;
    return (
-      <Appbar.Header style={{ alignItems: "center", backgroundColor: "#fff" }}>
-         <ScrollView horizontal>
+      <Appbar.Header style={{ alignItems: "center"}}>
+         <View style={{justifyContent:'center',gap:5,flexDirection:'row',width:Dimensions.get("window").width}}>
             {/* <Appbar.Content title="C" /> */}
             {navigation.canGoBack() && router.name !== "HomeScreen" && (
                <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -302,7 +302,7 @@ const CustomHeader = () => {
             />
             {/* <Appbar.Action icon={()=><Feather size={20} name='users'/>} onPress={() =>setOpen(!open)} /> */}
             <Pressable
-               style={{ marginTop: 9, marginRight: 10 }}
+               style={{ marginTop: 9, marginRight: 10,right:5 }}
                onPress={() =>
                   gotoNextScreen("ProfileScreen", {
                      userId: currentUser?.userId,
@@ -318,7 +318,7 @@ const CustomHeader = () => {
                 
                </Text> */}
             </Pressable>
-         </ScrollView>
+         </View>
       </Appbar.Header>
    );
 };

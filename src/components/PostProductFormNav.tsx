@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { Fontisto } from "@expo/vector-icons";
 import { Skeleton } from "@rneui/base";
 import { useCurrentUser } from "../utils/CustomHooks";
-import { Avatar } from "react-native-paper";
+import { Avatar, useTheme } from "react-native-paper";
 import axios from "axios";
 
 type PostProductFormNavProps = {
@@ -25,6 +25,7 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
    const [loading, setLoading] = useState<boolean>(false);
    const currentUser = useCurrentUser();
    const { width, height } = Dimensions.get("window");
+   const theme = useTheme()
 
    useEffect(
       function () {
@@ -44,12 +45,12 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
                      console.log("User Top-----", data.data);
                      setUser(data.data.personal);
                   } else {
-                     Alert.alert("Failed", data.message);
+                     Alert.alert("Post Failed", data.message);
                   }
                }
             } catch (err) {
                console.log(err);
-               Alert.alert("Failed", String(err));
+               Alert.alert("Post Failed", String(err));
             }
          };
          fetchData();
@@ -101,10 +102,10 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
             flexDirection: "row",
             alignItems: "center",
             paddingHorizontal: 10,
-            paddingVertical: 5,
+            paddingVertical: 8,
          }}>
          <Pressable onPress={gotoUserProfile}>
-            <Avatar.Image source={{ uri: user.profileImage }} size={40} />
+            <Avatar.Image source={{ uri: user.profileImage }} size={45} />
          </Pressable>
          <View
             style={{
@@ -123,7 +124,7 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
                }
                style={{
                   flex: 1,
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor:theme.colors.inverseOnSurface,
                   borderTopLeftRadius: 20,
                   borderBottomLeftRadius: 20,
                   height: 50,
@@ -139,7 +140,7 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
                   justifyContent: "center",
                   borderTopRightRadius: 20,
                   borderBottomRightRadius: 20,
-                  backgroundColor: "#ffffff",
+                  backgroundColor:theme.colors.inverseOnSurface,
                }}>
                <Fontisto size={20} name="photograph" />
             </Pressable>

@@ -81,4 +81,4 @@ const FindFriendsComponent = ({ navigation }: any) => {
    );
 };
 
-export default FindFriendsComponent;
+export default React.memo(FindFriendsComponent);

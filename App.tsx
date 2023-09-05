@@ -47,14 +47,11 @@ import AuthStack from "./src/stacks/AuthStack";
 import StartUpLoadingScreen from "./src/screens/StartUpLoadingScreen";
 import { Provider } from "react-redux";
 import store from "./src/redux/store";
-import * as Linking from "expo-linking"
+import * as Linking from "expo-linking";
 
 // 192.168.0.102
 
-
-const linkConfig = {
-
-}
+const linkConfig = {};
 
 const MainStack = createNativeStackNavigator();
 
@@ -66,59 +63,58 @@ const { LightTheme, DarkTheme } = adaptNavigationTheme({
 const CombinedDefaultTheme = merge(MD3LightTheme, LightTheme);
 const CombinedDarkTheme = merge(MD3DarkTheme, DarkTheme);
 
-
 const linking = {
-   prefixes:[Linking.createURL("/"),"com.commodity.sl"],
+   prefixes: [Linking.createURL("/"), "com.commodity.sl"],
    config: {
-      screens:{
-       AuthStack:{
-         path:"auth",
-         screens:{
-            LoginScreen: 'login',
-            RegistrationScreen: 'register',
-            RegistrationEmailVerificationScreen: 'register/verify',
-         }
-       },
-       HomeStack: {
-         path:'/',
-         screens:{
-            HomeScreen: 'home',
-            ProfileScreen: 'profile',
-            SettingsScreen: 'settings',
-            PostScreen: 'post',
-            TransferMoneyScreen: 'transfer-money',
-            NotificationScreen: 'notifications',
-            FollowersScreen: 'followers',
-            TransfereesScreen: 'transferees',
-            FollowingsScreen: 'followings',
-            UserProfileScreen: 'user-profile',
-            CommentsViewerScreen: 'comments-viewer',
-            FullPostViewScreen: 'full-post-view',
-            FullSharedPostViewScreen: 'full-shared-post-view',
-            ConversationsScreen: 'conversations',
-            BuyCommodityScreen: 'buy-commodity',
-            SearchScreen: 'search',
-            ChatScreen:"chat"
-         }
-       // Add other route names and their corresponding URLs here
-     },
-      }
-}
-}
+      screens: {
+         AuthStack: {
+            path: "auth",
+            screens: {
+               LoginScreen: "login",
+               RegistrationScreen: "register",
+               RegistrationEmailVerificationScreen: "register/verify",
+            },
+         },
+         HomeStack: {
+            path: "/",
+            screens: {
+               HomeScreen: "home",
+               ProfileScreen: "profile",
+               SettingsScreen: "settings",
+               PostScreen: "posts",
+               TransferMoneyScreen: "transfer-money",
+               NotificationScreen: "notifications",
+               FollowersScreen: "followers",
+               TransfereesScreen: "transferees",
+               FollowingsScreen: "followings",
+               UserProfileScreen: "user-profile",
+               CommentsViewerScreen: "comments-viewer",
+               FullPostViewScreen: "full-post-view",
+               FullSharedPostViewScreen: "full-shared-post-view",
+               ConversationsScreen: "conversations",
+               BuyCommodityScreen: "buy-commodity",
+               SearchScreen: "search",
+               ChatScreen: "chats",
+            },
+            // Add other route names and their corresponding URLs here
+         },
+      },
+   },
+};
 
+function LayoutContainer({ toggleTheme }: { toggleTheme: () => void }) {
+   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
-function LayoutContainer({toggleTheme}:{toggleTheme:()=>void}) {
- 
-   const [isDarkMode,setIsDarkMode] = useState<boolean>(false)
-
-   const hanleToggleTheme = ()=>{
-      setIsDarkMode(!isDarkMode)
-      toggleTheme()
-   }
+   const hanleToggleTheme = () => {
+      setIsDarkMode(!isDarkMode);
+      toggleTheme();
+   };
 
    let newTheme = useTheme();
    return (
-      <NavigationContainer theme={isDarkMode?CombinedDarkTheme:CombinedDefaultTheme} linking={linking}>
+      <NavigationContainer
+         theme={isDarkMode ? CombinedDarkTheme : CombinedDefaultTheme}
+         linking={linking}>
          <StatusBar
             backgroundColor={newTheme.colors.primary}
             style="light"></StatusBar>
@@ -138,7 +134,7 @@ function LayoutContainer({toggleTheme}:{toggleTheme:()=>void}) {
 
 export default function App() {
    const [loading, setLoading] = React.useState(true);
-   const [isDarkMode,setIsDarkMode] = useState<boolean>(false)
+   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
    LogBox.ignoreAllLogs();
    let [fontsLoaded] = useFonts({
       Poppins_100Thin,
@@ -173,7 +169,7 @@ export default function App() {
    return (
       <Provider store={store}>
          <PaperProvider theme={CombinedDefaultTheme}>
-            <LayoutContainer toggleTheme={()=>setIsDarkMode(!isDarkMode)}/>
+            <LayoutContainer toggleTheme={() => setIsDarkMode(!isDarkMode)} />
          </PaperProvider>
       </Provider>
    );

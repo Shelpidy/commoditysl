@@ -37,7 +37,6 @@ import HTML from "react-native-render-html";
 import { useNavigation } from "@react-navigation/native";
 import { dateAgo } from "../../utils/util";
 
-
 type BlogComponentProps = {
    blog: Blog;
    commentsCount: number;

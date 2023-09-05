@@ -39,8 +39,8 @@ const BlogsComponent = () => {
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
 
    let fetchData = async (pageNum?: number) => {
-      console.log("Fetching posts");
-      let pageNumber = pageNum ?? page.current;
+      console.log("Fetching blog posts");
+      let pageNumber = pageNum || page.current;
       if (!hasMore) return;
       try {
          if (currentUser) {
@@ -71,11 +71,12 @@ const BlogsComponent = () => {
                // Alert.alert("Success",data.message)
             } else {
                Alert.alert("Failed", data.message);
+               console.log(data.message)
                setLoadingFetch(false);
             }
          }
       } catch (err) {
-         Alert.alert("Failed", String(err));
+         Alert.alert("Failed Fetching", String(err));
          console.log(err);
          setLoadingFetch(false);
       }
@@ -83,8 +84,14 @@ const BlogsComponent = () => {
 
    const handleLoadMore = () => {
       console.log("blogs Reached end");
-      if (loadingFetch) return;
-      fetchData();
+      if (loadingFetch){
+
+      }
+      else if(blogs && blogs.length < numberOfblogsPerPage){}
+       else{
+         fetchData();
+       }
+   
    };
 
    const renderFooter = () => {
@@ -144,7 +151,7 @@ const BlogsComponent = () => {
             }
          }}
          onEndReached={handleLoadMore}
-         onEndReachedThreshold={0.3}
+         onEndReachedThreshold={0.9}
          ListFooterComponent={renderFooter}
       />
    );

@@ -32,7 +32,13 @@ import { AVPlaybackStatus, Audio, ResizeMode, Video } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import config from ".././aws-config";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { setSocket } from "../redux/action";
+import { dateAgo } from "../utils/util";
+
+
+
 
 type ChatBoxProps = {
    onSend: () => void;
@@ -217,11 +223,11 @@ const ChatScreen = ({ route, navigation }: any) => {
       false
    );
    const currentUser = useCurrentUser();
-   const [secondUser, setSecondUser] = useState<User>();
+   const [secondUser, setSecondUser] = useState<User>(route.params.user);
    const [sound, setSound] = useState<Audio.Sound | null>(null);
    const { socket } = useSelector((state: any) => state.rootReducer);
    const isOnline = useNetworkStatus();
-   const [lastSeen, setLastSeen] = useState<any>();
+   const [lastSeen, setLastSeen] = useState<string | Date>(route.params.user.lastSeenStatus);
    const [typing, setTyping] = useState<boolean | null>(false);
    const [gesture, setGesture] = useState<string>("");
    const [sent, setSent] = useState<boolean>(false);
@@ -249,28 +255,22 @@ const ChatScreen = ({ route, navigation }: any) => {
    const [audioCurentMillis, setAudioCurrentMillis] = useState<number | null>(
       null
    );
-
-   const generateRoomId = (secUserId: any, activeUserId: any) => {
-      let maxId = Math.max(secUserId, activeUserId);
-      let minId = Math.min(secUserId, activeUserId);
-      return Number(`${maxId}${minId}`);
-   };
+   const dispatch = useDispatch();
 
    ////// RECONNECT TO SOCKET FOR CHAT ////////////////////////////
 
-   // React.useEffect(() => {
-   //    if (currentUser) {
-   //       let newSocket = io(
-   //          `http://192.168.1.93:8080/?userId=${currentUser.userId}&roomId=${route.params?.roomId}`
-   //       );
-   //       setSocket(newSocket);
-
-   //       // cleanup function to close the socket connection when the component unmounts
-   //       return () => {
-   //          newSocket.close();
-   //       };
-   //    }
-   // }, [currentUser]);
+   React.useEffect(() => {
+      if (currentUser) {
+         let newSocket = io(
+            `http://192.168.1.93:8080/?userId=${currentUser.userId}&roomId=${route.params?.roomId}`
+         );
+         dispatch(setSocket(newSocket));
+         // cleanup function to close the socket connection when the component unmounts
+         return () => {
+            newSocket.close();
+         };
+      }
+   }, [currentUser]);
 
    //////////////////// ADD USER STATUS TO AS BEING IN THIS ROOM/////////////////
 
@@ -287,39 +287,38 @@ const ChatScreen = ({ route, navigation }: any) => {
 
    //////////////////////////////// GET SECOND USER STATUS ///////////////////////////
 
-   useEffect(() => {
-      if (route.params) {
-         // console.log("Fetching status");
-         let secUserId = route.params.user.id;
+   // useEffect(() => {
+   //    if (route.params) {
+   //       // console.log("Fetching status");
+   //       let secUserId = route.params.userId;
 
-         let fetchData = async () => {
-            try {
-               let resp = await fetch(
-                  `http://192.168.1.93:8080/userstatus/${secUserId}`,
-                  { method: "GET" }
-               );
-               if (resp.ok) {
-                  let data = await resp.json();
-                  // console.log("Status", data);
-                  if (data.data.online) {
-                     setLastSeen("online");
-                  } else {
-                     let lastSeenDate = moment(data.data.updatedAt).fromNow();
-                     setLastSeen(lastSeenDate);
-                  }
-               } else {
-                  let data = await resp.json();
-                  Alert.alert("Failed", data.message);
-               }
-            } catch (err) {
-               // console.log(err);
-               Alert.alert("Failed", String(err));
-               setLoading(false);
-            }
-         };
-         fetchData();
-      }
-   }, [resetLastSeen]);
+   //       let fetchData = async () => {
+   //          try {
+   //             let {data,status} = await axios.get(
+   //                `http://192.168.1.93:8080/status/${secUserId}`,
+   //                {headers:{Authorization:`Bearer ${currentUser?.token}`}}
+                  
+   //             );
+   //             if (status === 200) {
+   //                if (data.data.online) {
+   //                   setLastSeen("online");
+   //                } else {
+   //                   let lastSeenDate = moment(data.data.updatedAt).fromNow();
+   //                   setLastSeen(lastSeenDate);
+   //                }
+   //             } else {
+   //                Alert.alert("Failed", data.message);
+   //                setLoading(false)
+   //             }
+   //          } catch (err) {
+   //             // console.log(err);
+   //             Alert.alert("Failed", String(err));
+   //             setLoading(false);
+   //          }
+   //       };
+   //       fetchData();
+   //    }
+   // }, [resetLastSeen]);
 
    ///// LISTEN FOR WHEN A USER LEAVES THE SCREEN //////////
 
@@ -338,11 +337,11 @@ const ChatScreen = ({ route, navigation }: any) => {
       return unsubscribe;
    }, [navigation]);
 
-   useEffect(() => {
-      let secUser = route.params.user;
-      // console.log(secUser);
-      setSecondUser(secUser);
-   }, []);
+   // useEffect(() => {
+   //    let secUser = route.params.user;
+   //    // console.log(secUser);
+   //    setSecondUser(secUser);
+   // }, []);
 
    useEffect(() => {
       //// Updating Online Status//////////
@@ -402,9 +401,9 @@ const ChatScreen = ({ route, navigation }: any) => {
                   setLastSeen("online");
                } else {
                   let lastSeenDate = moment(data.updatedAt).fromNow();
-                  setLastSeen(lastSeenDate);
+                  setLastSeen(data.updatedAt);
                }
-               setResetLastSeen(resetLastSeen + 1);
+               // setResetLastSeen(resetLastSeen + 1);
             }
          });
 
@@ -430,6 +429,9 @@ const ChatScreen = ({ route, navigation }: any) => {
       }
    }, [socket, currentUser]);
 
+
+   /// GET ALL MESSAGES /////
+
    useEffect(() => {
       if (currentUser && currentPage) {
          // console.log("Fetching chats");
@@ -439,18 +441,25 @@ const ChatScreen = ({ route, navigation }: any) => {
 
          let fetchData = async () => {
             try {
-               let resp = await fetch(
-                  `http://192.168.1.93:8080/messages/${roomId}/${currentPage}/${numberOfChatsRecord}`,
-                  { method: "GET" }
+               let {data,status} = await axios.get(
+                  `http://192.168.1.93:8080/messages/${roomId}?pageNumber=${currentPage}&numberOfRecords=${numberOfChatsRecord}`,
+                  {headers:{Authorization:`Bearer ${currentUser?.token}`}}
                );
-               let { messages: chatMessages, count } = await resp.json();
-               // console.log("Chats Messages", chatMessages);
-               setTotalChats(count);
-               if (messages && currentPage > 1) {
-                  setMessages([...messages, ...chatMessages]);
-               } else {
-                  setMessages(chatMessages);
+               if(status === 200){
+                  let { messages: chatMessages, count } = data.data;
+                  // console.log("Chats Messages", chatMessages);
+                  setTotalChats(count);
+                  if (messages && currentPage > 1) {
+                     setMessages([...messages, ...chatMessages]);
+                  } else {
+                     setMessages(chatMessages);
+                  }
+
+               }else{
+                  Alert.alert("Failed", data.message);
                }
+               setLoading(false)
+              
             } catch (err) {
                // console.log(err);
                Alert.alert("Failed", String(err));
@@ -592,7 +601,7 @@ const ChatScreen = ({ route, navigation }: any) => {
       let roomId = route.params.roomId;
       let sendData = {
          senderId: currentUser?.userId,
-         recipientId: route.params.user.id,
+         recipientId: route.params.user.userId,
          text: textValue,
          roomId: roomId,
          image: _image,
@@ -692,16 +701,26 @@ const ChatScreen = ({ route, navigation }: any) => {
                         }}>
                         {gesture}
                      </Text>
+                     {typeof lastSeen === typeof Date ?
                      <Text
                         style={{
                            fontFamily: "Poppins_300Light",
                            color: theme.colors.inversePrimary,
-                           marginRight: 1,
+                           marginRight: 10,
                            fontSize: 12,
                            alignSelf: "flex-end",
                         }}>
-                        {lastSeen}
-                     </Text>
+                        {dateAgo(lastSeen as Date)}
+                     </Text>: <Text
+                        style={{
+                           fontFamily: "Poppins_300Light",
+                           color: theme.colors.inversePrimary,
+                           marginRight: 10,
+                           fontSize: 12,
+                           alignSelf: "flex-end",
+                        }}>
+                        {lastSeen as string}
+                     </Text>}
                   </View>
                </View>
             )}
@@ -722,6 +741,11 @@ const ChatScreen = ({ route, navigation }: any) => {
                      onTextInput={(v) => setTextValue(v)}
                   />
                )}
+               showUserAvatar
+               // alwaysShowSend
+               // renderAvatarOnTop
+               // renderAvatar={}
+               
                // renderAvatar = {() => null }
                renderBubble={(props) => {
                   ///////// Audion Playing ///////////////////////
@@ -1000,7 +1024,7 @@ const ChatScreen = ({ route, navigation }: any) => {
                showAvatarForEveryMessage={true}
                messages={messages}
                user={{
-                  _id: route.params.user.id,
+                  _id: route.params.user.userId,
                }}
             />
          </View>

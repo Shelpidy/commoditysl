@@ -1,0 +1,39 @@
+{
+   "project_info": {
+      "project_number": "966126498365",
+      "project_id": "commodity-aca4d",
+      "storage_bucket": "commodity-aca4d.appspot.com"
+   },
+   "client": [
+      {
+         "client_info": {
+            "mobilesdk_app_id": "1:966126498365:android:7e883718a779984d813054",
+            "android_client_info": {
+               "package_name": "com.commodity.sl"
+            }
+         },
+         "oauth_client": [
+            {
+               "client_id": "966126498365-g1mcst9ghv1ou7dhhrdo2lajen4etuvd.apps.googleusercontent.com",
+               "client_type": 3
+            }
+         ],
+         "api_key": [
+            {
+               "current_key": "AIzaSyDs0PwE-bLCgqVWGKiLFoGvYZ63pjXmLp4"
+            }
+         ],
+         "services": {
+            "appinvite_service": {
+               "other_platform_oauth_client": [
+                  {
+                     "client_id": "966126498365-g1mcst9ghv1ou7dhhrdo2lajen4etuvd.apps.googleusercontent.com",
+                     "client_type": 3
+                  }
+               ]
+            }
+         }
+      }
+   ],
+   "configuration_version": "1"
+}

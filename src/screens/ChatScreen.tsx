@@ -38,8 +38,6 @@ import { setSocket } from "../redux/action";
 import { dateAgo } from "../utils/util";
 
 
-
-
 type ChatBoxProps = {
    onSend: () => void;
    onTextInput: (v: string) => void;
@@ -607,6 +605,7 @@ const ChatScreen = ({ route, navigation }: any) => {
          image: _image,
          video: _video,
          audio: _audio,
+         notificationTokens:currentUser?.notificationTokens
       };
       console.log(sendData, roomId);
       socket?.emit(roomId, sendData);

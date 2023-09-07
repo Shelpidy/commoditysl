@@ -50,7 +50,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             <Tabs style={{justifyContent:"center",width:width - 30}} tabLabelStyle={{fontFamily:"Poppins_400Regular",fontSize:12}} uppercase={false} mode='fixed'  tabHeaderStyle={{justifyContent:'center',alignSelf:'center',padding:0,height:0.05*height,marginBottom:5}}>
                <TabScreen  label="Following">
                <ScrollView>
-                  <Button  onPress={()=> Linking.openURL("exp://192.168.1.93:8081/--/notifications")}>Go to Notification</Button>
+                  <Button  onPress={()=> Linking.openURL("com.commodity.sl:/notifications")}>Go to Notification</Button>
                <PostProductFormNav page="post" navigation={navigation} />
                <FindFriendsComponent navigation={navigation} />
                   <BlogsComponent />

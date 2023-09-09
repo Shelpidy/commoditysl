@@ -29,7 +29,7 @@ const TransferMoneyForm = ({ navigation }: TransferMoneyFormProps) => {
       };
       try {
          let resp = await fetch(
-            "http://192.168.1.93:5000/transactions/sendcommodity",
+            "http://192.168.1.98:5000/transactions/sendcommodity",
             {
                method: "POST",
                body: JSON.stringify(postObj),

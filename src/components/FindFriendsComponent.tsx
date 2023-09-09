@@ -31,7 +31,7 @@ const FindFriendsComponent = ({ navigation }: any) => {
                   let activeUserId = currentUser?.userId;
                   console.log(currentUser);
                   let { status, data } = await axios.get(
-                     `http://192.168.1.93:6000/follows/unfollowing/${activeUserId}`,
+                     `http://192.168.1.98:6000/follows/unfollowing/${activeUserId}`,
                      {
                         headers: {
                            Authorization: `Bearer ${currentUser?.token}`,

@@ -41,7 +41,7 @@ const LoginForm = ({ navigation }: LoginFormProps) => {
             };
 
             let { status, data } = await axios.post(
-               `http://192.168.1.93:5000/auth/users/login/`,
+               `http://192.168.1.98:5000/auth/users/login/`,
                loginObj
             );
 

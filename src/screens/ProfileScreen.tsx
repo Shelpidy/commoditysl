@@ -65,11 +65,11 @@ const ProfileScreen = ({ navigation, route }: any) => {
       let pageNumber = pageNum ?? page.current;
       if (!hasMore) return;
       let userId = route.params.userId;
-      if(!userId) return
+      if (!userId) return;
       console.log({ userId });
       try {
          let { status, data } = await axios.get(
-            `http://192.168.1.93:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfPostsPerPage}`,
+            `http://192.168.1.98:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfPostsPerPage}`,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
@@ -147,7 +147,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
          //  let activeUserId = 1
          try {
             let { status, data } = await axios.get(
-               `http://192.168.1.93:5000/auth/users/${route.params.userId}`,
+               `http://192.168.1.98:5000/auth/users/${route.params.userId}`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
             );
             if (status === 200) {

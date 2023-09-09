@@ -63,7 +63,7 @@ const NotificationScreen = ({ navigation }: any) => {
             let activeUserId = currentUser?.userId;
             try {
                let { data, status } = await axios.get(
-                  `http://192.168.1.93:5000/notifications/${activeUserId}`,
+                  `http://192.168.1.98:5000/notifications/${activeUserId}`,
                   { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
                if (status === 200) {

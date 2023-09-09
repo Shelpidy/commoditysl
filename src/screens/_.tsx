@@ -30,7 +30,7 @@
 //             let activeUserId = 1;
 //             try {
 //                let response = await fetch(
-//                   `http://192.168.1.93:5000/marketing/products/request/${activeUserId}`
+//                   `http://192.168.1.98:5000/marketing/products/request/${activeUserId}`
 //                );
 //                let data = await response.json();
 //                if (data.status == "success") {

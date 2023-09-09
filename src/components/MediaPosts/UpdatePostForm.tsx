@@ -96,7 +96,7 @@ const UpdatePostForm = (blog: NBlogComponentProps) => {
       // postObj.images = uploadedImageURLs;
       try {
          let response = await axios.put(
-            "http://192.168.1.93:6000/blogs/",
+            "http://192.168.1.98:6000/blogs/",
             postObj
          );
          if (response.status === 202) {

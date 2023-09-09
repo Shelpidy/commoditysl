@@ -73,7 +73,7 @@ const CommentComponent = (props: CommentProps) => {
             let commentId = props.comment.commentId;
             console.log(commentId, currentUser);
             let { status, data } = await axios.get(
-               `http://192.168.1.93:6000/comments/${commentId}?pageNumber=${pageNumber}&numberOfRecords=5`,
+               `http://192.168.1.98:6000/comments/${commentId}?pageNumber=${pageNumber}&numberOfRecords=5`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
             );
             if (status === 200) {
@@ -136,7 +136,7 @@ const CommentComponent = (props: CommentProps) => {
       console.log("ReplyObj", replyObj);
       try {
          let { data, status } = await axios.post(
-            `http://192.168.1.93:6000/comments/${comment.commentId}/replies/`,
+            `http://192.168.1.98:6000/comments/${comment.commentId}/replies/`,
             replyObj,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
@@ -163,7 +163,7 @@ const CommentComponent = (props: CommentProps) => {
          setLoading(true);
          let activeUserId = currentUser?.userId;
          let { data, status } = await axios.put(
-            `http://192.168.1.93:6000/comments/${commentId}/likes/`,
+            `http://192.168.1.98:6000/comments/${commentId}/likes/`,
             { userId: activeUserId },
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
@@ -190,7 +190,7 @@ const CommentComponent = (props: CommentProps) => {
          try {
             let putObj = { text: commentText, userId: comment?.userId };
             let response = await axios.put(
-               "`http://192.168.1.93:6000/comments",
+               "`http://192.168.1.98:6000/comments",
                putObj
             );
             if (response.status == 202) {

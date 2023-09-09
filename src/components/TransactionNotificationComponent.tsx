@@ -39,7 +39,7 @@ const TransactionNotificationComponent = ({
          //  let activeUserId = 1
          try {
             let { status, data } = await axios.get(
-               `http://192.168.1.93:5000/auth/users/${notification.notificationFromId}`,
+               `http://192.168.1.98:5000/auth/users/${notification.notificationFromId}`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
             );
             if (status === 200) {
@@ -68,7 +68,7 @@ const TransactionNotificationComponent = ({
    //       //  let activeUserId = 1
    //       try {
    //          let response = await fetch(
-   //             `http://192.168.1.93:5000/auth/users/${notification.notificationFrom}`,
+   //             `http://192.168.1.98:5000/auth/users/${notification.notificationFrom}`,
    //             { method: "GET" }
    //          );
    //          let data = await response.json();
@@ -94,7 +94,7 @@ const TransactionNotificationComponent = ({
       let notId = notification.notificationId;
       try {
          let { data } = await axios.get(
-            `http://192.168.1.93:5000/notifications/read/${notId}`,
+            `http://192.168.1.98:5000/notifications/read/${notId}`,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
          if (data.status == "success") {

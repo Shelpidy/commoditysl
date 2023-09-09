@@ -58,7 +58,7 @@ const HomeStack = (props: HomeStackProps) => {
    React.useEffect(() => {
       if (currentUser) {
          let newSocket = io(
-            `http://192.168.1.93:8080/?userId=${currentUser.userId}`
+            `http://192.168.1.98:8080/?userId=${currentUser.userId}`
          );
          dispatch(setSocket(newSocket));
 

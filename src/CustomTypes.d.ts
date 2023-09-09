@@ -5,7 +5,7 @@ declare type CurrentUser = {
    deviceId: string;
    followingIds: string[];
    token: string;
-   notificationTokens:string[]
+   notificationTokens: string[];
 };
 
 declare type BlogComment = {

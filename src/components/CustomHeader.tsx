@@ -47,7 +47,7 @@ const CustomHeader = () => {
             try {
                if (currentUser) {
                   let response = await fetch(
-                     `http://192.168.1.93:5000/auth/users/${currentUser?.userId}`,
+                     `http://192.168.1.98:5000/auth/users/${currentUser?.userId}`,
                      { method: "GET" }
                   );
 
@@ -127,8 +127,14 @@ const CustomHeader = () => {
    };
    if (router.name === "ChatScreen") return null;
    return (
-      <Appbar.Header style={{ alignItems: "center"}}>
-         <View style={{justifyContent:'center',gap:5,flexDirection:'row',width:Dimensions.get("window").width}}>
+      <Appbar.Header style={{ alignItems: "center" }}>
+         <View
+            style={{
+               justifyContent: "center",
+               gap: 5,
+               flexDirection: "row",
+               width: Dimensions.get("window").width,
+            }}>
             {/* <Appbar.Content title="C" /> */}
             {navigation.canGoBack() && router.name !== "HomeScreen" && (
                <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -302,7 +308,7 @@ const CustomHeader = () => {
             />
             {/* <Appbar.Action icon={()=><Feather size={20} name='users'/>} onPress={() =>setOpen(!open)} /> */}
             <Pressable
-               style={{ marginTop: 9, marginRight: 10,right:5 }}
+               style={{ marginTop: 9, marginRight: 10, right: 5 }}
                onPress={() =>
                   gotoNextScreen("ProfileScreen", {
                      userId: currentUser?.userId,

@@ -37,7 +37,7 @@ const FindFriendComponent = ({ user }: FindFriendProps) => {
       setLoading(true);
       try {
          let { data, status } = await axios.put(
-            `http://192.168.1.93:6000/follows/`,
+            `http://192.168.1.98:6000/follows/`,
             { followerId: currentUser?.userId, followingId: user?.userId },
             {
                headers: {

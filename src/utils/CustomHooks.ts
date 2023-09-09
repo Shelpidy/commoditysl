@@ -43,7 +43,7 @@ export const useCurrentUser = () => {
             if (loginToken) {
                const decodedToken: Omit<CurrentUser, "token"> =
                   jwtDecode(loginToken);
-               setCurrentUser({ ...decodedToken, token: loginToken});
+               setCurrentUser({ ...decodedToken, token: loginToken });
             }
          } catch (err) {
             console.log(err);

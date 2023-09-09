@@ -77,7 +77,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
             // setBlogs(route.params)
             try {
                let { data, status } = await axios.get(
-                  `http://192.168.1.93:6000/blogs/${blogId}`,
+                  `http://192.168.1.98:6000/blogs/${blogId}`,
                   { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
                if (status === 200) {
@@ -138,7 +138,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       console.log("CommentObj", commentObj);
       try {
          let { data, status } = await axios.post(
-            `http://192.168.1.93:6000/blogs/${blog?.blogId}/comments/`,
+            `http://192.168.1.98:6000/blogs/${blog?.blogId}/comments/`,
             commentObj,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
@@ -178,7 +178,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       console.log(blogObj);
       try {
          let response = await axios.post(
-            "http://192.168.1.93:6000/blogs/",
+            "http://192.168.1.98:6000/blogs/",
             blogObj
          );
          if (response.status === 201) {
@@ -218,7 +218,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    //    console.log(blogObj);
    //    try {
    //       let response = await axios.blog(
-   //          "http://192.168.1.93:5000/media/blogs/",
+   //          "http://192.168.1.98:5000/media/blogs/",
    //          blogObj
    //       );
    //       if (response.status === 201) {
@@ -242,7 +242,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
          setLoading(true);
          let activeUserId = currentUser?.userId;
          let { data, status } = await axios.put(
-            `http://192.168.1.93:6000/blogs/${blogId}/likes/`,
+            `http://192.168.1.98:6000/blogs/${blogId}/likes/`,
             { userId: activeUserId },
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );

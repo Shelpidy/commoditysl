@@ -31,7 +31,7 @@ type HomeScreenProps = {
    navigation: any;
 };
 
-const {width,height} = Dimensions.get("window")
+const { width, height } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
    const currentUser = useCurrentUser();
@@ -45,32 +45,45 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
    }
 
    return (
-       
-         <TabsProvider defaultIndex={1}>
-            <Tabs style={{justifyContent:"center",width:width - 30}} tabLabelStyle={{fontFamily:"Poppins_400Regular",fontSize:12}} uppercase={false} mode='fixed'  tabHeaderStyle={{justifyContent:'center',alignSelf:'center',padding:0,height:0.05*height,marginBottom:5}}>
-               <TabScreen  label="Following">
+      <TabsProvider defaultIndex={1}>
+         <Tabs
+           disableSwipe
+            style={{ justifyContent: "center", width: width - 30 }}
+            tabLabelStyle={{ fontFamily: "Poppins_400Regular", fontSize: 12 }}
+            uppercase={false}
+            mode="fixed"
+            tabHeaderStyle={{
+               justifyContent: "center",
+               alignSelf: "center",
+               padding: 0,
+               height: 0.05 * height,
+               marginBottom: 5,
+            }}>
+            <TabScreen label="Following">
                <ScrollView>
-                  <Button  onPress={()=> Linking.openURL("com.commodity.sl:/notifications")}>Go to Notification</Button>
-               <PostProductFormNav page="post" navigation={navigation} />
-               <FindFriendsComponent navigation={navigation} />
-                  <BlogsComponent />
-
-               </ScrollView>
-               
-               </TabScreen>
-               <TabScreen label="For You">
-                  <ScrollView>
+                  <Button
+                     onPress={() =>
+                        Linking.openURL("com.commodity.sl:/notifications")
+                     }>
+                     Go to Notification
+                  </Button>
                   <PostProductFormNav page="post" navigation={navigation} />
-                 <FindFriendsComponent navigation={navigation} />
+                  <FindFriendsComponent navigation={navigation} />
+                  <BlogsComponent />
+               </ScrollView>
+            </TabScreen>
+            <TabScreen label="For You">
+               <ScrollView>
+                  <PostProductFormNav page="post" navigation={navigation} />
+                  <FindFriendsComponent navigation={navigation} />
                   <ForYouBlogsComponent />
-                  </ScrollView>
-              
-               </TabScreen>
-               <TabScreen icon='plus' label="New">
-                  <PostForm/>
-               </TabScreen>
-            </Tabs>
-         </TabsProvider>
+               </ScrollView>
+            </TabScreen>
+            <TabScreen icon="plus" label="New">
+               <PostForm />
+            </TabScreen>
+         </Tabs>
+      </TabsProvider>
    );
 };
 

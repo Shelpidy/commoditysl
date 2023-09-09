@@ -129,7 +129,7 @@ const SharedBlogComponent = (props: NSharedBlogComponentProps) => {
          setLoading(true);
          let activeUserId = currentUser?.userId;
          let { data, status } = await axios.put(
-            `http://192.168.1.93:5000/blogs/${blogId}/likes/`,
+            `http://192.168.1.98:5000/blogs/${blogId}/likes/`,
             { userId: activeUserId }
          );
          if (status === 202) {

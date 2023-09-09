@@ -3,6 +3,7 @@ import React, { useState, useEffect, useReducer } from "react";
 import ImagesViewer from "../ImagesViewer";
 import VideoPlayer from "../VideoPlayer";
 import TextViewer from "../TextViewer";
+// import {SliderBox} from "react-native-image-slider-box"
 
 import {
    TextInput,
@@ -96,7 +97,7 @@ const BlogComponent = (props: BlogComponentProps) => {
          setLoading(true);
          let activeUserId = currentUser?.userId;
          let { data, status } = await axios.put(
-            `http://192.168.1.93:6000/blogs/${blogId}/likes/`,
+            `http://192.168.1.98:6000/blogs/${blogId}/likes/`,
             { userId: activeUserId },
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
@@ -134,7 +135,7 @@ const BlogComponent = (props: BlogComponentProps) => {
       console.log(postObj);
       try {
          let response = await axios.post(
-            "http://192.168.1.93:6000/blogs/",
+            "http://192.168.1.98:6000/blogs/",
             postObj
          );
          if (response.status === 201) {
@@ -332,6 +333,7 @@ const BlogComponent = (props: BlogComponentProps) => {
             </View>
 
             {props.blog.images && <ImagesViewer images={props.blog.images} />}
+            {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
             {/* {props?.video && <VideoPlayer video={props?.video}/>} */}
          </View>
 

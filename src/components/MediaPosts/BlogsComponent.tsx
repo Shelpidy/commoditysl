@@ -47,7 +47,7 @@ const BlogsComponent = () => {
             setLoadingFetch(true);
             let activeUserId = currentUser?.userId;
             let { data, status } = await axios.get(
-               `http://192.168.1.93:6000/sessions/blogs?pageNumber=${pageNumber}&numberOfRecords=${numberOfblogsPerPage}`,
+               `http://192.168.1.98:6000/sessions/blogs?pageNumber=${pageNumber}&numberOfRecords=${numberOfblogsPerPage}`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
             );
 
@@ -71,7 +71,7 @@ const BlogsComponent = () => {
                // Alert.alert("Success",data.message)
             } else {
                Alert.alert("Failed", data.message);
-               console.log(data.message)
+               console.log(data.message);
                setLoadingFetch(false);
             }
          }
@@ -84,14 +84,11 @@ const BlogsComponent = () => {
 
    const handleLoadMore = () => {
       console.log("blogs Reached end");
-      if (loadingFetch){
-
-      }
-      else if(blogs && blogs.length < numberOfblogsPerPage){}
-       else{
+      if (loadingFetch) {
+      } else if (blogs && blogs.length < numberOfblogsPerPage) {
+      } else {
          fetchData();
-       }
-   
+      }
    };
 
    const renderFooter = () => {

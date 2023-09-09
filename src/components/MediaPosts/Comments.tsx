@@ -49,7 +49,7 @@ const Comments = ({ blogId, userId, refetchId }: CommentsProps) => {
          setLoadingFetch(true);
          if (currentUser && blogId) {
             let { data, status } = await axios.get(
-               `http://192.168.1.93:6000/blogs/${blogId}/comments?pageNumber=${pageNumber}&numberOfRecords=5`,
+               `http://192.168.1.98:6000/blogs/${blogId}/comments?pageNumber=${pageNumber}&numberOfRecords=5`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
             );
 

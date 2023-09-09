@@ -37,7 +37,6 @@ import axios from "axios";
 import { setSocket } from "../redux/action";
 import { dateAgo } from "../utils/util";
 
-
 type ChatBoxProps = {
    onSend: () => void;
    onTextInput: (v: string) => void;
@@ -225,7 +224,9 @@ const ChatScreen = ({ route, navigation }: any) => {
    const [sound, setSound] = useState<Audio.Sound | null>(null);
    const { socket } = useSelector((state: any) => state.rootReducer);
    const isOnline = useNetworkStatus();
-   const [lastSeen, setLastSeen] = useState<string | Date>(route.params.user.lastSeenStatus);
+   const [lastSeen, setLastSeen] = useState<string | Date>(
+      route.params.user.lastSeenStatus
+   );
    const [typing, setTyping] = useState<boolean | null>(false);
    const [gesture, setGesture] = useState<string>("");
    const [sent, setSent] = useState<boolean>(false);
@@ -260,7 +261,7 @@ const ChatScreen = ({ route, navigation }: any) => {
    React.useEffect(() => {
       if (currentUser) {
          let newSocket = io(
-            `http://192.168.1.93:8080/?userId=${currentUser.userId}&roomId=${route.params?.roomId}`
+            `http://192.168.1.98:8080/?userId=${currentUser.userId}&roomId=${route.params?.roomId}`
          );
          dispatch(setSocket(newSocket));
          // cleanup function to close the socket connection when the component unmounts
@@ -293,9 +294,9 @@ const ChatScreen = ({ route, navigation }: any) => {
    //       let fetchData = async () => {
    //          try {
    //             let {data,status} = await axios.get(
-   //                `http://192.168.1.93:8080/status/${secUserId}`,
+   //                `http://192.168.1.98:8080/status/${secUserId}`,
    //                {headers:{Authorization:`Bearer ${currentUser?.token}`}}
-                  
+
    //             );
    //             if (status === 200) {
    //                if (data.data.online) {
@@ -427,7 +428,6 @@ const ChatScreen = ({ route, navigation }: any) => {
       }
    }, [socket, currentUser]);
 
-
    /// GET ALL MESSAGES /////
 
    useEffect(() => {
@@ -439,11 +439,11 @@ const ChatScreen = ({ route, navigation }: any) => {
 
          let fetchData = async () => {
             try {
-               let {data,status} = await axios.get(
-                  `http://192.168.1.93:8080/messages/${roomId}?pageNumber=${currentPage}&numberOfRecords=${numberOfChatsRecord}`,
-                  {headers:{Authorization:`Bearer ${currentUser?.token}`}}
+               let { data, status } = await axios.get(
+                  `http://192.168.1.98:8080/messages/${roomId}?pageNumber=${currentPage}&numberOfRecords=${numberOfChatsRecord}`,
+                  { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
-               if(status === 200){
+               if (status === 200) {
                   let { messages: chatMessages, count } = data.data;
                   // console.log("Chats Messages", chatMessages);
                   setTotalChats(count);
@@ -452,12 +452,10 @@ const ChatScreen = ({ route, navigation }: any) => {
                   } else {
                      setMessages(chatMessages);
                   }
-
-               }else{
+               } else {
                   Alert.alert("Failed", data.message);
                }
-               setLoading(false)
-              
+               setLoading(false);
             } catch (err) {
                // console.log(err);
                Alert.alert("Failed", String(err));
@@ -605,7 +603,7 @@ const ChatScreen = ({ route, navigation }: any) => {
          image: _image,
          video: _video,
          audio: _audio,
-         notificationTokens:currentUser?.notificationTokens
+         notificationTokens: currentUser?.notificationTokens,
       };
       console.log(sendData, roomId);
       socket?.emit(roomId, sendData);
@@ -700,26 +698,29 @@ const ChatScreen = ({ route, navigation }: any) => {
                         }}>
                         {gesture}
                      </Text>
-                     {typeof lastSeen === typeof Date ?
-                     <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           color: theme.colors.inversePrimary,
-                           marginRight: 10,
-                           fontSize: 12,
-                           alignSelf: "flex-end",
-                        }}>
-                        {dateAgo(lastSeen as Date)}
-                     </Text>: <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           color: theme.colors.inversePrimary,
-                           marginRight: 10,
-                           fontSize: 12,
-                           alignSelf: "flex-end",
-                        }}>
-                        {lastSeen as string}
-                     </Text>}
+                     {typeof lastSeen === typeof Date ? (
+                        <Text
+                           style={{
+                              fontFamily: "Poppins_300Light",
+                              color: theme.colors.inversePrimary,
+                              marginRight: 10,
+                              fontSize: 12,
+                              alignSelf: "flex-end",
+                           }}>
+                           {dateAgo(lastSeen as Date)}
+                        </Text>
+                     ) : (
+                        <Text
+                           style={{
+                              fontFamily: "Poppins_300Light",
+                              color: theme.colors.inversePrimary,
+                              marginRight: 10,
+                              fontSize: 12,
+                              alignSelf: "flex-end",
+                           }}>
+                           {lastSeen as string}
+                        </Text>
+                     )}
                   </View>
                </View>
             )}
@@ -744,7 +745,7 @@ const ChatScreen = ({ route, navigation }: any) => {
                // alwaysShowSend
                // renderAvatarOnTop
                // renderAvatar={}
-               
+
                // renderAvatar = {() => null }
                renderBubble={(props) => {
                   ///////// Audion Playing ///////////////////////

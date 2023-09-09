@@ -65,7 +65,7 @@ const UserComponent = ({ _user }: UserComponentProps) => {
    const handleFollow = async () => {
       try {
          let { data } = await axios.put(
-            `http://192.168.1.93:5000/media/follows/`,
+            `http://192.168.1.98:5000/media/follows/`,
             { followerId: currentUser?.userId, followingId: user?.userId },
             { headers: { Accept: "application/json" } }
          );

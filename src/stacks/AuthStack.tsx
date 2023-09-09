@@ -7,7 +7,7 @@ import RegistrationEmailVerificationScreen from "../screens/RegistrationEmailVer
 import * as Notifications from "expo-notifications";
 import { useCurrentUser } from "../utils/CustomHooks";
 import { useTheme } from "react-native-paper";
-import * as Linking from "expo-linking"
+import * as Linking from "expo-linking";
 
 Notifications.setNotificationHandler({
    handleNotification: async () => ({
@@ -33,26 +33,28 @@ export default function AuthStack() {
    let responseListener = useRef<Notifications.Subscription>(null).current;
 
    useEffect(() => {
-      
-     notificationListener = Notifications.addNotificationReceivedListener(notification => {
-       setNotification(notification);
-     });
+      notificationListener = Notifications.addNotificationReceivedListener(
+         (notification) => {
+            setNotification(notification);
+         }
+      );
 
-     responseListener  = Notifications.addNotificationResponseReceivedListener(response => {
-       let {data}= response.notification.request.content
-       console.log(response.notification.request.content);
-       if(data.url){
-         Linking.canOpenURL(data?.url).then(()=>{
-            Linking.openURL(data?.url)
-          })
+      responseListener = Notifications.addNotificationResponseReceivedListener(
+         (response) => {
+            let { data } = response.notification.request.content;
+            console.log(response.notification.request.content);
+            if (data.url) {
+               Linking.canOpenURL(data?.url).then(() => {
+                  Linking.openURL(data?.url);
+               });
+            }
+         }
+      );
 
-       }
-     });
-
-     return () => {
-       Notifications.removeNotificationSubscription(notificationListener!);
-       Notifications.removeNotificationSubscription(responseListener!);
-     };
+      return () => {
+         Notifications.removeNotificationSubscription(notificationListener!);
+         Notifications.removeNotificationSubscription(responseListener!);
+      };
    }, []);
    return (
       <authStack.Navigator screenOptions={{ headerShown: false }}>

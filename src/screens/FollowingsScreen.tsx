@@ -19,7 +19,7 @@ const FollowingsScreen = ({ navigation, route }: any) => {
          let userId = route.params.userId;
          try {
             let response = await fetch(
-               `http://192.168.1.93:6000/follows/followings/${userId}`,
+               `http://192.168.1.98:6000/follows/followings/${userId}`,
                { method: "GET" }
             );
             let data = await response.json();

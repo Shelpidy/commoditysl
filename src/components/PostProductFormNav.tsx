@@ -25,7 +25,7 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
    const [loading, setLoading] = useState<boolean>(false);
    const currentUser = useCurrentUser();
    const { width, height } = Dimensions.get("window");
-   const theme = useTheme()
+   const theme = useTheme();
 
    useEffect(
       function () {
@@ -38,7 +38,7 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
             try {
                if (currentUser) {
                   let { data, status } = await axios.get(
-                     `http://192.168.1.93:5000/auth/users/${currentUser?.userId}`
+                     `http://192.168.1.98:5000/auth/users/${currentUser?.userId}`
                   );
 
                   if (status === 200) {
@@ -124,7 +124,7 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
                }
                style={{
                   flex: 1,
-                  backgroundColor:theme.colors.inverseOnSurface,
+                  backgroundColor: theme.colors.inverseOnSurface,
                   borderTopLeftRadius: 20,
                   borderBottomLeftRadius: 20,
                   height: 50,
@@ -140,7 +140,7 @@ const PostProductFormNav = ({ navigation, page }: PostProductFormNavProps) => {
                   justifyContent: "center",
                   borderTopRightRadius: 20,
                   borderBottomRightRadius: 20,
-                  backgroundColor:theme.colors.inverseOnSurface,
+                  backgroundColor: theme.colors.inverseOnSurface,
                }}>
                <Fontisto size={20} name="photograph" />
             </Pressable>

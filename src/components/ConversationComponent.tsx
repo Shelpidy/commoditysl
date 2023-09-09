@@ -63,7 +63,7 @@ const ConversationComponent = ({
                )[0];
                try {
                   let response = await fetch(
-                     `http://192.168.1.93:5000/users/${secondUserId}`,
+                     `http://192.168.1.98:5000/users/${secondUserId}`,
                      { method: "GET" }
                   );
                   let data = await response.json();
@@ -104,7 +104,7 @@ const ConversationComponent = ({
          let fetchData = async () => {
             try {
                let resp = await fetch(
-                  `http://192.168.1.93:8080/userstatus/${secondUser.userId}`,
+                  `http://192.168.1.98:8080/userstatus/${secondUser.userId}`,
                   { method: "GET" }
                );
                if (resp.ok) {
@@ -195,7 +195,7 @@ const ConversationComponent = ({
       ) {
          try {
             let { data, status } = await axios.put(
-               `http://192.168.1.93:8080/messages/chats/read/${conversation.roomId}/${conversation.recipientId}`
+               `http://192.168.1.98:8080/messages/chats/read/${conversation.roomId}/${conversation.recipientId}`
             );
             if (status === 202) {
                setNewConversation({

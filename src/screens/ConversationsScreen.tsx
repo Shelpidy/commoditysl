@@ -31,7 +31,7 @@ const NewConversationsScreen = () => {
          let fetchData = async () => {
             try {
                let resp = await fetch(
-                  `http://192.168.1.93:8080/messages/chats/${userId}/${currentPage}/${numberOfConversationsRecord}`,
+                  `http://192.168.1.98:8080/messages/chats/${userId}/${currentPage}/${numberOfConversationsRecord}`,
                   { method: "GET" }
                );
                let { chats: newConversations, count } = await resp.json();

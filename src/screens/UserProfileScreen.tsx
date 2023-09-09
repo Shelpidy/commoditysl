@@ -63,7 +63,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
             //  let activeUserId = 1
             try {
                let { data, status } = await axios.get(
-                  `http://192.168.1.93:8080/room/${route.params?.userId}/${currentUser?.userId}`,
+                  `http://192.168.1.98:8080/room/${route.params?.userId}/${currentUser?.userId}`,
                   { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
                if (status === 200) {
@@ -92,7 +92,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
          //  let activeUserId = 1
          try {
             let { status, data } = await axios.get(
-               `http://192.168.1.93:5000/auth/users/${route.params.userId}`,
+               `http://192.168.1.98:5000/auth/users/${route.params.userId}`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
             );
             if (status === 200) {
@@ -120,7 +120,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
       let userId = route.params.userId;
       try {
          let { status, data } = await axios.get(
-            `http://192.168.1.93:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfPostsPerPage}`,
+            `http://192.168.1.98:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfPostsPerPage}`,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
@@ -159,7 +159,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
       setLoading(true);
       try {
          let { data } = await axios.put(
-            `http://192.168.1.93:6000/follows/`,
+            `http://192.168.1.98:6000/follows/`,
             {
                followerId: currentUser?.userId,
                followingId: user?.personal.userId,

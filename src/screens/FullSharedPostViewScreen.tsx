@@ -79,7 +79,7 @@ const FullSharedBlogComponent = ({
             console.log("blog", route.params);
             try {
                let { data, status } = await axios.get(
-                  `http://192.168.1.93:6000/blogs/${blogId}/users/${activeUserId}`
+                  `http://192.168.1.98:6000/blogs/${blogId}/users/${activeUserId}`
                );
                if (status === 200) {
                   console.log(data.data);
@@ -141,7 +141,7 @@ const FullSharedBlogComponent = ({
       console.log("CommentObj", commentObj);
       try {
          let { data, status } = await axios.post(
-            `http://192.168.1.93:6000/comments/`,
+            `http://192.168.1.98:6000/comments/`,
             commentObj
          );
          if (status === 201) {
@@ -180,7 +180,7 @@ const FullSharedBlogComponent = ({
       console.log(blogObj);
       try {
          let response = await axios.post(
-            "http://192.168.1.93:6000/blogs/",
+            "http://192.168.1.98:6000/blogs/",
             blogObj
          );
          if (response.status === 201) {
@@ -220,7 +220,7 @@ const FullSharedBlogComponent = ({
    //    console.log(blogObj);
    //    try {
    //       let response = await axios.blog(
-   //          "http://192.168.1.93:5000/media/blogs/",
+   //          "http://192.168.1.98:5000/media/blogs/",
    //          blogObj
    //       );
    //       if (response.status === 201) {
@@ -244,7 +244,7 @@ const FullSharedBlogComponent = ({
          setLoading(true);
          let activeUserId = currentUser?.userId;
          let { data } = await axios.put(
-            `http://192.168.1.93:5000/media/blogs/likes/`,
+            `http://192.168.1.98:5000/media/blogs/likes/`,
             { userId: activeUserId, blogId: blogId }
          );
          if (data.status == "success") {

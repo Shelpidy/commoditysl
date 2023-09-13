@@ -20,6 +20,9 @@ const TextEllipse = ({
    onPressViewMore?: () => void;
 }) => {
    const [shortenText, setShortenText] = useState<string>("");
+   const [buttonText, setButtonText] = useState<"show more" | "show less">(
+      "show more"
+   );
    const [loading, setLoading] = useState<boolean>(true);
    const [_style, _setStyle] = useState<TextStyle>({
       fontFamily: "Poppins_300Light",
@@ -40,8 +43,19 @@ const TextEllipse = ({
    }, [textLength, text, style]);
 
    const hanldeViewMore = () => {
-      setShortenText(text);
-      onPressViewMore?.();
+      if (buttonText === "show more") {
+         setShortenText(text);
+         onPressViewMore?.();
+         setButtonText("show less");
+      } else {
+         let txts = text.slice(0, textLength);
+         if (text.length <= textLength) {
+            setShortenText(text);
+         } else {
+            setShortenText(txts + "...");
+         }
+         setButtonText("show more");
+      }
    };
 
    if (loading) return <Text>...</Text>;
@@ -52,7 +66,7 @@ const TextEllipse = ({
             <Text
                onPress={hanldeViewMore}
                style={{ color: theme.colors.primary }}>
-               view more
+               {buttonText}
             </Text>
          </Text>
          {children}

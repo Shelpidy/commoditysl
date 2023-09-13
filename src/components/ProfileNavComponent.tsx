@@ -1,4 +1,11 @@
-import { Alert, Dimensions, StyleSheet, Text, View } from "react-native";
+import {
+   Alert,
+   Dimensions,
+   Pressable,
+   StyleSheet,
+   Text,
+   View,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import {
    AntDesign,
@@ -19,9 +26,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
    const theme = useTheme();
 
    return (
-      <Card mode="contained" style={styles.navs}>
+      <View style={[styles.navs, { backgroundColor: theme.colors.background }]}>
          {currentUser?.userId === user?.userId && (
-            <View style={styles.navLink}>
+            <Pressable
+               onPress={() => navigation.navigate("SettingsScreen")}
+               style={styles.navLink}>
                <AntDesign
                   name="setting"
                   size={20}
@@ -29,15 +38,12 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_500Medium",
+                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Settings
                </Text>
-               <Button onPress={() => navigation.navigate("SettingsScreen")}>
-                  <Entypo name="chevron-thin-right" />
-               </Button>
-            </View>
+            </Pressable>
          )}
          {/* 
          <View style={styles.navLink}>
@@ -48,7 +54,7 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
             />
             <Text
                style={{
-                  fontFamily: "Poppins_500Medium",
+                  fontFamily: "Poppins_400Regular",
                   color: theme.colors.secondary,
                }}>
                Products
@@ -61,7 +67,9 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
             </Button>
          </View> */}
          {currentUser?.userId === user?.userId && (
-            <View style={styles.navLink}>
+            <Pressable
+               onPress={() => navigation.navigate("TransferMoneyScreen")}
+               style={styles.navLink}>
                <MaterialCommunityIcons
                   name="transfer"
                   size={20}
@@ -69,19 +77,17 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_500Medium",
+                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Send Commodity
                </Text>
-               <Button
-                  onPress={() => navigation.navigate("TransferMoneyScreen")}>
-                  <Entypo name="chevron-thin-right" />
-               </Button>
-            </View>
+            </Pressable>
          )}
          {currentUser?.userId === user?.userId && (
-            <View style={styles.navLink}>
+            <Pressable
+               style={styles.navLink}
+               onPress={() => navigation.navigate("BuyCommodityScreen")}>
                <MaterialCommunityIcons
                   name="transfer"
                   size={20}
@@ -89,19 +95,19 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_500Medium",
+                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Buy Commodity
                </Text>
-               <Button
-                  onPress={() => navigation.navigate("BuyCommodityScreen")}>
-                  <Entypo name="chevron-thin-right" />
-               </Button>
-            </View>
+            </Pressable>
          )}
          {currentUser?.userId === user?.userId && (
-            <View style={styles.navLink}>
+            <Pressable
+               style={styles.navLink}
+               onPress={() =>
+                  Alert.alert("", "Your Commodity blanace is C 20000.00")
+               }>
                <MaterialIcons
                   name="account-balance"
                   size={20}
@@ -109,21 +115,15 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_500Medium",
+                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Check Balance
                </Text>
-               <Button
-                  onPress={() =>
-                     Alert.alert("", "Your Commodity blanace is C 20000.00")
-                  }>
-                  <Entypo name="chevron-thin-right" />
-               </Button>
-            </View>
+            </Pressable>
          )}
          {currentUser?.userId === user?.userId && (
-            <View style={styles.navLink}>
+            <Pressable style={styles.navLink}>
                <AntDesign
                   name="logout"
                   size={20}
@@ -131,17 +131,14 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_500Medium",
+                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Logout
                </Text>
-               <Button>
-                  <Entypo name="chevron-thin-right" />
-               </Button>
-            </View>
+            </Pressable>
          )}
-      </Card>
+      </View>
    );
 };
 
@@ -149,22 +146,24 @@ export default ProfileNavComponent;
 
 const styles = StyleSheet.create({
    navs: {
-      backgroundColor: "#fff",
       // flex:1,
       width: width - 30,
       borderRadius: 30,
+      flexDirection: "column",
       // marginBottom:120,
       paddingVertical: 15,
-      paddingHorizontal: 10,
+      paddingHorizontal: 0,
+      flexWrap: "wrap",
    },
    navLink: {
       flexDirection: "row",
+      gap: 10,
       alignItems: "center",
-      justifyContent: "space-between",
+      // justifyContent: "space-between",
       marginVertical: 0,
       // backgroundColor:"#f5f5f5",
-      paddingVertical: 1,
-      paddingHorizontal: 25,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
       borderRadius: 20,
    },
 });

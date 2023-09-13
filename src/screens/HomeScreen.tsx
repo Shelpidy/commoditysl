@@ -47,34 +47,41 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
    return (
       <TabsProvider defaultIndex={1}>
          <Tabs
-           disableSwipe
-            style={{ justifyContent: "center", width: width - 30 }}
-            tabLabelStyle={{ fontFamily: "Poppins_400Regular", fontSize: 12 }}
+            disableSwipe
+            style={{
+               justifyContent: "center",
+               width: width - 30,
+               padding: 0,
+               marginHorizontal: 0,
+               marginBottom: 15,
+            }}
+            tabLabelStyle={{
+               fontFamily: "Poppins_400Regular",
+               fontSize: 12,
+               textAlignVertical: "center",
+               marginBottom: 0,
+               textAlign: "center",
+            }}
             uppercase={false}
             mode="fixed"
             tabHeaderStyle={{
                justifyContent: "center",
                alignSelf: "center",
                padding: 0,
+               margin: 0,
                height: 0.05 * height,
                marginBottom: 5,
             }}>
             <TabScreen label="Following">
                <ScrollView>
-                  <Button
-                     onPress={() =>
-                        Linking.openURL("com.commodity.sl:/notifications")
-                     }>
-                     Go to Notification
-                  </Button>
-                  <PostProductFormNav page="post" navigation={navigation} />
+                  {/* <PostProductFormNav page="post" navigation={navigation} /> */}
                   <FindFriendsComponent navigation={navigation} />
                   <BlogsComponent />
                </ScrollView>
             </TabScreen>
             <TabScreen label="For You">
                <ScrollView>
-                  <PostProductFormNav page="post" navigation={navigation} />
+                  {/* <PostProductFormNav page="post" navigation={navigation} /> */}
                   <FindFriendsComponent navigation={navigation} />
                   <ForYouBlogsComponent />
                </ScrollView>

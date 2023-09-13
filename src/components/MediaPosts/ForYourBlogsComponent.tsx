@@ -146,7 +146,7 @@ const ForYouBlogsComponent = () => {
             }
          }}
          onEndReached={handleLoadMore}
-         onEndReachedThreshold={0.3}
+         onEndReachedThreshold={0.9}
          ListFooterComponent={renderFooter}
       />
    );

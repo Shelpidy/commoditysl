@@ -3,7 +3,7 @@ import React from "react";
 import { View, Text, StyleSheet, Dimensions, ScrollView } from "react-native";
 import { Divider } from "react-native-paper";
 
-const { width } = Dimensions.get("window");
+const { width,height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
    container: {
@@ -90,14 +90,8 @@ export const LoadingFindFriendComponent = () => {
             <Skeleton
                animation="wave"
                style={{ borderRadius: 5 }}
-               width={width / 1.6}
-               height={200}
-            />
-            <Skeleton
-               animation="wave"
-               style={{ borderRadius: 4, marginTop: 4 }}
-               width={width / 1.8}
-               height={30}
+               width={width /2.1}
+               height={height * 0.25}
             />
             <Skeleton
                animation="wave"
@@ -106,7 +100,7 @@ export const LoadingFindFriendComponent = () => {
                   marginVertical: 3,
                   alignSelf: "center",
                }}
-               width={width / 1.7}
+               width={width / 2.2}
                height={40}
             />
          </View>

@@ -5,19 +5,31 @@ import {
    Alert,
    FlatList,
    Dimensions,
+   TextInput,
+   Modal
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import CommentComponent from "./CommentComponent";
-import { Button, Divider, ActivityIndicator } from "react-native-paper";
+import {
+   Button,
+   Divider,
+   ActivityIndicator,
+   useTheme,
+} from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useCurrentUser } from "../../utils/CustomHooks";
 import { Skeleton } from "@rneui/themed";
 import axios from "axios";
+import { Feather, FontAwesome, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import LikesComponent from "../LikesComponent";
 
 type CommentsProps = {
    blogId: string;
    userId?: string;
-   refetchId: number;
+   // setNewCommentsCount: (count: number) => void;
+   _commentsCount: number;
+   _likesCount: number;
+   _liked:boolean
 };
 
 type FetchComment = {
@@ -30,15 +42,38 @@ type FetchComment = {
 
 const { width, height } = Dimensions.get("window");
 
-const Comments = ({ blogId, userId, refetchId }: CommentsProps) => {
+const Comments = ({
+   blogId,
+   userId,
+   _liked,
+   _commentsCount,
+   _likesCount,
+}: CommentsProps) => {
    const [comments, setComments] = useState<BlogComment[] | null>(null);
-   const [loading, setLoading] = useState(false);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
    const page = React.useRef<number>(1);
    const [hasMore, setHasMore] = useState(true);
+   const [textValue, setTextValue] = useState<string>("");
+   const [showTextInput, setShowTextInput] = useState<boolean>(false);
    const navigation = useNavigation<any>();
    const currentUser = useCurrentUser();
-   const [refetchComments, setReFetchComments] = useState<number>(refetchId);
+
+   const [openModal, setOpenModal] = useState<boolean>(false);
+   const [openShareModal, setOpenShareModal] = useState<boolean>(false);
+   const [commentsCount, setCommentsCount] = useState<number>(_commentsCount);
+   const [blog, setBlog] = useState<Blog | null>(null);
+   const [likesCount, setLikesCount] = useState<number>(_likesCount);
+   const [sharesCount, setSharesCount] = useState<number>(0);
+   const [liked, setLiked] = useState<boolean>(_liked);
+   const [createdBy, setCreatedBy] = useState<User | null>(null);
+   const [shared, setShared] = useState<boolean>(false);
+   const [loading, setLoading] = useState<boolean>(false);
+   const [loadingShare, setLoadingShare] = useState<boolean>(false);
+   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+   const theme = useTheme();
+
+
+   const inputRef = React.useRef<TextInput>(null)
 
    const fetchComments = async (pageNum?: number) => {
       let pageNumber = pageNum ?? page.current;
@@ -55,13 +90,13 @@ const Comments = ({ blogId, userId, refetchId }: CommentsProps) => {
 
             if (status === 200) {
                setComments((prevComments) =>
-                  prevComments ? [...prevComments, ...data.data] : data.data
+                  prevComments ? [...prevComments, ...data?.data] : data?.data
                );
-               if (data.data.length > 0) {
+               if (data?.data.length > 0) {
                   page.current++;
                }
-               console.log("Comments=>", data.data);
-               if (data.data.length < 5) {
+               // console.log("Comments=>", data.data);
+               if (data?.data.length < 5) {
                   setHasMore(false);
                }
                setLoadingFetch(false);
@@ -80,13 +115,120 @@ const Comments = ({ blogId, userId, refetchId }: CommentsProps) => {
 
    useEffect(() => {
       console.log("Fetching comments");
-      fetchComments(1);
+      if(currentUser){
+         fetchComments(1);
+      }
+
    }, [currentUser]);
+
+   useEffect(() => {
+       setLiked(_liked)
+   }, [_liked]);
 
    const handleLoadMore = () => {
       console.log("Comments reached end");
       if (loadingFetch) return;
       fetchComments();
+   };
+
+   const handleShowTextInput = ()=>{
+      inputRef.current?.focus()
+      setShowTextInput(true)
+   }
+
+   const handleShareBlog = async () => {
+      let activeUserId = currentUser?.userId;
+      setLoadingShare(true);
+      setShared(false);
+      // let images = props.blog.images?.map(image => image?.trimEnd())
+      let blogObj = {
+         title: blog?.title,
+         images: JSON.parse(String(blog?.images)),
+         video: blog?.video,
+         text: blog?.text,
+         fromUserId: blog?.userId,
+         fromblogId: blog?.blogId,
+         shared: true,
+      };
+      console.log(blogObj);
+      try {
+         let response = await axios.post(
+            "http://192.168.1.98:6000/blogs/",
+            blogObj
+         );
+         if (response.status === 201) {
+            console.log(response.data);
+            setLoadingShare(false);
+            setShared(true);
+            setSharesCount((prev) => prev + 1);
+         } else {
+            setLoadingShare(false);
+            Alert.alert("Failed", "blog Failed");
+         }
+      } catch (err) {
+         setLoadingShare(false);
+         console.log(err);
+      }
+
+      // console.log(blogState);
+   };
+
+
+   const handleLike = async (blogId: string) => {
+      console.log(blogId);
+      try {
+         setLoading(true);
+         let activeUserId = currentUser?.userId;
+         let { data, status } = await axios.put(
+            `http://192.168.1.98:6000/blogs/${blogId}/likes/`,
+            { userId: activeUserId },
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
+         if (status === 202) {
+            let { liked, likesCount: numberOfLikes } = data.data;
+            setLiked(liked);
+            setLikesCount(numberOfLikes);
+
+            Alert.alert("Success", data.message);
+         } else {
+            Alert.alert("Failed", data.message);
+         }
+         setLoading(false);
+      } catch (err) {
+         console.log(err);
+         Alert.alert("Failed", String(err));
+         setLoading(false);
+      }
+   };
+
+   const handleComment = async () => {
+      setLoading(true);
+      let commentObj = {
+         content: textValue,
+      };
+      console.log("CommentObj", commentObj);
+      try {
+         let { data, status } = await axios.post(
+            `http://192.168.1.98:6000/blogs/${blogId}/comments/`,
+            commentObj,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
+         if (status === 201) {
+            // console.log(data.data);
+            // setComments([...comments, data.data]);
+            setTextValue("");
+            setComments((prev) => (prev ? [data.data, ...prev] : [data.data]));
+            setCommentsCount(commentsCount + 1);
+
+            // Alert.alert("Success", data.message);
+         } else {
+            Alert.alert("Failed", data.message);
+         }
+         setLoading(false);
+      } catch (err) {
+         Alert.alert("Failed", String(err));
+         setLoading(false);
+      }
    };
 
    const renderFooter = () => {
@@ -114,88 +256,245 @@ const Comments = ({ blogId, userId, refetchId }: CommentsProps) => {
       />
    );
 
-   const renderSkeleton = () => (
-      <View>
-         <View
+   return (
+      <View style={{flex:1,gap:4}}>
+               <View>
+               <LikesComponent
+                  blogId={blogId}
+                  numberOfLikes={likesCount}
+               />
+
+               <View
+                  style={{
+                     flex: 1,
+                     flexDirection: "row",
+                     alignItems: "center",
+                     justifyContent: "space-between",
+                  }}>
+                  <View
+                     style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                     }}>
+                     <Text
+                        style={{
+                           fontFamily: "Poppins_300Light",
+                           fontSize: 12,
+                           marginHorizontal: 1,
+                        }}>
+                        {likesCount}
+                     </Text>
+                     <Text
+                        style={{
+                           fontFamily: "Poppins_300Light",
+                           fontSize: 12,
+                           marginHorizontal: 2,
+                        }}>
+                        Likes
+                     </Text>
+                  </View>
+
+                  <View
+                     style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                     }}>
+                     <Text
+                        style={{
+                           fontFamily: "Poppins_300Light",
+                           fontSize: 12,
+                           marginHorizontal: 1,
+                        }}>
+                        {commentsCount}
+                     </Text>
+                     <Text
+                        style={{
+                           fontFamily: "Poppins_300Light",
+                           fontSize: 12,
+                           marginHorizontal: 2,
+                        }}>
+                        Comments
+                     </Text>
+                  </View>
+                  <View
+                     style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                     }}>
+                     <Text
+                        style={{
+                           fontFamily: "Poppins_300Light",
+                           fontSize: 12,
+                           marginHorizontal: 1,
+                        }}>
+                        {sharesCount}
+                     </Text>
+                     <Text
+                        style={{
+                           fontFamily: "Poppins_300Light",
+                           fontSize: 12,
+                           marginHorizontal: 2,
+                        }}>
+                        Shares
+                     </Text>
+                  </View>
+               </View>
+               {/* <Divider style={{ width: width - 40, alignSelf: "center" }} /> */}
+               <View style={styles.likeCommentAmountCon}>
+                  <Ionicons
+                     onPress={() => handleLike(blogId)}
+                     size={30}
+                     color={theme.colors.secondary}
+                     name={liked ? "heart-sharp" : "heart-outline"}
+                  />
+
+                  <Ionicons
+                     onPress={handleShowTextInput}
+                     size={30}
+                     color={theme.colors.secondary}
+                     name="chatbox-outline"
+                  />
+
+                  <MaterialCommunityIcons
+                     onPress={() => setOpenShareModal(true)}
+                     size={25}
+                     name="share-outline"
+                  />
+               </View>
+            </View>
+          <Modal visible={openShareModal}>
+               <View
+                  style={{
+                     flex: 1,
+                     backgroundColor: "#00000068",
+                     justifyContent: "center",
+                     alignItems: "center",
+                     paddingVertical: 4,
+                  }}>
+                  <View
+                     style={{
+                        backgroundColor: "#ffffff",
+                        padding: 10,
+                        width: width - 20,
+                        borderRadius: 5,
+                        gap: 20,
+                     }}>
+                     {/* <IconButton name='plus'/> */}
+                     <Button
+                        mode="text"
+                        onPress={() => setOpenShareModal(false)}>
+                        <Feather size={26} name="x" />
+                     </Button>
+                     <Button
+                        style={{
+                           backgroundColor: shared
+                              ? "green"
+                              : theme.colors.primary,
+                        }}
+                        disabled={loadingShare}
+                        loading={loadingShare}
+                        onPress={handleShareBlog}
+                        mode="contained">
+                        <Ionicons />
+                        <Ionicons
+                           style={{ marginHorizontal: 4 }}
+                           size={18}
+                           name={shared ? "checkmark" : "share-social-outline"}
+                        />
+                        <Text>
+                           {shared
+                              ? "Shared blog Successfully"
+                              : "Continue to share as a blog"}
+                        </Text>
+                     </Button>
+                  </View>
+               </View>
+            </Modal>
+         {
+            showTextInput && 
+            <View
             style={{
-               flex: 1,
+               marginVertical: 5,
+               paddingHorizontal: 0.1 * width,
                flexDirection: "row",
-               justifyContent: "flex-start",
-               gap: 4,
-               margin: 3,
+               alignItems: "center",
+               justifyContent: "center",
             }}>
-            <Skeleton animation="wave" circle width={50} height={50} />
-            <Skeleton
-               style={{ borderRadius: 5, marginTop: 4 }}
-               animation="wave"
-               width={width - 70}
-               height={80}
+            <TextInput
+               ref={inputRef}
+               multiline
+               value={textValue}
+               placeholder="Comment here..."
+               onChangeText={(v) => setTextValue(v)}
+               style={{
+                  flex: 1,
+                  borderTopLeftRadius: 20,
+                  borderBottomLeftRadius: 20,
+                  height: 50,
+                  paddingHorizontal: 25,
+                  backgroundColor: theme.colors.inverseOnSurface,
+               }}
             />
+            <Button
+               mode="text"
+               onPress={handleComment}
+               style={{
+                  paddingHorizontal: 5,
+                  height: 50,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: theme.colors.inverseOnSurface,
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                  borderTopRightRadius: 20,
+                  borderBottomRightRadius: 20,
+               }}>
+               <FontAwesome
+                  color={theme.colors.secondary}
+                  name="send"
+                  size={20}
+               />
+            </Button>
          </View>
-         <View
-            style={{
-               flex: 1,
-               flexDirection: "row",
-               justifyContent: "flex-start",
-               gap: 4,
-               margin: 3,
-            }}>
-            <Skeleton animation="wave" circle width={50} height={50} />
-            <Skeleton
-               style={{ borderRadius: 5, marginTop: 4 }}
-               animation="wave"
-               width={width - 70}
-               height={80}
-            />
-         </View>
-         <View
-            style={{
-               flex: 1,
-               flexDirection: "row",
-               justifyContent: "flex-start",
-               gap: 4,
-               margin: 3,
-            }}>
-            <Skeleton animation="wave" circle width={50} height={50} />
-            <Skeleton
-               style={{ borderRadius: 5, marginTop: 4 }}
-               animation="wave"
-               width={width - 70}
-               height={80}
-            />
-         </View>
-         <View
-            style={{
-               flex: 1,
-               flexDirection: "row",
-               justifyContent: "flex-start",
-               gap: 4,
-               margin: 3,
-            }}>
-            <Skeleton animation="wave" circle width={50} height={50} />
-            <Skeleton
-               style={{ borderRadius: 5, marginTop: 4 }}
-               animation="wave"
-               width={width - 70}
-               height={80}
+         }
+        
+         <View>
+            <FlatList
+               data={comments}
+               renderItem={renderItem}
+               keyExtractor={(item) => String(item?.commentId)}
+               onEndReached={handleLoadMore}
+               onEndReachedThreshold={0.9}
+               ListFooterComponent={renderFooter}
+               style={{ padding: 8, marginTop: 3 }}
+               // ListEmptyComponent={renderSkeleton}
             />
          </View>
       </View>
    );
-   return (
-      <FlatList
-         data={comments}
-         renderItem={renderItem}
-         keyExtractor={(item) => String(item?.commentId)}
-         onEndReached={handleLoadMore}
-         onEndReachedThreshold={0.3}
-         ListFooterComponent={renderFooter}
-         style={{ padding: 8 }}
-         // ListEmptyComponent={renderSkeleton}
-      />
-   );
 };
 
-export default Comments;
+export default React.memo(Comments);
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+   likeCommentAmountCon: {
+      flex: 1,
+      flexDirection: "row",
+      gap: 14,
+      paddingVertical: 5,
+      justifyContent: "space-around",
+      paddingHorizontal: 8,
+
+      // justifyContent:'center',
+   },
+   commentAmountText: {
+      fontFamily: "Poppins_200ExtraLight",
+      fontSize: 16,
+   },
+});

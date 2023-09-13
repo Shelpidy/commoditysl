@@ -35,6 +35,7 @@ import {
    Ionicons,
    EvilIcons,
    SimpleLineIcons,
+   MaterialIcons,
 } from "@expo/vector-icons";
 import axios from "axios";
 import { useCurrentUser } from "../utils/CustomHooks";
@@ -44,6 +45,7 @@ import HTML from "react-native-render-html";
 import { LoadingBlogComponent } from "../components/MediaPosts/LoadingComponents";
 import TextEllipse from "../components/TextEllipse";
 import { dateAgo } from "../utils/util";
+import { useSelector } from "react-redux";
 
 type FullBlogComponentProps = { navigation: any; route: any };
 
@@ -55,17 +57,34 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    const [blog, setBlogs] = useState<Blog | null>(null);
    const [likesCount, setLikesCount] = useState<number>(0);
    const [sharesCount, setSharesCount] = useState<number>(0);
-   const [refetchId, setRefetchId] = useState<number>(0);
    const [liked, setLiked] = useState<boolean>(false);
    const [createdBy, setCreatedBy] = useState<User | null>(null);
    const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
    const [loadingShare, setLoadingShare] = useState<boolean>(false);
    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-   const [textValue, setTextValue] = useState<string>("");
+   const { socket } = useSelector((state: any) => state.rootReducer);
+   const [lastSeen, setLastSeen] = useState<"online" | any>("online");
    const theme = useTheme();
    const { width } = useWindowDimensions();
    let inputRef = useRef<TextInput>(null);
+
+   useEffect(() => {
+      if(createdBy){
+         console.log("Socket is running", String(route.params.userId));
+         socket.on(String(route.params.userId), (data: any) => {
+         console.log("From socket", data);
+         if (data.online) {
+            setLastSeen("online");
+         } else {
+            let lastSeenDate = moment(data.updatedAt).fromNow();
+            setLastSeen(lastSeenDate);
+         }
+      });
+
+      }
+    
+   }, [socket,createdBy]);
 
    useEffect(
       function () {
@@ -96,6 +115,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                   setSharesCount(sharesCount);
                   setCommentsCount(commentsCount);
                   setBlogs(blog);
+                  setLastSeen(createdBy.lastSeenStatus)
 
                   // Alert.alert("Success",data.message)
                } else {
@@ -125,39 +145,6 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
          navigation.navigate("UserProfileScreen", {
             userId: createdBy?.userId,
          });
-      }
-   };
-
-   const handleComment = async () => {
-      setLoading(true);
-
-      let activeUserId = currentUser?.userId;
-      let commentObj = {
-         content: textValue,
-      };
-      console.log("CommentObj", commentObj);
-      try {
-         let { data, status } = await axios.post(
-            `http://192.168.1.98:6000/blogs/${blog?.blogId}/comments/`,
-            commentObj,
-            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-         );
-         if (status === 201) {
-            // console.log(data.data);
-            // setComments([...comments, data.data]);
-            setTextValue("");
-            setCommentsCount((prev) => prev + 1);
-
-            setRefetchId(refetchId + 1);
-
-            // Alert.alert("Success", data.message);
-         } else {
-            Alert.alert("Failed", data.message);
-         }
-         setLoading(false);
-      } catch (err) {
-         Alert.alert("Failed", String(err));
-         setLoading(false);
       }
    };
 
@@ -198,43 +185,6 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       // console.log(blogState);
    };
 
-   // const handleShareBlog = async () => {
-   //    let activeUserId = currentUser?.userId;
-   //    setLoadingShare(true);
-   //    setShared(false);
-   //    // let images = props.images?.map(image => image?.trimEnd())
-   //    let blogObj = {
-   //       blogObj: {
-   //          userId: activeUserId,
-   //          title: blog?.title,
-   //          images: JSON.parse(String(blog?.images)),
-   //          video: blog?.video,
-   //          text: blog?.text,
-   //          fromId: blog?.userId,
-   //          shared: true,
-   //       },
-   //       sharedblogId: blog?.blogId,
-   //    };
-   //    console.log(blogObj);
-   //    try {
-   //       let response = await axios.blog(
-   //          "http://192.168.1.98:5000/media/blogs/",
-   //          blogObj
-   //       );
-   //       if (response.status === 201) {
-   //          console.log(response.data);
-   //          setLoadingShare(false);
-   //          setShared(true);
-   //          setSharesCount((prev) => prev + 1);
-   //       } else {
-   //          setLoadingShare(false);
-   //          Alert.alert("Failed", "blog Failed");
-   //       }
-   //    } catch (err) {
-   //       setLoadingShare(false);
-   //       console.log(err);
-   //    }
-   // };
 
    const handleLike = async (blogId: string) => {
       console.log(blogId);
@@ -267,10 +217,6 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       setShowEmojiPicker(!showEmojiPicker);
    };
 
-   const handleEmojiSelect = (emoji: any) => {
-      setTextValue(textValue + emoji);
-   };
-
    if (!blog) {
       return (
          <ScrollView>
@@ -282,54 +228,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    return (
       <View>
          <ScrollView style={styles.blogContainer}>
-            <Modal visible={openShareModal}>
-               <View
-                  style={{
-                     flex: 1,
-                     backgroundColor: "#00000068",
-                     justifyContent: "center",
-                     alignItems: "center",
-                     paddingVertical: 4,
-                  }}>
-                  <View
-                     style={{
-                        backgroundColor: "#ffffff",
-                        padding: 10,
-                        width: width - 20,
-                        borderRadius: 5,
-                        gap: 20,
-                     }}>
-                     {/* <IconButton name='plus'/> */}
-                     <Button
-                        mode="text"
-                        onPress={() => setOpenShareModal(false)}>
-                        <Feather size={26} name="x" />
-                     </Button>
-                     <Button
-                        style={{
-                           backgroundColor: shared
-                              ? "green"
-                              : theme.colors.primary,
-                        }}
-                        disabled={loadingShare}
-                        loading={loadingShare}
-                        onPress={handleShareBlog}
-                        mode="contained">
-                        <Ionicons />
-                        <Ionicons
-                           style={{ marginHorizontal: 4 }}
-                           size={18}
-                           name={shared ? "checkmark" : "share-social-outline"}
-                        />
-                        <Text>
-                           {shared
-                              ? "Shared blog Successfully"
-                              : "Continue to share as a blog"}
-                        </Text>
-                     </Button>
-                  </View>
-               </View>
-            </Modal>
+           
             <Modal visible={openModal}>
                <View
                   style={{
@@ -350,72 +249,90 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                </View>
             </Modal>
             {createdBy && (
-               <View
-                  style={{
-                     flexDirection: "row",
-                     alignItems: "center",
-                     padding: 8,
-                  }}>
-                  <Pressable onPress={gotoUserProfile}>
-                     <Avatar.Image
-                        size={45}
-                        source={{ uri: createdBy.profileImage }}
-                     />
-                     {/* <Image
-                     style={styles.profileImage}
-                     
-                  /> */}
-                  </Pressable>
-                  <TextEllipse
-                     style={{ fontFamily: "Poppins_400Regular", margin: 5 }}
-                     textLength={25}
-                     text={createdBy?.fullName}
-                  />
+            <View
+               style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  padding: 8,
+               }}>
+               <Pressable onPress={gotoUserProfile}>
+               <View style={{ position: "relative" }}>
+               <Avatar.Image
+                  size={35}
+                  source={{ uri: "https://picsum.photos/200/300" }}
+               />
+               {lastSeen === "online" && (
                   <View
                      style={{
-                        flex: 1,
-                        justifyContent: "flex-end",
-                        alignItems: "flex-end",
-                        marginBottom: 2,
+                        width: 17,
+                        height: 17,
+                        borderRadius: 8,
+                        backgroundColor: "#fff",
+                        position: "absolute",
+                        bottom: -2,
+                        right: -2,
+                        zIndex: 10,
+                        justifyContent:'center',
+                        alignItems:'center'
                      }}>
-                     {currentUser?.userId == blog?.userId && (
-                        <View>
-                           <Button onPress={() => setOpenModal(true)}>
-                              <SimpleLineIcons name="options-vertical" />
-                           </Button>
-                        </View>
-                     )}
+                        <View
+                     style={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: 8,
+                        backgroundColor: "#11a100",
+                     }}></View>
                   </View>
-               </View>
-            )}
-            <View>
+               )}
+            </View>
+               </Pressable>
+               <TextEllipse
+                  style={{
+                     fontFamily: "Poppins_400Regular",
+                     margin: 5,
+                     color: theme.colors.secondary,
+                     fontSize: 12,
+                  }}
+                  textLength={23}
+                  text={createdBy.fullName}
+               />
+               {createdBy.verificationRank && (
+                  <MaterialIcons
+                     size={14}
+                     color={
+                        createdBy.verificationRank === "low"
+                           ? "orange"
+                           : createdBy.verificationRank === "medium"
+                           ? "green"
+                           : "blue"
+                     }
+                     name="verified"
+                  />
+               )}
                <View
                   style={{
                      flex: 1,
-                     flexDirection: "row",
-                     alignItems: "center",
-                     paddingHorizontal: 8,
-                     paddingBottom: 8,
-                     gap: 4,
+                     justifyContent: "flex-end",
+                     alignItems: "flex-end",
+                     marginBottom: 2,
+                     paddingHorizontal: 0,
+                     borderRadius: 3,
                   }}>
-                  {/* <Text style={{textAlignVertical:"center",color:theme.colors.secondary,fontFamily:"Poppins_300Light",marginRight:2}}>bloged</Text> */}
-                  <AntDesign
-                     color={theme.colors.secondary}
-                     name="clockcircleo"
-                  />
-                  <Text
-                     style={{
-                        textAlignVertical: "center",
-                        color: theme.colors.secondary,
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 12,
-                     }}>
-                     {dateAgo(blog.createdAt)}
-                  </Text>
+                  {currentUser?.userId == blog?.userId && (
+                     <View>
+                        <SimpleLineIcons
+                           onPress={() => setOpenModal(false)}
+                           name="options-vertical"
+                        />
+                     </View>
+                  )}
                </View>
-               {blog?.images && <ImagesViewer images={blog?.images} />}
-               {/* {blog?.video && <VideoPlayer video={blog?.video}/>} */}
             </View>
+         )}
+            
+            {blog.images && <ImagesViewer images={blog.images} />}
+            {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
+            {blog.video && <VideoPlayer video={blog?.video}/>}
             {blog?.title && <Text style={styles.title}>{blog?.title}</Text>}
 
             {blog?.text && (
@@ -428,233 +345,16 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                   />
                </View>
             )}
-            <View>
-               <LikesComponent
-                  blogId={blog.blogId}
-                  numberOfLikes={likesCount}
-               />
-
-               <View
-                  style={{
-                     flex: 1,
-                     flexDirection: "row",
-                     alignItems: "center",
-                     justifyContent: "space-between",
-                  }}>
-                  <View
-                     style={{
-                        flex: 1,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                     }}>
-                     <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           fontSize: 12,
-                           marginHorizontal: 1,
-                        }}>
-                        {likesCount}
-                     </Text>
-                     <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           fontSize: 12,
-                           marginHorizontal: 2,
-                        }}>
-                        Likes
-                     </Text>
-                  </View>
-
-                  <View
-                     style={{
-                        flex: 1,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                     }}>
-                     <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           fontSize: 12,
-                           marginHorizontal: 1,
-                        }}>
-                        {commentsCount}
-                     </Text>
-                     <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           fontSize: 12,
-                           marginHorizontal: 2,
-                        }}>
-                        Comments
-                     </Text>
-                  </View>
-                  <View
-                     style={{
-                        flex: 1,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                     }}>
-                     <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           fontSize: 12,
-                           marginHorizontal: 1,
-                        }}>
-                        {sharesCount}
-                     </Text>
-                     <Text
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           fontSize: 12,
-                           marginHorizontal: 2,
-                        }}>
-                        Shares
-                     </Text>
-                  </View>
-               </View>
-               <Divider style={{ width: width - 40, alignSelf: "center" }} />
-               <View style={styles.likeCommentAmountCon}>
-                  <Button
-                     disabled={loading}
-                     onPress={() => handleLike(blog.blogId)}
-                     textColor={theme.colors.secondary}
-                     style={{
-                        backgroundColor: theme.colors.inverseOnSurface,
-                        flex: 1,
-                     }}>
-                     <Ionicons
-                        size={20}
-                        color={theme.colors.secondary}
-                        name={liked ? "heart-sharp" : "heart-outline"}
-                     />
-                  </Button>
-
-                  <Button
-                     contentStyle={{
-                        flex: 1,
-                        alignItems: "center",
-                        flexDirection: "row",
-                     }}
-                     onPress={() => inputRef?.current?.focus()}
-                     textColor={theme.colors.secondary}
-                     style={{
-                        backgroundColor: theme.colors.inverseOnSurface,
-                        flex: 1,
-                     }}>
-                     <Ionicons
-                        size={20}
-                        color={theme.colors.secondary}
-                        name="chatbox-outline"
-                     />
-                  </Button>
-                  <Button
-                     onPress={() => setOpenShareModal(true)}
-                     textColor={theme.colors.secondary}
-                     style={{
-                        backgroundColor: theme.colors.inverseOnSurface,
-                        flex: 1,
-                     }}>
-                     <MaterialCommunityIcons size={25} name="share-outline" />
-                  </Button>
-               </View>
-               {/* <Divider/> */}
-               <View
-                  style={{
-                     marginTop: 5,
-                     paddingHorizontal: 15,
-                     flexDirection: "row",
-                     alignItems: "center",
-                     justifyContent: "center",
-                  }}>
-                  <TextInput
-                     ref={inputRef}
-                     value={textValue}
-                     placeholder="Comment here..."
-                     onChangeText={(v) => setTextValue(v)}
-                     style={{
-                        flex: 1,
-                        borderTopLeftRadius: 20,
-                        borderBottomLeftRadius: 20,
-                        height: 50,
-                        paddingHorizontal: 25,
-                     }}
-                  />
-                  <Button
-                     mode="text"
-                     onPress={handleComment}
-                     style={{
-                        paddingHorizontal: 5,
-                        height: 50,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: theme.colors.inverseOnSurface,
-                     }}>
-                     <FontAwesome
-                        color={theme.colors.secondary}
-                        name="send"
-                        size={20}
-                     />
-                  </Button>
-               </View>
-               {/* <KeyboardAvoidingView style={styles.commentBox}>
-                  <TextInput
-                     value={textValue}
-                     onChangeText={(v) => setTextValue(v)}
-                     style={[
-                        styles.commentInputField,
-                        { color: theme.colors.primary },
-                     ]}
-                     right={
-                        <TextInput.Icon
-                           disabled={loading}
-                           onPress={handleComment}
-                           icon="send"
-                        />
-                     }
-                     mode="outlined"
-                     multiline
-                  />
-                  <Entypo
-                     onPress={toggleEmojiPicker}
-                     size={26}
-                     name="emoji-neutral"
-                  />
-               </KeyboardAvoidingView> */}
                <View style={{ padding: 5, marginBottom: 10 }}>
                   <Comments
-                     refetchId={refetchId}
+                     _likesCount = {likesCount}
+                     _commentsCount={commentsCount}
+                     _liked={liked}
                      userId={blog?.userId}
                      blogId={blog.blogId}
                   />
                </View>
-            </View>
          </ScrollView>
-         {showEmojiPicker && (
-            <View
-               style={{
-                  position: "absolute",
-                  flex: 1,
-                  top: 60,
-                  left: 0,
-                  right: 0,
-                  height: 350,
-                  zIndex: 10,
-                  backgroundColor: "#ffffff",
-               }}>
-               <EmojiSelector
-                  onEmojiSelected={handleEmojiSelect}
-                  showHistory={true}
-                  showSearchBar={false}
-                  showTabs={false}
-                  showSectionTitles={false}
-                  category={Categories.all}
-                  columns={8}
-               />
-            </View>
-         )}
       </View>
    );
 };
@@ -694,6 +394,7 @@ const styles = StyleSheet.create({
       flexDirection: "row",
       gap: 14,
       paddingVertical: 5,
+      justifyContent: "space-around",
       paddingHorizontal: 8,
 
       // justifyContent:'center',

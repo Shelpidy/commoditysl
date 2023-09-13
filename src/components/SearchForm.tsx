@@ -22,16 +22,18 @@ const SearchForm = ({ setSearchValue }: SearchProps) => {
             justifyContent: "center",
          }}>
          <TextInput
+         placeholder="Search here..."
             onChangeText={(v) => _setSearchValue(v)}
             style={{
                flex: 1,
-               backgroundColor: "#FFFFFF",
+               backgroundColor:theme.colors.inverseOnSurface,
                borderTopLeftRadius: 20,
                borderBottomLeftRadius: 20,
                height: 50,
                paddingHorizontal: 25,
                borderColor: theme.colors.inverseOnSurface,
                borderWidth: 1,
+               
             }}
          />
          <Pressable
@@ -43,7 +45,7 @@ const SearchForm = ({ setSearchValue }: SearchProps) => {
                justifyContent: "center",
                borderTopRightRadius: 20,
                borderBottomRightRadius: 20,
-               backgroundColor: "#ffffff",
+               backgroundColor: theme.colors.inverseOnSurface,
                borderColor: theme.colors.inverseOnSurface,
                borderWidth: 1,
             }}>

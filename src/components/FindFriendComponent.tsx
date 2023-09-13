@@ -97,22 +97,23 @@ const FindFriendComponent = ({ user }: FindFriendProps) => {
             {/* <Text style={styles.nameText}>{user.lastName}</Text> */}
             <View style={styles.followerContainer}>
                <Button
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                  labelStyle={{
+                     textAlign: "center",
+                     textAlignVertical: "center",
+                     fontFamily: "Poppins_300Light",
+                     fontSize: 12,
+                  }}
                   loading={loading}
                   disabled={loading}
                   onPress={handleFollow}
-                  mode={followed ? "text" : "contained"}
-                  style={{ borderColor: theme.colors.primary }}>
+                  mode={followed ? "text" : "contained"}>
                   {/* <SimpleLineIcons
                      size={13}
                      name={followed ? "user-following" : "user-follow"}
                   /> */}
-                  <Text
-                     style={{
-                        fontFamily: "Poppins_400Regular",
-                        fontSize: 10,
-                     }}>
-                     {followed ? " Unfollow" : " Follow"}
-                  </Text>
+
+                  {followed ? " Unfollow" : " Follow"}
                </Button>
             </View>
          </Card>
@@ -120,12 +121,12 @@ const FindFriendComponent = ({ user }: FindFriendProps) => {
    );
 };
 
-export default FindFriendComponent;
+export default React.memo(FindFriendComponent);
 
 const styles = StyleSheet.create({
    profileImage: {
       width: width / 2.1,
-      height: 200,
+      height: height * 0.25,
       borderBottomLeftRadius: 10,
       borderBottomRightRadius: 10,
    },

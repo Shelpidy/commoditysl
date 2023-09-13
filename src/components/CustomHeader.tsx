@@ -40,7 +40,7 @@ const CustomHeader = () => {
 
    useEffect(
       function () {
-         console.log("Fetching user");
+         console.log("Fetching header user");
          setLoading(true);
          let fetchData = async () => {
             // console.log("Fetching user")
@@ -314,7 +314,7 @@ const CustomHeader = () => {
                      userId: currentUser?.userId,
                   })
                }>
-               <Avatar.Image size={30} source={{ uri: user?.profileImage }} />
+               <Avatar.Image size={25} source={{ uri: user?.profileImage }} />
                {/* <Text style={styles.profileImage}>
                   <Image
                      resizeMode="cover"

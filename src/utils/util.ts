@@ -24,7 +24,7 @@ export function dateAgo(date: Date) {
       /(hours|an hour|minutes|a minute|seconds|a second|days|a day|a week|weeks|months|a month) ago/,
       (match) => {
          const unit = match.toLowerCase();
-         console.log(unit);
+         // console.log(unit);
          return agoUnits[unit];
       }
    );

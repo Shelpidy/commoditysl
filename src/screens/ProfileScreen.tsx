@@ -50,7 +50,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
    const [allPosts, setAllPosts] = useState<BlogComponent[]>([]);
    const [user, setUser] = useState<any>(null);
    const page = React.useRef<number>(1);
-   const [numberOfPostsPerPage, setNumberOfPostsPerPage] = useState<number>(5);
+   const [numberOfBlogsPerPage, setNumberOfBlogsPerPage] = useState<number>(5);
    const [loading, setLoading] = useState<boolean>(false);
    const [hasMore, setHasMore] = useState(true);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
@@ -69,7 +69,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
       console.log({ userId });
       try {
          let { status, data } = await axios.get(
-            `http://192.168.1.98:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfPostsPerPage}`,
+            `http://192.168.1.98:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfBlogsPerPage}`,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
@@ -86,7 +86,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
             );
 
             if (fetchedPost.length > 0) page.current++;
-            if (data.length < numberOfPostsPerPage) {
+            if (data.length < numberOfBlogsPerPage) {
                setHasMore(false);
             }
             setLoadingFetch(false);
@@ -111,11 +111,13 @@ const ProfileScreen = ({ navigation, route }: any) => {
       );
       setPosts(newPosts);
    };
-
    const handleLoadMore = () => {
-      console.log("Posts Reached end");
-      if (loadingFetch) return;
-      fetchData();
+      console.log("blogs Reached end");
+      if (loadingFetch) {
+      } else if (posts && posts.length < numberOfBlogsPerPage) {
+      } else {
+         fetchData();
+      }
    };
 
    const renderFooter = () => {
@@ -153,6 +155,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
             if (status === 200) {
                console.log("User----", data.data);
                setUser(data.data);
+               setLastSeen(data.data.personal.lastSeenStatus)
                // Alert.alert("Success",data.message)
                setLoading(false);
             } else {
@@ -169,10 +172,14 @@ const ProfileScreen = ({ navigation, route }: any) => {
    }, []);
 
    useEffect(function () {
-      fetchData(1);
-   }, []);
+      if(currentUser){
+         fetchData(1);
+      }
+   }, [currentUser]);
+
 
    useEffect(() => {
+      if(socket){
       console.log("Socket is running", String(route.params.userId));
       socket.on(String(route.params.userId), (data: any) => {
          console.log("From socket", data);
@@ -182,7 +189,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
             let lastSeenDate = moment(data.updatedAt).fromNow();
             setLastSeen(lastSeenDate);
          }
-      });
+      });}
    }, [socket]);
 
    if (!user) {
@@ -205,15 +212,25 @@ const ProfileScreen = ({ navigation, route }: any) => {
                {lastSeen === "online" && (
                   <View
                      style={{
-                        width: 15,
-                        height: 15,
-                        borderRadius: 15,
-                        backgroundColor: "green",
+                        width: 22,
+                        height: 22,
+                        borderRadius: 11,
+                        backgroundColor: "#fff",
                         position: "absolute",
                         bottom: 2,
-                        right: 15,
+                        right: 6,
                         zIndex: 10,
+                        justifyContent:'center',
+                        alignItems:'center'
+                     }}>
+                        <View
+                     style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: 9,
+                        backgroundColor: "#11a100",
                      }}></View>
+                  </View>
                )}
             </View>
             <View
@@ -222,14 +239,14 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   style={{
                      textAlign: "center",
                      marginTop: 10,
-                     fontFamily: "Poppins_500Medium",
+                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   {user?.personal?.fullName}
                </Text>
                {user.personal.verificationRank && (
                   <MaterialIcons
-                     size={17}
+                     size={16}
                      color={
                         user.personal.verificationRank === "low"
                            ? "orange"
@@ -248,13 +265,12 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   style={{
                      textAlign: "center",
                      fontFamily: "Poppins_400Regular",
-                     color: theme.colors.secondary,
+                     // color: theme.colors.secondary,
                      fontSize: 16,
                   }}>
                   {user?.followers?.count}
                </Text>
                <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}
                   onPress={() =>
                      navigation.navigate("FollowersScreen", {
                         userId: user?.personal.userId,
@@ -284,7 +300,6 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   {user?.followings?.count}
                </Text>
                <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}
                   onPress={() =>
                      navigation.navigate("FollowingsScreen", {
                         userId: user?.personal.userId,
@@ -313,8 +328,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   }}>
                   {user?.totalPosts}
                </Text>
-               <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}>
+               <Button>
                   <Text
                      style={{
                         // fontWeight: "bold",
@@ -333,18 +347,19 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      textAlign: "center",
                      fontFamily: "Poppins_400Regular",
                      // color:theme.colors.secondary,
-                     fontSize: 13,
+                     fontSize: 15,
                   }}>
                   {user?.totalLikes}
                </Text>
-               <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}>
+               <Button>
                   <Text
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
                         fontFamily: "Poppins_400Regular",
                         color: theme.colors.secondary,
+                        fontSize: 13,
+
                      }}>
                      Likes
                   </Text>
@@ -387,7 +402,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   }
                }}
                onEndReached={handleLoadMore}
-               onEndReachedThreshold={0.3}
+               onEndReachedThreshold={0.9}
                ListFooterComponent={renderFooter}
             />
          )}
@@ -402,9 +417,9 @@ const styles = StyleSheet.create({
       // display: "flex",
       flexDirection: "row",
       justifyContent: "center",
-      gap: 10,
+      gap: 4,
       marginTop: 8,
-      marginBottom: 10,
+      marginBottom: 5,
    },
    profileImage: {
       width: 100,

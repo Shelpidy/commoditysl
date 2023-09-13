@@ -15,6 +15,7 @@ import SharedBlogComponent from "./SharedBlogComponent";
 import { ActivityIndicator, Divider } from "react-native-paper";
 import { LoadingBlogComponent } from "./LoadingComponents";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 type BlogComponentProps = {
    blog: Blog;
@@ -28,7 +29,6 @@ type BlogComponentProps = {
 
 const BlogsComponent = () => {
    const [blogs, setBlogs] = useState<BlogComponentProps[] | null>(null);
-   const [allBlogs, setAllBlogs] = useState<BlogComponentProps[] | null>(null);
    const page = React.useRef<number>(1);
    const [numberOfblogsPerPage, setNumberOfblogsPerPage] = useState<number>(5);
    const [loading, setLoading] = useState<boolean>(false);
@@ -38,6 +38,7 @@ const BlogsComponent = () => {
    const [hasMore, setHasMore] = useState(true);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
 
+
    let fetchData = async (pageNum?: number) => {
       console.log("Fetching blog posts");
       let pageNumber = pageNum || page.current;
@@ -45,7 +46,6 @@ const BlogsComponent = () => {
       try {
          if (currentUser) {
             setLoadingFetch(true);
-            let activeUserId = currentUser?.userId;
             let { data, status } = await axios.get(
                `http://192.168.1.98:6000/sessions/blogs?pageNumber=${pageNumber}&numberOfRecords=${numberOfblogsPerPage}`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
@@ -56,9 +56,9 @@ const BlogsComponent = () => {
                // setBlogs(data.data);
                let fetchedPost: BlogComponentProps[] = data.data;
 
-               setAllBlogs((prev) =>
-                  prev ? [...prev, ...fetchedPost] : fetchedPost
-               );
+               // setAllBlogs((prev) =>
+               //    prev ? [...prev, ...fetchedPost] : fetchedPost
+               // );
                setBlogs((prev) =>
                   prev ? [...prev, ...fetchedPost] : fetchedPost
                );
@@ -112,7 +112,9 @@ const BlogsComponent = () => {
 
    useEffect(
       function () {
-         fetchData(1);
+         if(currentUser){
+            fetchData(1);
+         }
       },
       [currentUser]
    );

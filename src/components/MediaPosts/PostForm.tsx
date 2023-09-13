@@ -102,7 +102,7 @@ const PostForm = () => {
    const richText = React.useRef<any>(null);
 
    const handlePost = async (
-      fileURLs: string[]|null=null,
+      fileURLs: string[] | null = null,
       fileType: "image" | "video" = "image"
    ) => {
       let activeUserId = currentUser?.userId;
@@ -147,11 +147,19 @@ const PostForm = () => {
       files?: string[]
    ) {
       try {
-         var downloadURLs: string[]|null = null;
-         console.log({Images:files})
+         let fileType: "image" | "video" = postState.images
+         ? "image"
+         : postState.video
+         ? "video"
+         : "image";
+         const metadata = {
+            contentType: fileType === 'image'?"image/jpeg":"video/*",
+         };
+         var downloadURLs: string[] | null = null;
+         console.log({ Images: files });
 
-         if(files){
-            setLoading(true)
+         if (files) {
+            setLoading(true);
             await Promise.all(
                files.map(async (file) => {
                   setProgress(0);
@@ -159,7 +167,7 @@ const PostForm = () => {
                   const fileBlob = await fileResponse.blob();
                   const storageRef = ref(
                      storage,
-                     folderName+"/"+file.split("/").pop() ||
+                     folderName + "/" + file.split("/").pop() ||
                         `${String(new Date().toISOString())}.png`
                   );
                   const uploadTask = uploadBytesResumable(
@@ -167,53 +175,54 @@ const PostForm = () => {
                      fileBlob,
                      metadata
                   );
-            return new Promise((resolve)=>{
-                  uploadTask.on(
-                     "state_changed",
-                     (snapshot) => {
-                        const progress =
-                           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        console.log("Upload is " + progress + "% done");
-                        setProgress(progress);
-                        switch (snapshot.state) {
-                           case "paused":
-                              console.log("Upload is paused");
-                              break;
-                           case "running":
-                              console.log("Upload is running");
-                              break;
+                  return new Promise((resolve) => {
+                     uploadTask.on(
+                        "state_changed",
+                        (snapshot) => {
+                           const progress =
+                              (snapshot.bytesTransferred /
+                                 snapshot.totalBytes) *
+                              100;
+                           console.log("Upload is " + progress + "% done");
+                           setProgress(progress);
+                           switch (snapshot.state) {
+                              case "paused":
+                                 console.log("Upload is paused");
+                                 break;
+                              case "running":
+                                 console.log("Upload is running");
+                                 break;
+                           }
+                        },
+                        (error) => {
+                           if (error) setLoading(false);
+                           // Handle errors as before
+                        },
+                        async () => {
+                           let downloadURL = await getDownloadURL(
+                              uploadTask.snapshot.ref
+                           );
+                           if (Array.isArray(downloadURLs)) {
+                              downloadURLs.push(downloadURL);
+                           } else {
+                              downloadURLs = [downloadURL];
+                           }
+
+                           console.log("File available at", downloadURL);
+                           resolve(null);
                         }
-                     },
-                     (error) => {
-                        if(error) setLoading(false)
-                        // Handle errors as before
-                     },
-                     async() => {
-                        let downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-                        if(Array.isArray(downloadURLs)){
-                           downloadURLs.push(downloadURL);
-                        }
-                        else{
-                           downloadURLs = [downloadURL]
-                        }
-                      
-                        console.log("File available at", downloadURL);
-                        resolve(null)
-                     }
-                  );
+                     );
+                  });
                })
-            })
             );
-         // At this point, all uploads have completed
-         console.log("All uploads have completed");
-         console.log("Download URLs:", downloadURLs);
+            // At this point, all uploads have completed
+            console.log("All uploads have completed");
+            console.log("Download URLs:", downloadURLs);
          }
 
-         let fileType:"image"|"video" = postState.images?"image":postState.video?"video":"image"
-         await handlePost(downloadURLs,fileType);
-
+         await handlePost(downloadURLs, fileType);
       } catch (err) {
-         setLoading(false)
+         setLoading(false);
          console.log({ Error: err });
       }
    }
@@ -243,12 +252,12 @@ const PostForm = () => {
    };
 
    const onValueChangeContent = (v: string): void => {
-      console.log("onValueChange", v);
+      // console.log("onValueChange", v);
       postDispatch({ type: "TEXT", payload: v });
    };
 
    const onValueChangeTitle = (v: string): void => {
-      console.log("onValueChange", v);
+      // console.log("onValueChange", v);
       postDispatch({ type: "TITLE", payload: v });
    };
 
@@ -271,13 +280,21 @@ const PostForm = () => {
             />
          </Modal>
          <Modal visible={videoOpen}>
+            <View style={{flex:1}}>
+            <View>
+               <Button onPress={()=> setVideoOpen(false)}>Cancel</Button>
+            </View>
             <ImagePicker
+               galleryColumns={4}
                onSave={chooseVideo}
                onCancel={cancelVideo}
                video
+               multiple={false}
                timeSlider
                image={false}
             />
+            </View>
+           
          </Modal>
          <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -287,7 +304,8 @@ const PostForm = () => {
                outlineStyle={{ borderColor: theme.colors.inverseOnSurface }}
                onChangeText={onValueChangeTitle}
                mode="outlined"
-               value={postState.title ? postState.title:"untitled"}
+               label="Untitled"
+               // value={postState.title ? postState.title : "untitled"}
             />
             {/* <Text style={{ marginTop:15, fontFamily: "Poppins_400Regular",fontSize:13,color:theme.colors.secondary}}>
                Content
@@ -348,8 +366,9 @@ const PostForm = () => {
                <Button
                   mode="contained"
                   onPress={() =>
-                     firebaseUpload("BlogFiles",
-                        postState.images || postState.video,
+                     firebaseUpload(
+                        "BlogFiles",
+                        postState.images || [postState.video]
                      )
                   }
                   disabled={loading}

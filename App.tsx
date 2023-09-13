@@ -49,10 +49,7 @@ import { Provider } from "react-redux";
 import store from "./src/redux/store";
 import * as Linking from "expo-linking";
 
-
-
 // 192.168.0.102
-
 
 const MainStack = createNativeStackNavigator();
 

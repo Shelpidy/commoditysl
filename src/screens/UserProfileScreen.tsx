@@ -25,6 +25,7 @@ import {
 import SharedBlogComponent from "../components/MediaPosts/SharedBlogComponent";
 import ProfileNavComponent from "../components/ProfileNavComponent";
 import { useCurrentUser } from "../utils/CustomHooks";
+import moment from "moment";
 
 const { width, height } = Dimensions.get("window");
 
@@ -82,6 +83,22 @@ const UserProfileScreen = ({ navigation, route }: any) => {
       [currentUser]
    );
 
+  // LISTEN FOR CHANGE IN ONLINE STATUS
+
+   useEffect(() => {
+      if(socket){
+      console.log("Socket is running", String(route.params.userId));
+      socket.on(String(route.params.userId), (data: any) => {
+         console.log("From socket", data);
+         if (data.online) {
+            setLastSeen("online");
+         } else {
+            let lastSeenDate = moment(data.updatedAt).fromNow();
+            setLastSeen(lastSeenDate);
+         }
+      });}
+   }, [socket]);
+
    // FETCHING USER PROFILE INFO ////
 
    useEffect(function () {
@@ -98,6 +115,8 @@ const UserProfileScreen = ({ navigation, route }: any) => {
             if (status === 200) {
                console.log("Users-----", data.data);
                setUser(data.data);
+               setLastSeen(data.data.personal.lastSeenStatus)
+               
                // Alert.alert("Success",data.message)
                setLoading(false);
             } else {
@@ -152,8 +171,10 @@ const UserProfileScreen = ({ navigation, route }: any) => {
    };
 
    useEffect(function () {
-      fetchPostsData(1);
-   }, []);
+      if( currentUser){
+         fetchPostsData(1);
+      }
+   }, [currentUser]);
 
    const handleFollow = async () => {
       setLoading(true);
@@ -222,18 +243,28 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   size={100}
                   source={{ uri: "https://picsum.photos/200/300" }}
                />
-               {lastSeen === "online" && (
+                    {lastSeen === "online" && (
                   <View
                      style={{
-                        width: 15,
-                        height: 15,
-                        borderRadius: 15,
-                        backgroundColor: "green",
+                        width: 22,
+                        height: 22,
+                        borderRadius: 11,
+                        backgroundColor: "#fff",
                         position: "absolute",
                         bottom: 2,
-                        right: 15,
+                        right: 6,
                         zIndex: 10,
+                        justifyContent:'center',
+                        alignItems:'center'
+                     }}>
+                        <View
+                     style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: 9,
+                        backgroundColor: "#11a100",
                      }}></View>
+                  </View>
                )}
             </View>
             <View
@@ -275,7 +306,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   {user?.followers?.count}
                </Text>
                <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}
+                  //
                   onPress={() =>
                      navigation.navigate("FollowersScreen", {
                         userId: user?.personal.userId,
@@ -305,7 +336,6 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   {user?.followings?.count}
                </Text>
                <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}
                   onPress={() =>
                      navigation.navigate("FollowingsScreen", {
                         userId: user?.personal.userId,
@@ -334,8 +364,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   }}>
                   {user?.totalPosts}
                </Text>
-               <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}>
+               <Button>
                   <Text
                      style={{
                         // fontWeight: "bold",
@@ -358,8 +387,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   }}>
                   {user?.totalLikes}
                </Text>
-               <Button
-                  style={{ backgroundColor: theme.colors.inverseOnSurface }}>
+               <Button>
                   <Text
                      style={{
                         // fontWeight: "bold",

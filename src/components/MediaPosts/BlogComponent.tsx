@@ -37,6 +37,7 @@ import { useWindowDimensions } from "react-native";
 import HTML from "react-native-render-html";
 import { useNavigation } from "@react-navigation/native";
 import { dateAgo } from "../../utils/util";
+import { useSelector } from "react-redux";
 
 type BlogComponentProps = {
    blog: Blog;
@@ -60,10 +61,13 @@ const BlogComponent = (props: BlogComponentProps) => {
    const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
    const [loadingShare, setLoadingShare] = useState<boolean>(false);
+   const [lastSeen, setLastSeen] = useState<"online" | any>("");
    const theme = useTheme();
    const [reloadCLS, setRelaodCLS] = useState<number>(0);
+   const { socket } = useSelector((state: any) => state.rootReducer);
    const { width } = useWindowDimensions();
    const navigation = useNavigation<any>();
+
 
    const source = {
       html: `
@@ -78,7 +82,10 @@ const BlogComponent = (props: BlogComponentProps) => {
       setLikesCount(props.likesCount);
       setCommentsCount(props.commentsCount);
       setCreatedBy(props.createdBy);
+      setLastSeen(props.createdBy.lastSeenStatus)
+
    }, []);
+
 
    const gotoUserProfile = () => {
       if (currentUser?.userId === createdBy?.userId) {
@@ -89,6 +96,25 @@ const BlogComponent = (props: BlogComponentProps) => {
          });
       }
    };
+
+   useEffect(() => {
+      if(createdBy){
+         console.log("Socket is running", String(createdBy?.userId));
+         socket.on(String(createdBy?.userId), (data: any) => {
+         console.log("From socket", data);
+         if (data.online) {
+            setLastSeen("online");
+         } else {
+            let lastSeenDate = moment(data.updatedAt).fromNow();
+            setLastSeen(lastSeenDate);
+         }
+      });
+
+      }
+      
+   }, [socket,createdBy]);
+
+
 
    const handleLike = async (blogId: string) => {
       console.log("Like function runnning...");
@@ -105,9 +131,7 @@ const BlogComponent = (props: BlogComponentProps) => {
             let { liked, likesCount: _likesCount } = data.data;
             console.log(data.data);
             setLiked(liked);
-            setLikesCount(_likesCount);
-
-            // Alert.alert("Success", data.message);
+            setLikesCount(_likesCount)
          } else {
             Alert.alert("Failed", data.message);
          }
@@ -140,6 +164,7 @@ const BlogComponent = (props: BlogComponentProps) => {
          );
          if (response.status === 201) {
             console.log(response.data);
+
             setLoadingShare(false);
             setShared(true);
             setRelaodCLS(reloadCLS + 1);
@@ -169,6 +194,7 @@ const BlogComponent = (props: BlogComponentProps) => {
          </View>
       );
    }
+
 
    return (
       <View
@@ -258,14 +284,35 @@ const BlogComponent = (props: BlogComponentProps) => {
                   padding: 8,
                }}>
                <Pressable onPress={gotoUserProfile}>
-                  <Avatar.Image
-                     size={45}
-                     source={{ uri: createdBy.profileImage }}
-                  />
-                  {/* <Image
-                     style={styles.profileImage}
-                     
-                  /> */}
+               <View style={{ position: "relative" }}>
+               <Avatar.Image
+                  size={35}
+                  source={{ uri: "https://picsum.photos/200/300" }}
+               />
+               {lastSeen === "online" && (
+                  <View
+                     style={{
+                        width: 17,
+                        height: 17,
+                        borderRadius: 8,
+                        backgroundColor: "#fff",
+                        position: "absolute",
+                        bottom: -2,
+                        right: -2,
+                        zIndex: 10,
+                        justifyContent:'center',
+                        alignItems:'center'
+                     }}>
+                        <View
+                     style={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: 8,
+                        backgroundColor: "#11a100",
+                     }}></View>
+                  </View>
+               )}
+            </View>
                </Pressable>
                <TextEllipse
                   style={{
@@ -301,9 +348,10 @@ const BlogComponent = (props: BlogComponentProps) => {
                   }}>
                   {currentUser?.userId == props.blog?.userId && (
                      <View>
-                        <Button mode="text" onPress={() => setOpenModal(true)}>
-                           <SimpleLineIcons name="options-vertical" />
-                        </Button>
+                        <SimpleLineIcons
+                           onPress={() => setOpenModal(false)}
+                           name="options-vertical"
+                        />
                      </View>
                   )}
                </View>
@@ -332,10 +380,11 @@ const BlogComponent = (props: BlogComponentProps) => {
                </Text>
             </View>
 
-            {props.blog.images && <ImagesViewer images={props.blog.images} />}
-            {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
-            {/* {props?.video && <VideoPlayer video={props?.video}/>} */}
          </View>
+
+         {props.blog.images && <ImagesViewer images={props.blog.images} />}
+            {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
+            {props?.blog.video && <VideoPlayer video={props.blog?.video}/>}
 
          {props.blog.title && (
             <Text style={styles.title}>{props.blog?.title}</Text>

@@ -3,6 +3,7 @@ import {
    FontAwesome,
    Ionicons,
    MaterialCommunityIcons,
+   MaterialIcons,
    SimpleLineIcons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -65,13 +66,13 @@ const CommentComponent = (props: CommentProps) => {
 
    let fetchData = async (pageNum?: number) => {
       let pageNumber = pageNum ?? page.current;
-      console.log("Replies PageNumber", pageNumber);
+      // console.log("Replies PageNumber", pageNumber);
       if (!hasMore) return;
       try {
          setLoadingFetch(true);
          if (currentUser) {
             let commentId = props.comment.commentId;
-            console.log(commentId, currentUser);
+            // console.log(commentId, currentUser);
             let { status, data } = await axios.get(
                `http://192.168.1.98:6000/comments/${commentId}?pageNumber=${pageNumber}&numberOfRecords=5`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
@@ -141,7 +142,7 @@ const CommentComponent = (props: CommentProps) => {
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
          if (status === 201) {
-            console.log(data.data);
+            // console.log(data.data);
             setReplies((prev) => (prev ? [data.data, ...prev] : [data.data]));
             setReplyText("");
             setRepliesCount((prev) => prev + 1);
@@ -382,7 +383,7 @@ const CommentComponent = (props: CommentProps) => {
                         position: "absolute",
                         top: height * 0.075,
                         width: "100%",
-                        paddingHorizontal: 20,
+                        paddingHorizontal: 35,
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "center",
@@ -400,20 +401,22 @@ const CommentComponent = (props: CommentProps) => {
                            borderBottomLeftRadius: 20,
                            height: 50,
                            paddingHorizontal: 25,
-                           zIndex: 1,
+                           backgroundColor: theme.colors.inverseOnSurface,
                         }}
                      />
                      <Button
-                        loading={loading}
-                        disabled={loading}
                         mode="text"
                         onPress={handleReply}
                         style={{
-                           paddingHorizontal: 10,
+                           paddingHorizontal: 5,
                            height: 50,
                            alignItems: "center",
                            justifyContent: "center",
                            backgroundColor: theme.colors.inverseOnSurface,
+                           borderTopLeftRadius: 0,
+                           borderBottomLeftRadius: 0,
+                           borderTopRightRadius: 20,
+                           borderBottomRightRadius: 20,
                         }}>
                         <FontAwesome
                            color={theme.colors.secondary}
@@ -456,13 +459,14 @@ const CommentComponent = (props: CommentProps) => {
                         bottom: 0,
                         left: 0,
                         width: "100%",
-                        paddingHorizontal: 15,
+                        paddingHorizontal: 10,
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "center",
                         zIndex: 10,
                      }}>
                      <TextInput
+                        multiline
                         value={commentText}
                         placeholder="Comment here..."
                         onChangeText={(v) => setCommentText(v)}
@@ -497,144 +501,167 @@ const CommentComponent = (props: CommentProps) => {
             </View>
          </Modal>
          {commentor && (
-            <View>
-               <View style={styles.commentorMedia}>
-                  <Pressable onPress={gotoUserProfile}>
-                     <Avatar.Image
-                        source={{ uri: commentor.profileImage }}
-                        size={props.size === "small" ? 28 : 35}
-                     />
-                     {/* <Image
-                        style={styles.profileImage}
-                        source={{ uri: commentor.profileImage }}
-                     /> */}
-                  </Pressable>
+            <View style={styles.commentorMedia}>
+               <Pressable onPress={gotoUserProfile}>
+                  <Avatar.Image
+                     size={35}
+                     source={{ uri: commentor.profileImage }}
+                  />
+                  {/* <Image
+                     style={styles.profileImage}
+                     
+                  /> */}
+               </Pressable>
+               <View
+                  style={{
+                     // backgroundColor: "#f5f5f5",
+                     flex: 1,
+                     borderRadius: 30,
+                     paddingLeft: 2,
+                     paddingRight: 15,
+                     paddingVertical: 2,
+                  }}>
                   <View
                      style={{
-                        // backgroundColor: "#f5f5f5",
                         flex: 1,
-                        borderRadius: 30,
-                        paddingLeft: 2,
-                        paddingRight: 15,
-                        paddingVertical: 2,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
                      }}>
                      <View
                         style={{
                            flex: 1,
                            flexDirection: "row",
-                           alignItems: "flex-start",
-                           justifyContent: "space-between",
+                           alignItems: "center",
+                           // justifyContent: "space-between",
                         }}>
                         <TextEllipse
                            style={{
-                              ...styles.userFullName,
-                              fontSize: props.size === "small" ? 12 : 14,
+                              fontFamily: "Poppins_400Regular",
+                              margin: 5,
+                              color: theme.colors.secondary,
+                              fontSize: 12,
                            }}
-                           textLength={24}
+                           textLength={23}
                            text={commentor.fullName}
                         />
-                        {(currentUser?.userId == commentor.userId ||
-                           currentUser?.userId == props?.blogOwnerId) && (
-                           <SimpleLineIcons
-                              style={{ marginTop: 6 }}
-                              onPress={() => setOpenModal(true)}
-                              name="options"
+                        {commentor.verificationRank && (
+                           <MaterialIcons
+                              size={14}
+                              color={
+                                 commentor.verificationRank === "low"
+                                    ? "orange"
+                                    : commentor.verificationRank === "medium"
+                                    ? "green"
+                                    : "blue"
+                              }
+                              name="verified"
                            />
                         )}
                      </View>
-
-                     <TextEllipse
-                        text={comment.content}
-                        textLength={100}
-                        showViewMore
-                        style={{
-                           fontFamily: "Poppins_300Light",
-                           paddingHorizontal: 5,
-                           fontSize: props.size === "small" ? 11 : 13,
-                        }}
-                     />
-                     {/* <Text>Comment Likes</Text>  */}
-                     <View
-                        style={{
-                           flex: 1,
-                           justifyContent: "flex-start",
-                           flexDirection: "row",
-                           alignItems: "center",
-                           marginTop: 2,
-                           paddingHorizontal: 5,
-                           borderRadius: 3,
-                           gap: 1,
-                        }}>
-                        {comment.createdAt && (
-                           <Text
-                              style={{
-                                 fontSize: 10,
-                                 fontFamily: "Poppins_300Light",
-                                 marginRight: 5,
-                              }}>
-                              {dateAgo(comment.createdAt)}
-                           </Text>
-                        )}
-
-                        <Divider style={{ width: 50 }} />
-                        <Button
-                           disabled={loading}
-                           labelStyle={{
-                              fontFamily: "Poppins_300Light",
-                              paddingHorizontal: 3,
-                              fontSize: 13,
-                              color: theme.colors.secondary,
-                           }}
-                           onPress={handleReplyModal}
-                           mode="text">
-                           Reply
-                        </Button>
-                        <Button
-                           disabled={loading}
-                           labelStyle={{
-                              fontFamily: "Poppins_300Light",
-                              paddingHorizontal: 3,
-                              fontSize: 13,
-                              color: theme.colors.secondary,
-                           }}
-                           onPress={() => setOpenRepliesModal(true)}>
-                           <Ionicons
-                              size={props.size === "small" ? 14 : 15}
-                              color={theme.colors.secondary}
-                              name="chatbox-outline"
-                           />
-                           {replies.length}
-                        </Button>
-                        <Button
-                           disabled={loading}
-                           labelStyle={{
-                              fontFamily: "Poppins_300Light",
-                              paddingHorizontal: 3,
-                              fontSize: 13,
-                              color: theme.colors.secondary,
-                           }}
-                           onPress={() => handleLike(comment.commentId)}>
-                           <AntDesign
-                              size={props.size === "small" ? 14 : 15}
-                              name={liked ? "like1" : "like2"}
-                              color={theme.colors.secondary}
-                           />
-                           {likesCount}
-                        </Button>
-                     </View>
-                     {replies.length > 0 && (
-                        <View>
-                           <CommentComponent
-                              size="small"
-                              comment={replies[0]}
-                              blogOwnerId={props.blogOwnerId}
-                           />
-                        </View>
+                     {(currentUser?.userId == commentor.userId ||
+                        currentUser?.userId == props?.blogOwnerId) && (
+                        <SimpleLineIcons
+                           style={{ alignSelf: "center", right: 5 }}
+                           onPress={() => setOpenModal(true)}
+                           name="options"
+                        />
                      )}
                   </View>
+
+                  <TextEllipse
+                     text={comment.content}
+                     textLength={80}
+                     showViewMore
+                     style={{
+                        fontFamily: "Poppins_300Light",
+                        paddingHorizontal: 5,
+                        fontSize: props.size === "small" ? 11 : 13,
+                     }}
+                  />
+                  {/* <Divider/> */}
+                  {/* <Text>Comment Likes</Text>  */}
+                  <View
+                     style={{
+                        flex: 1,
+                        justifyContent: "flex-start",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginTop: 2,
+                        paddingHorizontal: 5,
+                        borderRadius: 3,
+                        gap: 1,
+                     }}>
+                     {comment.createdAt && (
+                        <Text
+                           style={{
+                              fontSize: 10,
+                              fontFamily: "Poppins_300Light",
+                              marginRight: 5,
+                           }}>
+                           {dateAgo(comment.createdAt)}
+                        </Text>
+                     )}
+
+                     {/* <Divider style={{ width: 50 }} /> */}
+                     <Button
+                        disabled={loading}
+                        labelStyle={{
+                           fontFamily: "Poppins_300Light",
+                           paddingHorizontal: 3,
+                           fontSize: 13,
+                           color: theme.colors.secondary,
+                        }}
+                        onPress={handleReplyModal}
+                        mode="text">
+                        Reply
+                     </Button>
+                     <Button
+                        disabled={loading}
+                        labelStyle={{
+                           fontFamily: "Poppins_300Light",
+                           paddingHorizontal: 3,
+                           fontSize: 13,
+                           color: theme.colors.secondary,
+                        }}
+                        onPress={() => setOpenRepliesModal(true)}>
+                        <Ionicons
+                           size={props.size === "small" ? 14 : 15}
+                           color={theme.colors.secondary}
+                           name="chatbox-outline"
+                        />
+                        {replies.length}
+                     </Button>
+                     <Button
+                        disabled={loading}
+                        labelStyle={{
+                           fontFamily: "Poppins_300Light",
+                           paddingHorizontal: 3,
+                           fontSize: 13,
+                           color: theme.colors.secondary,
+                        }}
+                        onPress={() => handleLike(comment.commentId)}>
+                        <AntDesign
+                           size={props.size === "small" ? 14 : 15}
+                           name={liked ? "like1" : "like2"}
+                           color={theme.colors.secondary}
+                        />
+                        {likesCount}
+                     </Button>
+                  </View>
+                  {replies.length > 0 && (
+                     <View>
+                        <CommentComponent
+                           size="small"
+                           comment={replies[0]}
+                           blogOwnerId={props.blogOwnerId}
+                        />
+                     </View>
+                  )}
                </View>
             </View>
          )}
+         <Divider style={{ width: 0.6 * width, alignSelf: "center" }} />
       </KeyboardAvoidingView>
    );
 };

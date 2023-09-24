@@ -6,7 +6,7 @@ import {
    FlatList,
    Platform,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BlogComponent from "./BlogComponent";
 import axios from "axios";
 // import { blogs as _fetchedPost } from "../../data";
@@ -38,49 +38,53 @@ const BlogsComponent = () => {
    const [hasMore, setHasMore] = useState(true);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
 
+   console.log("BlogsComponent running...");
 
-   let fetchData = async (pageNum?: number) => {
-      console.log("Fetching blog posts");
-      let pageNumber = pageNum || page.current;
-      if (!hasMore) return;
-      try {
-         if (currentUser) {
-            setLoadingFetch(true);
-            let { data, status } = await axios.get(
-               `http://192.168.1.98:6000/sessions/blogs?pageNumber=${pageNumber}&numberOfRecords=${numberOfblogsPerPage}`,
-               { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-            );
-
-            if (status === 200) {
-               console.log(data);
-               // setBlogs(data.data);
-               let fetchedPost: BlogComponentProps[] = data.data;
-
-               // setAllBlogs((prev) =>
-               //    prev ? [...prev, ...fetchedPost] : fetchedPost
-               // );
-               setBlogs((prev) =>
-                  prev ? [...prev, ...fetchedPost] : fetchedPost
+   let fetchData = useCallback(
+      async (pageNum?: number) => {
+         console.log("Fetching blog posts");
+         let pageNumber = pageNum || page.current;
+         if (!hasMore) return;
+         try {
+            if (currentUser) {
+               setLoadingFetch(true);
+               let { data, status } = await axios.get(
+                  `http://192.168.1.98:6000/sessions/blogs/?pageNumber=${pageNumber}&numberOfRecords=${numberOfblogsPerPage}`,
+                  { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
 
-               if (fetchedPost.length > 0) page.current++;
-               if (data.data.length < numberOfblogsPerPage) {
-                  setHasMore(false);
+               if (status === 200) {
+                  // console.log(data);
+                  // setBlogs(data.data);
+                  let fetchedPost: BlogComponentProps[] = data.data;
+
+                  // setAllBlogs((prev) =>
+                  //    prev ? [...prev, ...fetchedPost] : fetchedPost
+                  // );
+                  setBlogs((prev) =>
+                     prev ? [...prev, ...fetchedPost] : fetchedPost
+                  );
+
+                  if (fetchedPost.length > 0) page.current++;
+                  if (data.data.length < numberOfblogsPerPage) {
+                     setHasMore(false);
+                  }
+                  setLoadingFetch(false);
+                  // Alert.alert("Success",data.message)
+               } else {
+                  Alert.alert("Blogs Failed", data.message);
+                  console.log(data.message);
+                  setLoadingFetch(false);
                }
-               setLoadingFetch(false);
-               // Alert.alert("Success",data.message)
-            } else {
-               Alert.alert("Failed", data.message);
-               console.log(data.message);
-               setLoadingFetch(false);
             }
+         } catch (err) {
+            Alert.alert("Failed Fetching", String(err));
+            console.log(err);
+            setLoadingFetch(false);
          }
-      } catch (err) {
-         Alert.alert("Failed Fetching", String(err));
-         console.log(err);
-         setLoadingFetch(false);
-      }
-   };
+      },
+      [page]
+   );
 
    const handleLoadMore = () => {
       console.log("blogs Reached end");
@@ -112,8 +116,8 @@ const BlogsComponent = () => {
 
    useEffect(
       function () {
-         if(currentUser){
-            fetchData(1);
+         if (currentUser) {
+            fetchData();
          }
       },
       [currentUser]
@@ -156,4 +160,4 @@ const BlogsComponent = () => {
    );
 };
 
-export default BlogsComponent;
+export default React.memo(BlogsComponent);

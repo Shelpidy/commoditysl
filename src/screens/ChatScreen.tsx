@@ -26,6 +26,36 @@ import {
 import { Socket, io } from "socket.io-client";
 import TextEllipse from "../components/TextEllipse";
 import { useCurrentUser, useNetworkStatus } from "../utils/CustomHooks";
+import {
+   getStorage,
+   ref,
+   uploadBytesResumable,
+   getDownloadURL,
+} from "firebase/storage";
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+   apiKey: "AIzaSyAoNT04_z-qCC4PeIaLXDJcMdpYX5Hvw_I",
+   authDomain: "commodity-aca4d.firebaseapp.com",
+   projectId: "commodity-aca4d",
+   storageBucket: "commodity-aca4d.appspot.com",
+   messagingSenderId: "966126498365",
+   appId: "1:966126498365:web:fe492c3f15370783813054",
+   measurementId: "G-2TCKRYHYB5",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const storage = getStorage();
 // import { ImagePicker } from "expo-image-multiple-picker";
 // import AWS from "aws-sdk";
 import { AVPlaybackStatus, Audio, ResizeMode, Video } from "expo-av";
@@ -258,18 +288,18 @@ const ChatScreen = ({ route, navigation }: any) => {
 
    ////// RECONNECT TO SOCKET FOR CHAT ////////////////////////////
 
-   React.useEffect(() => {
-      if (currentUser) {
-         let newSocket = io(
-            `http://192.168.1.98:8080/?userId=${currentUser.userId}&roomId=${route.params?.roomId}`
-         );
-         dispatch(setSocket(newSocket));
-         // cleanup function to close the socket connection when the component unmounts
-         return () => {
-            newSocket.close();
-         };
-      }
-   }, [currentUser]);
+   // React.useEffect(() => {
+   //    if (currentUser) {
+   //       let newSocket = io(
+   //          `http://192.168.1.98:8080/?userId=${currentUser.userId}&roomId=${route.params?.roomId}`
+   //       );
+   //       dispatch(setSocket(newSocket));
+   //       // cleanup function to close the socket connection when the component unmounts
+   //       return () => {
+   //          newSocket.close();
+   //       };
+   //    }
+   // }, [currentUser]);
 
    //////////////////// ADD USER STATUS TO AS BEING IN THIS ROOM/////////////////
 
@@ -334,7 +364,7 @@ const ChatScreen = ({ route, navigation }: any) => {
       });
 
       return unsubscribe;
-   }, [navigation]);
+   }, [navigation, socket, currentUser]);
 
    // useEffect(() => {
    //    let secUser = route.params.user;
@@ -357,14 +387,45 @@ const ChatScreen = ({ route, navigation }: any) => {
    useEffect(() => {
       //// Updating Typing Status //////////
       if (socket) {
+         console.log("Typing");
          if (currentUser) {
             socket.emit("typing", {
                userId: currentUser.userId,
                typing: inputFocus,
+               roomId: route.params.roomId || "Didnt read roomId",
             });
          }
       }
    }, [socket, inputFocus]);
+
+   useEffect(() => {
+      //// Updating Typing Status //////////
+      if (socket) {
+         console.log("Recording");
+         if (currentUser) {
+            socket.emit("recording", {
+               userId: currentUser.userId,
+               typing: recording,
+               roomId: route.params.roomId,
+            });
+         }
+      }
+   }, [socket, inputFocus]);
+
+   useEffect(() => {
+      if (secondUser) {
+         console.log("Socket is running", String(secondUser?.userId));
+         socket.on(String(secondUser?.userId), (data: any) => {
+            console.log("From socket", data);
+            if (data.online) {
+               setLastSeen("online");
+            } else {
+               // let lastSeenDate = moment(data.updatedAt).fromNow();
+               setLastSeen(moment(data.updatedAt).fromNow());
+            }
+         });
+      }
+   }, [socket, secondUser]);
 
    useEffect(() => {
       let secUserId = route.params.user.id;
@@ -380,7 +441,7 @@ const ChatScreen = ({ route, navigation }: any) => {
 
          ////////////////////  Chat message listener ///////////////
 
-         socket.on(roomId, (message: any) => {
+         socket.on(String(roomId), (message: any) => {
             // console.log("From Server", message);
             setMessages((previousMessages) => {
                if (previousMessages) {
@@ -392,28 +453,28 @@ const ChatScreen = ({ route, navigation }: any) => {
 
          ///////////// Online Status listener ///////////
 
-         socket.on("online", (data: any) => {
-            // console.log("From Online", { online: data.online });
-            if (data.userId == secondUser?.userId) {
-               console.log("From Online", data);
-               if (data.online) {
-                  setLastSeen("online");
-               } else {
-                  let lastSeenDate = moment(data.updatedAt).fromNow();
-                  setLastSeen(data.updatedAt);
-               }
-               // setResetLastSeen(resetLastSeen + 1);
-            }
-         });
+         // socket.on("online", (data: any) => {
+         //    // console.log("From Online", { online: data.online });
+         //    if (data.userId == secondUser?.userId) {
+         //       console.log("From Online", data);
+         //       if (data.online) {
+         //          setLastSeen("online");
+         //       } else {
+         //          let lastSeenDate = moment(data.updatedAt).fromNow();
+         //          setLastSeen(data.updatedAt);
+         //       }
+         //       // setResetLastSeen(resetLastSeen + 1);
+         //    }
+         // });
 
          //////// Check or listen for typing status //////////
 
          socket.on("typing", (data: any) => {
-            // console.log("From Typing", { typing: data.typing });
-            if (data.userId == secUserId) {
-               setGesture(data.typing ? "typing..." : "");
-               // setTyping(data.typing);
-            }
+            console.log("From Typing", { typing: data.typing });
+            // if (data.userId == secUserId) {
+            //    setGesture(data.typing ? "typing..." : "")
+            //    // setTyping(data.typing);
+            // }
          });
 
          ///////// check or listen for recording ///////////////
@@ -495,9 +556,14 @@ const ChatScreen = ({ route, navigation }: any) => {
          return;
       }
 
-      setImage(pickerResult.assets[0].uri);
-      await onSend(null, null, pickerResult.assets[0].uri);
-      console.log("Image", pickerResult.assets[0]);
+      // setImage(pickerResult.assets[0].uri);
+      let image = await getFirebaseFileURL(
+         "ChatFiles",
+         pickerResult.assets[0].uri,
+         "image"
+      );
+      await onSend(null, null, image);
+      console.log("Image", image);
    };
 
    ////////////// Take picture /////////////////////////
@@ -530,11 +596,95 @@ const ChatScreen = ({ route, navigation }: any) => {
          mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       });
       if (!pickerResult.canceled) {
-         setSelectedVideo(pickerResult.assets[0].uri);
-         await onSend(null, pickerResult.assets[0].uri, null);
-         console.log(pickerResult.assets[0].uri);
+         // setSelectedVideo(pickerResult.assets[0].uri);
+         let video = await getFirebaseFileURL(
+            "ChatFiles",
+            pickerResult.assets[0].uri,
+            "video"
+         );
+         await onSend(null, video, null);
+         console.log("Video", video);
       }
    };
+
+   ///////////////////// Upload to firebase ///////////////////////
+
+   async function getFirebaseFileURL(
+      folderName: string = "ChatFiles",
+      file: string,
+      fileType: "image" | "video" | "audio"
+   ) {
+      try {
+         const metadata = {
+            contentType:
+               fileType === "image"
+                  ? "image/jpeg"
+                  : fileType === "audio"
+                  ? "audio/*"
+                  : "video/*",
+         };
+         // var downloadURLs: string[] | null = null;
+         console.log({ Images: file });
+
+         // setProgress(0);
+         const fileResponse = await fetch(file);
+         const fileBlob = await fileResponse.blob();
+         const storageRef = ref(
+            storage,
+            folderName + "/" + file.split("/").pop() ||
+               `${String(new Date().toISOString())}.png`
+         );
+         const uploadTask = uploadBytesResumable(
+            storageRef,
+            fileBlob,
+            metadata
+         );
+         return new Promise((resolve) => {
+            uploadTask.on(
+               "state_changed",
+               (snapshot) => {
+                  const progress =
+                     (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                  console.log("Upload is " + progress + "% done");
+                  // setProgress(progress);
+                  switch (snapshot.state) {
+                     case "paused":
+                        console.log("Upload is paused");
+                        break;
+                     case "running":
+                        console.log("Upload is running");
+                        break;
+                  }
+               },
+               (error) => {
+                  if (error) {
+                     console.log("Firebase Error", { error });
+                     Alert.alert("Failed to send file, try again");
+                     return;
+                  }
+                  // Handle errors as before
+               },
+               async () => {
+                  let downloadURL = await getDownloadURL(
+                     uploadTask.snapshot.ref
+                  );
+                  // if (Array.isArray(downloadURLs)) {
+                  //    downloadURLs.push(downloadURL);
+                  // } else {
+                  //    downloadURLs = [downloadURL];
+                  // }
+
+                  console.log("File available at", downloadURL);
+                  resolve(downloadURL);
+               }
+            );
+         });
+      } catch (err) {
+         setLoading(false);
+         console.log({ Error: err });
+         return Promise.reject("Failed to upload file to firebase");
+      }
+   }
 
    ///////////////////// start recording ///////////////////////////
 
@@ -581,8 +731,12 @@ const ChatScreen = ({ route, navigation }: any) => {
                allowsRecordingIOS: false,
             });
             const uri = recording.getURI();
-            setAudio(uri);
-            await onSend(uri, null, null);
+            if (uri) {
+               let audio = await getFirebaseFileURL("ChatFiles", uri, "audio");
+               await onSend(audio, null, null);
+            }
+            // setAudio(uri);
+
             console.log("Recording stopped and stored at", uri);
          }
       } catch (err) {
@@ -592,8 +746,6 @@ const ChatScreen = ({ route, navigation }: any) => {
 
    const onSend = async (_audio?: any, _video?: any, _image?: any) => {
       console.log("Onsend loading");
-      let secUser = route.params.user.id;
-      let activeUser = currentUser?.userId;
       let roomId = route.params.roomId;
       let sendData = {
          senderId: currentUser?.userId,

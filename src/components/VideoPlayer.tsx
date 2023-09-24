@@ -4,12 +4,12 @@ import { ResizeMode, Video } from "expo-av";
 type VideoPlayerProps = {
    video: string;
 };
-const {width,height} = Dimensions.get("window")
+const { width, height } = Dimensions.get("window");
 
 const VideoPlayer: any = (video: VideoPlayerProps) => {
    return (
       <View>
-          <Video
+         <Video
             useNativeControls
             resizeMode={ResizeMode.CONTAIN}
             source={{ uri: video.video }}
@@ -17,7 +17,6 @@ const VideoPlayer: any = (video: VideoPlayerProps) => {
                width: width,
                height: 0.45 * height,
                margin: 0,
-               
             }}
          />
       </View>

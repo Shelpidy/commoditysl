@@ -83,20 +83,21 @@ const UserProfileScreen = ({ navigation, route }: any) => {
       [currentUser]
    );
 
-  // LISTEN FOR CHANGE IN ONLINE STATUS
+   // LISTEN FOR CHANGE IN ONLINE STATUS
 
    useEffect(() => {
-      if(socket){
-      console.log("Socket is running", String(route.params.userId));
-      socket.on(String(route.params.userId), (data: any) => {
-         console.log("From socket", data);
-         if (data.online) {
-            setLastSeen("online");
-         } else {
-            let lastSeenDate = moment(data.updatedAt).fromNow();
-            setLastSeen(lastSeenDate);
-         }
-      });}
+      if (socket) {
+         console.log("Socket is running", String(route.params.userId));
+         socket.on(String(route.params.userId), (data: any) => {
+            console.log("From socket", data);
+            if (data.online) {
+               setLastSeen("online");
+            } else {
+               let lastSeenDate = moment(data.updatedAt).fromNow();
+               setLastSeen(lastSeenDate);
+            }
+         });
+      }
    }, [socket]);
 
    // FETCHING USER PROFILE INFO ////
@@ -115,8 +116,8 @@ const UserProfileScreen = ({ navigation, route }: any) => {
             if (status === 200) {
                console.log("Users-----", data.data);
                setUser(data.data);
-               setLastSeen(data.data.personal.lastSeenStatus)
-               
+               setLastSeen(data.data.personal.lastSeenStatus);
+
                // Alert.alert("Success",data.message)
                setLoading(false);
             } else {
@@ -170,11 +171,14 @@ const UserProfileScreen = ({ navigation, route }: any) => {
       }
    };
 
-   useEffect(function () {
-      if( currentUser){
-         fetchPostsData(1);
-      }
-   }, [currentUser]);
+   useEffect(
+      function () {
+         if (currentUser) {
+            fetchPostsData(1);
+         }
+      },
+      [currentUser]
+   );
 
    const handleFollow = async () => {
       setLoading(true);
@@ -243,7 +247,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   size={100}
                   source={{ uri: "https://picsum.photos/200/300" }}
                />
-                    {lastSeen === "online" && (
+               {lastSeen === "online" && (
                   <View
                      style={{
                         width: 22,
@@ -254,16 +258,16 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                         bottom: 2,
                         right: 6,
                         zIndex: 10,
-                        justifyContent:'center',
-                        alignItems:'center'
+                        justifyContent: "center",
+                        alignItems: "center",
                      }}>
-                        <View
-                     style={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: 9,
-                        backgroundColor: "#11a100",
-                     }}></View>
+                     <View
+                        style={{
+                           width: 16,
+                           height: 16,
+                           borderRadius: 9,
+                           backgroundColor: "#11a100",
+                        }}></View>
                   </View>
                )}
             </View>

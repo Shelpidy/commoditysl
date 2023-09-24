@@ -6,7 +6,7 @@ import {
    FlatList,
    Dimensions,
    TextInput,
-   Modal
+   Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import CommentComponent from "./CommentComponent";
@@ -20,7 +20,13 @@ import { useNavigation } from "@react-navigation/native";
 import { useCurrentUser } from "../../utils/CustomHooks";
 import { Skeleton } from "@rneui/themed";
 import axios from "axios";
-import { Feather, FontAwesome, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+   AntDesign,
+   Feather,
+   FontAwesome,
+   Ionicons,
+   MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import LikesComponent from "../LikesComponent";
 
 type CommentsProps = {
@@ -29,7 +35,7 @@ type CommentsProps = {
    // setNewCommentsCount: (count: number) => void;
    _commentsCount: number;
    _likesCount: number;
-   _liked:boolean
+   _liked: boolean;
 };
 
 type FetchComment = {
@@ -72,8 +78,7 @@ const Comments = ({
    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
    const theme = useTheme();
 
-
-   const inputRef = React.useRef<TextInput>(null)
+   const inputRef = React.useRef<TextInput>(null);
 
    const fetchComments = async (pageNum?: number) => {
       let pageNumber = pageNum ?? page.current;
@@ -101,28 +106,27 @@ const Comments = ({
                }
                setLoadingFetch(false);
             } else {
-               Alert.alert("Failed", data.message);
+               Alert.alert("c Failed", data.message);
                setLoadingFetch(false);
             }
          }
          // setLoadingFetch(false);
       } catch (err) {
          console.log("From Comments", String(err));
-         Alert.alert("Failed", String(err));
+         Alert.alert("c Failed", String(err));
          setLoadingFetch(false);
       }
    };
 
    useEffect(() => {
       console.log("Fetching comments");
-      if(currentUser){
+      if (currentUser) {
          fetchComments(1);
       }
-
    }, [currentUser]);
 
    useEffect(() => {
-       setLiked(_liked)
+      setLiked(_liked);
    }, [_liked]);
 
    const handleLoadMore = () => {
@@ -131,10 +135,10 @@ const Comments = ({
       fetchComments();
    };
 
-   const handleShowTextInput = ()=>{
-      inputRef.current?.focus()
-      setShowTextInput(true)
-   }
+   const handleShowTextInput = () => {
+      inputRef.current?.focus();
+      setShowTextInput(true);
+   };
 
    const handleShareBlog = async () => {
       let activeUserId = currentUser?.userId;
@@ -173,7 +177,6 @@ const Comments = ({
       // console.log(blogState);
    };
 
-
    const handleLike = async (blogId: string) => {
       console.log(blogId);
       try {
@@ -191,12 +194,12 @@ const Comments = ({
 
             Alert.alert("Success", data.message);
          } else {
-            Alert.alert("Failed", data.message);
+            Alert.alert("l Failed", data.message);
          }
          setLoading(false);
       } catch (err) {
          console.log(err);
-         Alert.alert("Failed", String(err));
+         Alert.alert("l Failed", String(err));
          setLoading(false);
       }
    };
@@ -222,11 +225,11 @@ const Comments = ({
 
             // Alert.alert("Success", data.message);
          } else {
-            Alert.alert("Failed", data.message);
+            Alert.alert("l Failed", data.message);
          }
          setLoading(false);
       } catch (err) {
-         Alert.alert("Failed", String(err));
+         Alert.alert("l Failed", String(err));
          setLoading(false);
       }
    };
@@ -257,14 +260,84 @@ const Comments = ({
    );
 
    return (
-      <View style={{flex:1,gap:4}}>
-               <View>
-               <LikesComponent
-                  blogId={blogId}
-                  numberOfLikes={likesCount}
-               />
+      <View style={{ flex: 1, gap: 4 }}>
+         <View>
+            <LikesComponent blogId={blogId} numberOfLikes={likesCount} />
+            <Divider />
+            <View style={styles.likeCommentAmountCon}>
+               <Button
+                  disabled={loading}
+                  onPress={() => handleLike(blogId)}
+                  textColor={theme.colors.secondary}
+                  style={{
+                     backgroundColor: theme.colors.background,
+                     flex: 1,
+                     justifyContent: "center",
+                     alignItems: "center",
+                  }}>
+                  <Ionicons
+                     size={18}
+                     color={theme.colors.secondary}
+                     name={liked ? "heart-sharp" : "heart-outline"}
+                  />
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {likesCount}
+                  </Text>
+               </Button>
 
-               <View
+               <Button
+                  contentStyle={{
+                     flex: 1,
+                     alignItems: "center",
+                     flexDirection: "row",
+                  }}
+                  onPress={() =>
+                     navigation.navigate("FullPostViewScreen", {
+                        ...blog,
+                     })
+                  }
+                  textColor={theme.colors.secondary}
+                  style={{
+                     backgroundColor: theme.colors.background,
+                     flex: 1,
+                  }}>
+                  <MaterialCommunityIcons
+                     name="comment-outline"
+                     size={16}
+                     color={theme.colors.secondary}
+                  />
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {commentsCount}
+                  </Text>
+               </Button>
+               <Button
+                  onPress={() => setOpenShareModal(true)}
+                  textColor={theme.colors.secondary}
+                  style={{
+                     backgroundColor: theme.colors.background,
+                     flex: 1,
+                  }}>
+                  <AntDesign size={18} name="retweet" />
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {sharesCount}
+                  </Text>
+               </Button>
+               <Button
+                  onPress={() => setOpenShareModal(true)}
+                  textColor={theme.colors.secondary}
+                  style={{
+                     backgroundColor: theme.colors.background,
+                     flex: 1,
+                  }}>
+                  <Ionicons size={18} name="share-outline" />
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {sharesCount}
+                  </Text>
+               </Button>
+            </View>
+            <Divider />
+
+            {/* <View
                   style={{
                      flex: 1,
                      flexDirection: "row",
@@ -344,9 +417,9 @@ const Comments = ({
                         Shares
                      </Text>
                   </View>
-               </View>
-               {/* <Divider style={{ width: width - 40, alignSelf: "center" }} /> */}
-               <View style={styles.likeCommentAmountCon}>
+               </View> */}
+            {/* <Divider style={{ width: width - 40, alignSelf: "center" }} /> */}
+            {/* <View style={styles.likeCommentAmountCon}>
                   <Ionicons
                      onPress={() => handleLike(blogId)}
                      size={30}
@@ -366,104 +439,101 @@ const Comments = ({
                      size={25}
                      name="share-outline"
                   />
-               </View>
-            </View>
-          <Modal visible={openShareModal}>
-               <View
-                  style={{
-                     flex: 1,
-                     backgroundColor: "#00000068",
-                     justifyContent: "center",
-                     alignItems: "center",
-                     paddingVertical: 4,
-                  }}>
-                  <View
-                     style={{
-                        backgroundColor: "#ffffff",
-                        padding: 10,
-                        width: width - 20,
-                        borderRadius: 5,
-                        gap: 20,
-                     }}>
-                     {/* <IconButton name='plus'/> */}
-                     <Button
-                        mode="text"
-                        onPress={() => setOpenShareModal(false)}>
-                        <Feather size={26} name="x" />
-                     </Button>
-                     <Button
-                        style={{
-                           backgroundColor: shared
-                              ? "green"
-                              : theme.colors.primary,
-                        }}
-                        disabled={loadingShare}
-                        loading={loadingShare}
-                        onPress={handleShareBlog}
-                        mode="contained">
-                        <Ionicons />
-                        <Ionicons
-                           style={{ marginHorizontal: 4 }}
-                           size={18}
-                           name={shared ? "checkmark" : "share-social-outline"}
-                        />
-                        <Text>
-                           {shared
-                              ? "Shared blog Successfully"
-                              : "Continue to share as a blog"}
-                        </Text>
-                     </Button>
-                  </View>
-               </View>
-            </Modal>
-         {
-            showTextInput && 
+               </View> */}
+         </View>
+         <Modal visible={openShareModal}>
             <View
-            style={{
-               marginVertical: 5,
-               paddingHorizontal: 0.1 * width,
-               flexDirection: "row",
-               alignItems: "center",
-               justifyContent: "center",
-            }}>
-            <TextInput
-               ref={inputRef}
-               multiline
-               value={textValue}
-               placeholder="Comment here..."
-               onChangeText={(v) => setTextValue(v)}
                style={{
                   flex: 1,
-                  borderTopLeftRadius: 20,
-                  borderBottomLeftRadius: 20,
-                  height: 50,
-                  paddingHorizontal: 25,
-                  backgroundColor: theme.colors.inverseOnSurface,
-               }}
-            />
-            <Button
-               mode="text"
-               onPress={handleComment}
+                  backgroundColor: "#00000068",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  paddingVertical: 4,
+               }}>
+               <View
+                  style={{
+                     backgroundColor: "#ffffff",
+                     padding: 10,
+                     width: width - 20,
+                     borderRadius: 5,
+                     gap: 20,
+                  }}>
+                  {/* <IconButton name='plus'/> */}
+                  <Button mode="text" onPress={() => setOpenShareModal(false)}>
+                     <Feather size={26} name="x" />
+                  </Button>
+                  <Button
+                     style={{
+                        backgroundColor: shared
+                           ? "green"
+                           : theme.colors.primary,
+                     }}
+                     disabled={loadingShare}
+                     loading={loadingShare}
+                     onPress={handleShareBlog}
+                     mode="contained">
+                     <Ionicons />
+                     <Ionicons
+                        style={{ marginHorizontal: 4 }}
+                        size={18}
+                        name={shared ? "checkmark" : "share-social-outline"}
+                     />
+                     <Text>
+                        {shared
+                           ? "Shared blog Successfully"
+                           : "Continue to share as a blog"}
+                     </Text>
+                  </Button>
+               </View>
+            </View>
+         </Modal>
+         {showTextInput && (
+            <View
                style={{
-                  paddingHorizontal: 5,
-                  height: 50,
+                  marginVertical: 5,
+                  paddingHorizontal: 0.1 * width,
+                  flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: theme.colors.inverseOnSurface,
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                  borderTopRightRadius: 20,
-                  borderBottomRightRadius: 20,
                }}>
-               <FontAwesome
-                  color={theme.colors.secondary}
-                  name="send"
-                  size={20}
+               <TextInput
+                  ref={inputRef}
+                  multiline
+                  value={textValue}
+                  placeholder="Comment here..."
+                  onChangeText={(v) => setTextValue(v)}
+                  style={{
+                     flex: 1,
+                     borderTopLeftRadius: 20,
+                     borderBottomLeftRadius: 20,
+                     height: 50,
+                     paddingHorizontal: 25,
+                     backgroundColor: theme.colors.inverseOnSurface,
+                  }}
                />
-            </Button>
-         </View>
-         }
-        
+               <Button
+                  mode="text"
+                  onPress={handleComment}
+                  style={{
+                     paddingHorizontal: 5,
+                     height: 50,
+                     alignItems: "center",
+                     justifyContent: "center",
+                     backgroundColor: theme.colors.inverseOnSurface,
+                     borderTopLeftRadius: 0,
+                     borderBottomLeftRadius: 0,
+                     borderTopRightRadius: 20,
+                     borderBottomRightRadius: 20,
+                  }}>
+                  <FontAwesome
+                     color={theme.colors.secondary}
+                     name="send"
+                     size={20}
+                  />
+               </Button>
+            </View>
+         )}
+
          <View>
             <FlatList
                data={comments}

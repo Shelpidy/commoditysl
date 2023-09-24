@@ -70,21 +70,19 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    let inputRef = useRef<TextInput>(null);
 
    useEffect(() => {
-      if(createdBy){
+      if (createdBy) {
          console.log("Socket is running", String(route.params.userId));
          socket.on(String(route.params.userId), (data: any) => {
-         console.log("From socket", data);
-         if (data.online) {
-            setLastSeen("online");
-         } else {
-            let lastSeenDate = moment(data.updatedAt).fromNow();
-            setLastSeen(lastSeenDate);
-         }
-      });
-
+            console.log("From socket", data);
+            if (data.online) {
+               setLastSeen("online");
+            } else {
+               let lastSeenDate = moment(data.updatedAt).fromNow();
+               setLastSeen(lastSeenDate);
+            }
+         });
       }
-    
-   }, [socket,createdBy]);
+   }, [socket, createdBy]);
 
    useEffect(
       function () {
@@ -115,7 +113,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                   setSharesCount(sharesCount);
                   setCommentsCount(commentsCount);
                   setBlogs(blog);
-                  setLastSeen(createdBy.lastSeenStatus)
+                  setLastSeen(createdBy.lastSeenStatus);
 
                   // Alert.alert("Success",data.message)
                } else {
@@ -185,7 +183,6 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       // console.log(blogState);
    };
 
-
    const handleLike = async (blogId: string) => {
       console.log(blogId);
       try {
@@ -228,7 +225,6 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    return (
       <View>
          <ScrollView style={styles.blogContainer}>
-           
             <Modal visible={openModal}>
                <View
                   style={{
@@ -249,90 +245,90 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                </View>
             </Modal>
             {createdBy && (
-            <View
-               style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  padding: 8,
-               }}>
-               <Pressable onPress={gotoUserProfile}>
-               <View style={{ position: "relative" }}>
-               <Avatar.Image
-                  size={35}
-                  source={{ uri: "https://picsum.photos/200/300" }}
-               />
-               {lastSeen === "online" && (
-                  <View
-                     style={{
-                        width: 17,
-                        height: 17,
-                        borderRadius: 8,
-                        backgroundColor: "#fff",
-                        position: "absolute",
-                        bottom: -2,
-                        right: -2,
-                        zIndex: 10,
-                        justifyContent:'center',
-                        alignItems:'center'
-                     }}>
-                        <View
-                     style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 8,
-                        backgroundColor: "#11a100",
-                     }}></View>
-                  </View>
-               )}
-            </View>
-               </Pressable>
-               <TextEllipse
-                  style={{
-                     fontFamily: "Poppins_400Regular",
-                     margin: 5,
-                     color: theme.colors.secondary,
-                     fontSize: 12,
-                  }}
-                  textLength={23}
-                  text={createdBy.fullName}
-               />
-               {createdBy.verificationRank && (
-                  <MaterialIcons
-                     size={14}
-                     color={
-                        createdBy.verificationRank === "low"
-                           ? "orange"
-                           : createdBy.verificationRank === "medium"
-                           ? "green"
-                           : "blue"
-                     }
-                     name="verified"
-                  />
-               )}
                <View
                   style={{
-                     flex: 1,
-                     justifyContent: "flex-end",
-                     alignItems: "flex-end",
-                     marginBottom: 2,
-                     paddingHorizontal: 0,
-                     borderRadius: 3,
+                     flexDirection: "row",
+                     alignItems: "center",
+                     padding: 8,
                   }}>
-                  {currentUser?.userId == blog?.userId && (
-                     <View>
-                        <SimpleLineIcons
-                           onPress={() => setOpenModal(false)}
-                           name="options-vertical"
+                  <Pressable onPress={gotoUserProfile}>
+                     <View style={{ position: "relative" }}>
+                        <Avatar.Image
+                           size={35}
+                           source={{ uri: "https://picsum.photos/200/300" }}
                         />
+                        {lastSeen === "online" && (
+                           <View
+                              style={{
+                                 width: 17,
+                                 height: 17,
+                                 borderRadius: 8,
+                                 backgroundColor: "#fff",
+                                 position: "absolute",
+                                 bottom: -2,
+                                 right: -2,
+                                 zIndex: 10,
+                                 justifyContent: "center",
+                                 alignItems: "center",
+                              }}>
+                              <View
+                                 style={{
+                                    width: 12,
+                                    height: 12,
+                                    borderRadius: 8,
+                                    backgroundColor: "#11a100",
+                                 }}></View>
+                           </View>
+                        )}
                      </View>
+                  </Pressable>
+                  <TextEllipse
+                     style={{
+                        fontFamily: "Poppins_400Regular",
+                        margin: 5,
+                        color: theme.colors.secondary,
+                        fontSize: 12,
+                     }}
+                     textLength={23}
+                     text={createdBy.fullName}
+                  />
+                  {createdBy.verificationRank && (
+                     <MaterialIcons
+                        size={14}
+                        color={
+                           createdBy.verificationRank === "low"
+                              ? "orange"
+                              : createdBy.verificationRank === "medium"
+                              ? "green"
+                              : "blue"
+                        }
+                        name="verified"
+                     />
                   )}
+                  <View
+                     style={{
+                        flex: 1,
+                        justifyContent: "flex-end",
+                        alignItems: "flex-end",
+                        marginBottom: 2,
+                        paddingHorizontal: 0,
+                        borderRadius: 3,
+                     }}>
+                     {currentUser?.userId == blog?.userId && (
+                        <View>
+                           <SimpleLineIcons
+                              onPress={() => setOpenModal(false)}
+                              name="options-vertical"
+                           />
+                        </View>
+                     )}
+                  </View>
                </View>
-            </View>
-         )}
-            
+            )}
+
             {blog.images && <ImagesViewer images={blog.images} />}
             {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
-            {blog.video && <VideoPlayer video={blog?.video}/>}
+            {blog.video && <VideoPlayer video={blog?.video} />}
             {blog?.title && <Text style={styles.title}>{blog?.title}</Text>}
 
             {blog?.text && (
@@ -345,15 +341,15 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                   />
                </View>
             )}
-               <View style={{ padding: 5, marginBottom: 10 }}>
-                  <Comments
-                     _likesCount = {likesCount}
-                     _commentsCount={commentsCount}
-                     _liked={liked}
-                     userId={blog?.userId}
-                     blogId={blog.blogId}
-                  />
-               </View>
+            <View style={{ padding: 5, marginBottom: 10 }}>
+               <Comments
+                  _likesCount={likesCount}
+                  _commentsCount={commentsCount}
+                  _liked={liked}
+                  userId={blog?.userId}
+                  blogId={blog.blogId}
+               />
+            </View>
          </ScrollView>
       </View>
    );

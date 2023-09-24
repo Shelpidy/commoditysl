@@ -43,12 +43,12 @@ const FindFriendsComponent = ({ navigation }: any) => {
                      setUsers(data.data?.sort(() => 0.5 - Math.random()));
                      // Alert.alert("Success",data.message)
                   } else {
-                     Alert.alert("Failed", data.message);
+                     Alert.alert("Blog Failed", data.message);
                   }
                }
             } catch (err) {
                console.log(err);
-               Alert.alert("Failed", String(err));
+               Alert.alert("FF Failed", String(err));
             }
          };
          fetchData();

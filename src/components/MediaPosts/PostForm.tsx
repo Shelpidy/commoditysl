@@ -51,11 +51,6 @@ const analytics = getAnalytics(app);
 
 const storage = getStorage();
 
-// Create the file metadata
-/** @type {any} */
-const metadata = {
-   contentType: "image/jpeg",
-};
 // const s3 = new AWS.S3({
 //    accessKeyId: config.accessKeyId,
 //    secretAccessKey: config.secretAccessKey,
@@ -148,12 +143,12 @@ const PostForm = () => {
    ) {
       try {
          let fileType: "image" | "video" = postState.images
-         ? "image"
-         : postState.video
-         ? "video"
-         : "image";
+            ? "image"
+            : postState.video
+            ? "video"
+            : "image";
          const metadata = {
-            contentType: fileType === 'image'?"image/jpeg":"video/*",
+            contentType: fileType === "image" ? "image/jpeg" : "video/*",
          };
          var downloadURLs: string[] | null = null;
          console.log({ Images: files });
@@ -280,21 +275,20 @@ const PostForm = () => {
             />
          </Modal>
          <Modal visible={videoOpen}>
-            <View style={{flex:1}}>
-            <View>
-               <Button onPress={()=> setVideoOpen(false)}>Cancel</Button>
+            <View style={{ flex: 1 }}>
+               <View>
+                  <Button onPress={() => setVideoOpen(false)}>Cancel</Button>
+               </View>
+               <ImagePicker
+                  galleryColumns={4}
+                  onSave={chooseVideo}
+                  onCancel={cancelVideo}
+                  video
+                  multiple={false}
+                  timeSlider
+                  image={false}
+               />
             </View>
-            <ImagePicker
-               galleryColumns={4}
-               onSave={chooseVideo}
-               onCancel={cancelVideo}
-               video
-               multiple={false}
-               timeSlider
-               image={false}
-            />
-            </View>
-           
          </Modal>
          <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}

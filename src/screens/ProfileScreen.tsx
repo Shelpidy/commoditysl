@@ -155,7 +155,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
             if (status === 200) {
                console.log("User----", data.data);
                setUser(data.data);
-               setLastSeen(data.data.personal.lastSeenStatus)
+               setLastSeen(data.data.personal.lastSeenStatus);
                // Alert.alert("Success",data.message)
                setLoading(false);
             } else {
@@ -171,25 +171,28 @@ const ProfileScreen = ({ navigation, route }: any) => {
       fetchData();
    }, []);
 
-   useEffect(function () {
-      if(currentUser){
-         fetchData(1);
-      }
-   }, [currentUser]);
-
+   useEffect(
+      function () {
+         if (currentUser) {
+            fetchData(1);
+         }
+      },
+      [currentUser]
+   );
 
    useEffect(() => {
-      if(socket){
-      console.log("Socket is running", String(route.params.userId));
-      socket.on(String(route.params.userId), (data: any) => {
-         console.log("From socket", data);
-         if (data.online) {
-            setLastSeen("online");
-         } else {
-            let lastSeenDate = moment(data.updatedAt).fromNow();
-            setLastSeen(lastSeenDate);
-         }
-      });}
+      if (socket) {
+         console.log("Socket is running", String(route.params.userId));
+         socket.on(String(route.params.userId), (data: any) => {
+            console.log("From socket", data);
+            if (data.online) {
+               setLastSeen("online");
+            } else {
+               let lastSeenDate = moment(data.updatedAt).fromNow();
+               setLastSeen(lastSeenDate);
+            }
+         });
+      }
    }, [socket]);
 
    if (!user) {
@@ -220,16 +223,16 @@ const ProfileScreen = ({ navigation, route }: any) => {
                         bottom: 2,
                         right: 6,
                         zIndex: 10,
-                        justifyContent:'center',
-                        alignItems:'center'
+                        justifyContent: "center",
+                        alignItems: "center",
                      }}>
-                        <View
-                     style={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: 9,
-                        backgroundColor: "#11a100",
-                     }}></View>
+                     <View
+                        style={{
+                           width: 16,
+                           height: 16,
+                           borderRadius: 9,
+                           backgroundColor: "#11a100",
+                        }}></View>
                   </View>
                )}
             </View>
@@ -359,7 +362,6 @@ const ProfileScreen = ({ navigation, route }: any) => {
                         fontFamily: "Poppins_400Regular",
                         color: theme.colors.secondary,
                         fontSize: 13,
-
                      }}>
                      Likes
                   </Text>

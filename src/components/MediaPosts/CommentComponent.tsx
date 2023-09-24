@@ -661,7 +661,7 @@ const CommentComponent = (props: CommentProps) => {
                </View>
             </View>
          )}
-         <Divider style={{ width: 0.6 * width, alignSelf: "center" }} />
+         <Divider />
       </KeyboardAvoidingView>
    );
 };

@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, Dimensions, Image, Alert } from "react-native";
+import {
+   StyleSheet,
+   Text,
+   View,
+   Dimensions,
+   Image,
+   Alert,
+   Modal,
+} from "react-native";
 import React, { useState, useEffect, useReducer } from "react";
 import ImagesViewer from "../ImagesViewer";
 import VideoPlayer from "../VideoPlayer";
@@ -12,7 +20,6 @@ import {
    IconButton,
    Avatar,
    Divider,
-   Modal,
 } from "react-native-paper";
 import {
    AntDesign,
@@ -68,7 +75,6 @@ const BlogComponent = (props: BlogComponentProps) => {
    const { width } = useWindowDimensions();
    const navigation = useNavigation<any>();
 
-
    const source = {
       html: `
     <p style='text-align:center;'>
@@ -82,10 +88,8 @@ const BlogComponent = (props: BlogComponentProps) => {
       setLikesCount(props.likesCount);
       setCommentsCount(props.commentsCount);
       setCreatedBy(props.createdBy);
-      setLastSeen(props.createdBy.lastSeenStatus)
-
+      setLastSeen(props.createdBy.lastSeenStatus);
    }, []);
-
 
    const gotoUserProfile = () => {
       if (currentUser?.userId === createdBy?.userId) {
@@ -98,23 +102,19 @@ const BlogComponent = (props: BlogComponentProps) => {
    };
 
    useEffect(() => {
-      if(createdBy){
+      if (createdBy) {
          console.log("Socket is running", String(createdBy?.userId));
          socket.on(String(createdBy?.userId), (data: any) => {
-         console.log("From socket", data);
-         if (data.online) {
-            setLastSeen("online");
-         } else {
-            let lastSeenDate = moment(data.updatedAt).fromNow();
-            setLastSeen(lastSeenDate);
-         }
-      });
-
+            console.log("From socket", data);
+            if (data.online) {
+               setLastSeen("online");
+            } else {
+               let lastSeenDate = moment(data.updatedAt).fromNow();
+               setLastSeen(lastSeenDate);
+            }
+         });
       }
-      
-   }, [socket,createdBy]);
-
-
+   }, [socket, createdBy]);
 
    const handleLike = async (blogId: string) => {
       console.log("Like function runnning...");
@@ -131,14 +131,14 @@ const BlogComponent = (props: BlogComponentProps) => {
             let { liked, likesCount: _likesCount } = data.data;
             console.log(data.data);
             setLiked(liked);
-            setLikesCount(_likesCount)
+            setLikesCount(_likesCount);
          } else {
-            Alert.alert("Failed", data.message);
+            Alert.alert("Liked Failed", data.message);
          }
          setLoading(false);
       } catch (err) {
          console.log(err);
-         Alert.alert("Failed", String(err));
+         Alert.alert("Failed", "Like failed");
          setLoading(false);
       }
    };
@@ -195,7 +195,6 @@ const BlogComponent = (props: BlogComponentProps) => {
       );
    }
 
-
    return (
       <View
          style={[
@@ -206,7 +205,7 @@ const BlogComponent = (props: BlogComponentProps) => {
             <View
                style={{
                   flex: 1,
-                  backgroundColor: "#00000068",
+                  backgroundColor: theme.colors.background,
                   justifyContent: "center",
                   alignItems: "center",
                   paddingVertical: 4,
@@ -215,7 +214,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                   style={{
                      backgroundColor: theme.colors.background,
                      padding: 10,
-                     width: width - 20,
+                     width: width * 0.95,
                      borderRadius: 5,
                      gap: 20,
                   }}>
@@ -248,14 +247,23 @@ const BlogComponent = (props: BlogComponentProps) => {
                </View>
             </View>
          </Modal>
-         <Modal visible={openModal}>
+         <Modal
+            visible={openModal}
+            style={{
+               position: "absolute",
+               top: 0,
+               backgroundColor: "red",
+               zIndex: 100,
+               flex: 1,
+            }}>
             <View
                style={{
                   flex: 1,
-                  backgroundColor: "#00000068",
+                  backgroundColor: theme.colors.background,
                   justifyContent: "center",
                   alignItems: "center",
                   paddingVertical: 4,
+                  zIndex: 100,
                }}>
                <View
                   style={{
@@ -284,35 +292,35 @@ const BlogComponent = (props: BlogComponentProps) => {
                   padding: 8,
                }}>
                <Pressable onPress={gotoUserProfile}>
-               <View style={{ position: "relative" }}>
-               <Avatar.Image
-                  size={35}
-                  source={{ uri: "https://picsum.photos/200/300" }}
-               />
-               {lastSeen === "online" && (
-                  <View
-                     style={{
-                        width: 17,
-                        height: 17,
-                        borderRadius: 8,
-                        backgroundColor: "#fff",
-                        position: "absolute",
-                        bottom: -2,
-                        right: -2,
-                        zIndex: 10,
-                        justifyContent:'center',
-                        alignItems:'center'
-                     }}>
+                  <View style={{ position: "relative" }}>
+                     <Avatar.Image
+                        size={35}
+                        source={{ uri: "https://picsum.photos/200/300" }}
+                     />
+                     {lastSeen === "online" && (
                         <View
-                     style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 8,
-                        backgroundColor: "#11a100",
-                     }}></View>
+                           style={{
+                              width: 17,
+                              height: 17,
+                              borderRadius: 8,
+                              backgroundColor: "#fff",
+                              position: "absolute",
+                              bottom: -2,
+                              right: -2,
+                              zIndex: 10,
+                              justifyContent: "center",
+                              alignItems: "center",
+                           }}>
+                           <View
+                              style={{
+                                 width: 12,
+                                 height: 12,
+                                 borderRadius: 8,
+                                 backgroundColor: "#11a100",
+                              }}></View>
+                        </View>
+                     )}
                   </View>
-               )}
-            </View>
                </Pressable>
                <TextEllipse
                   style={{
@@ -347,12 +355,9 @@ const BlogComponent = (props: BlogComponentProps) => {
                      borderRadius: 3,
                   }}>
                   {currentUser?.userId == props.blog?.userId && (
-                     <View>
-                        <SimpleLineIcons
-                           onPress={() => setOpenModal(false)}
-                           name="options-vertical"
-                        />
-                     </View>
+                     <Pressable onPress={() => setOpenModal(true)}>
+                        <SimpleLineIcons name="options-vertical" />
+                     </Pressable>
                   )}
                </View>
             </View>
@@ -379,12 +384,11 @@ const BlogComponent = (props: BlogComponentProps) => {
                   {moment(props.blog.createdAt).fromNow()}
                </Text>
             </View>
-
          </View>
 
          {props.blog.images && <ImagesViewer images={props.blog.images} />}
-            {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
-            {props?.blog.video && <VideoPlayer video={props.blog?.video}/>}
+         {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
+         {props?.blog.video && <VideoPlayer video={props.blog?.video} />}
 
          {props.blog.title && (
             <Text style={styles.title}>{props.blog?.title}</Text>
@@ -409,102 +413,26 @@ const BlogComponent = (props: BlogComponentProps) => {
                   />
                </Text>
             </View>
-            <View
-               style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-               }}>
-               <View
-                  style={{
-                     flex: 1,
-                     flexDirection: "row",
-                     alignItems: "center",
-                     justifyContent: "center",
-                  }}>
-                  <Text
-                     style={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 12,
-                        marginHorizontal: 1,
-                     }}>
-                     {likesCount}
-                  </Text>
-                  <Text
-                     style={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 12,
-                        marginHorizontal: 2,
-                     }}>
-                     Likes
-                  </Text>
-               </View>
-
-               <View
-                  style={{
-                     flex: 1,
-                     flexDirection: "row",
-                     alignItems: "center",
-                     justifyContent: "center",
-                  }}>
-                  <Text
-                     style={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 12,
-                        marginHorizontal: 1,
-                     }}>
-                     {commentsCount}
-                  </Text>
-                  <Text
-                     style={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 12,
-                        marginHorizontal: 2,
-                     }}>
-                     Comments
-                  </Text>
-               </View>
-               <View
-                  style={{
-                     flex: 1,
-                     flexDirection: "row",
-                     alignItems: "center",
-                     justifyContent: "center",
-                  }}>
-                  <Text
-                     style={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 12,
-                        marginHorizontal: 1,
-                     }}>
-                     {sharesCount}
-                  </Text>
-                  <Text
-                     style={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 12,
-                        marginHorizontal: 2,
-                     }}>
-                     Shares
-                  </Text>
-               </View>
-            </View>
-            <Divider style={{ width: width - 40, alignSelf: "center" }} />
+            <Divider />
             <View style={styles.likeCommentAmountCon}>
                <Button
                   disabled={loading}
                   onPress={() => handleLike(props.blog.blogId)}
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.inverseOnSurface,
+                     backgroundColor: theme.colors.background,
                      flex: 1,
+                     justifyContent: "center",
+                     alignItems: "center",
                   }}>
                   <Ionicons
-                     size={20}
+                     size={18}
                      color={theme.colors.secondary}
                      name={liked ? "heart-sharp" : "heart-outline"}
                   />
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {likesCount}
+                  </Text>
                </Button>
 
                <Button
@@ -520,30 +448,44 @@ const BlogComponent = (props: BlogComponentProps) => {
                   }
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.inverseOnSurface,
+                     backgroundColor: theme.colors.background,
                      flex: 1,
                   }}>
                   <MaterialCommunityIcons
                      name="comment-outline"
-                     size={20}
+                     size={16}
                      color={theme.colors.secondary}
                   />
-                  {/* <Ionicons
-                     size={20}
-                     color={theme.colors.secondary}
-                     name="chatbox-outline"
-                  /> */}
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {commentsCount}
+                  </Text>
                </Button>
                <Button
                   onPress={() => setOpenShareModal(true)}
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.inverseOnSurface,
+                     backgroundColor: theme.colors.background,
                      flex: 1,
                   }}>
-                  <MaterialCommunityIcons size={25} name="share-outline" />
+                  <AntDesign size={18} name="retweet" />
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {sharesCount}
+                  </Text>
+               </Button>
+               <Button
+                  onPress={() => setOpenShareModal(true)}
+                  textColor={theme.colors.secondary}
+                  style={{
+                     backgroundColor: theme.colors.background,
+                     flex: 1,
+                  }}>
+                  <Ionicons size={18} name="share-outline" />
+                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
+                     {sharesCount}
+                  </Text>
                </Button>
             </View>
+            <Divider />
          </View>
       </View>
    );
@@ -576,7 +518,7 @@ const styles = StyleSheet.create({
    likeCommentAmountCon: {
       flex: 1,
       flexDirection: "row",
-      gap: 14,
+      gap: 10,
       paddingVertical: 5,
       paddingHorizontal: 8,
 

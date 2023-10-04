@@ -26,6 +26,8 @@ import {
 import { Socket, io } from "socket.io-client";
 import TextEllipse from "../components/TextEllipse";
 import { useCurrentUser, useNetworkStatus } from "../utils/CustomHooks";
+import RNRSA from "react-native-rsa-native";
+
 import {
    getStorage,
    ref,
@@ -441,13 +443,26 @@ const ChatScreen = ({ route, navigation }: any) => {
 
          ////////////////////  Chat message listener ///////////////
 
-         socket.on(String(roomId), (message: any) => {
+         socket.on("msg", async (message: IMessage) => {
+            // Decrypt data with the private key
+            if (message.text && currentUser) {
+               const privateKey = currentUser?.keys.privateKey;
+               const decryptedData = await RNRSA.RSA.decrypt(
+                  message.text,
+                  privateKey
+               );
+
+               // console.log('Encrypted Data:', encryptedData);
+               console.log("Decrypted Data:", decryptedData);
+               message.text = decryptedData;
+            }
+
             // console.log("From Server", message);
             setMessages((previousMessages) => {
                if (previousMessages) {
-                  return GiftedChat.append(previousMessages, message);
+                  return GiftedChat.append(previousMessages, [message]);
                }
-               return GiftedChat.append([], message);
+               return GiftedChat.append([], [message]);
             });
          });
 
@@ -505,13 +520,26 @@ const ChatScreen = ({ route, navigation }: any) => {
                   { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
                if (status === 200) {
+                  let privateKey = currentUser.keys.privateKey;
                   let { messages: chatMessages, count } = data.data;
                   // console.log("Chats Messages", chatMessages);
+                  let decryptedMessages = await Promise.all(
+                     chatMessages.map(async (message: IMessage) => {
+                        if (message.text) {
+                           message.text = await RNRSA.RSA.decrypt(
+                              message.text,
+                              privateKey
+                           );
+                        }
+                        return message;
+                     })
+                  );
+
                   setTotalChats(count);
                   if (messages && currentPage > 1) {
-                     setMessages([...messages, ...chatMessages]);
+                     setMessages([...messages, ...decryptedMessages]);
                   } else {
-                     setMessages(chatMessages);
+                     setMessages(decryptedMessages);
                   }
                } else {
                   Alert.alert("Failed", data.message);
@@ -746,11 +774,17 @@ const ChatScreen = ({ route, navigation }: any) => {
 
    const onSend = async (_audio?: any, _video?: any, _image?: any) => {
       console.log("Onsend loading");
+
+      const secondUserPublicKey = secondUser?.EncryptionKey?.publicKey;
+      let encryptedText = await RNRSA.RSA.encrypt(
+         textValue,
+         secondUserPublicKey!
+      );
       let roomId = route.params.roomId;
       let sendData = {
          senderId: currentUser?.userId,
          recipientId: route.params.user.userId,
-         text: textValue,
+         text: encryptedText,
          roomId: roomId,
          image: _image,
          video: _video,
@@ -758,7 +792,7 @@ const ChatScreen = ({ route, navigation }: any) => {
          notificationTokens: currentUser?.notificationTokens,
       };
       console.log(sendData, roomId);
-      socket?.emit(roomId, sendData);
+      socket?.emit("msg", sendData);
       setTextValue("");
       setSent(true);
    };

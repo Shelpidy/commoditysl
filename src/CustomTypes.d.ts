@@ -5,6 +5,7 @@ declare type CurrentUser = {
    deviceId: string;
    followingIds: string[];
    token: string;
+   keys: { publicKey: string; privateKey: string };
    notificationTokens: string[];
 };
 
@@ -66,6 +67,7 @@ declare type User = {
    lastName: string;
    fullName: string;
    profileImage: string;
+   bio: string;
    password: string;
    pinCode: string;
    lastSeenStatus?: string | Date | null;
@@ -75,6 +77,7 @@ declare type User = {
    dob: string;
    verified: boolean;
    verificationRank: "low" | "medium" | "high" | string;
+   EncryptionKey?: { publicKey: string };
    createdAt: Date;
    updatedAt: Date;
 };

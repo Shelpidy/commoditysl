@@ -413,7 +413,6 @@ const BlogComponent = (props: BlogComponentProps) => {
                   />
                </Text>
             </View>
-            <Divider />
             <View style={styles.likeCommentAmountCon}>
                <Button
                   disabled={loading}
@@ -485,7 +484,6 @@ const BlogComponent = (props: BlogComponentProps) => {
                   </Text>
                </Button>
             </View>
-            <Divider />
          </View>
       </View>
    );

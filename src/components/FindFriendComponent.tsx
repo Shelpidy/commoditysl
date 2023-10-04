@@ -125,20 +125,20 @@ export default React.memo(FindFriendComponent);
 
 const styles = StyleSheet.create({
    profileImage: {
-      width: width / 2.1,
-      height: height * 0.25,
-      borderBottomLeftRadius: 10,
-      borderBottomRightRadius: 10,
+      width: width * 0.35,
+      height: height * 0.21,
+      borderBottomLeftRadius: 5,
+      borderBottomRightRadius: 5,
    },
    container: {
-      borderRadius: 10,
+      borderRadius: 5,
       margin: 4,
       alignItems: "center",
       paddingBottom: 6,
       overflow: "hidden",
    },
    followerContainer: {
-      padding: 3,
+      padding: 4,
    },
    nameText: {
       fontFamily: "Poppins_400Regular",

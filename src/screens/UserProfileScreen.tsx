@@ -299,18 +299,17 @@ const UserProfileScreen = ({ navigation, route }: any) => {
             </View>
          </View>
          <View style={styles.mediaContainer}>
-            <View style={{ alignItems: "center", margin: 2 }}>
+            <View style={{ alignItems: "center", margin: 4 }}>
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
-                     color: theme.colors.secondary,
+                     fontFamily: "Poppins_500Medium",
+                     // color: theme.colors.secondary,
                      fontSize: 16,
                   }}>
                   {user?.followers?.count}
                </Text>
                <Button
-                  //
                   onPress={() =>
                      navigation.navigate("FollowersScreen", {
                         userId: user?.personal.userId,
@@ -320,7 +319,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         fontSize: 13,
                      }}>
@@ -329,11 +328,11 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                </Button>
             </View>
 
-            <View style={{ alignItems: "center", margin: 2 }}>
+            <View style={{ alignItems: "center", margin: 4 }}>
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
+                     fontFamily: "Poppins_500Medium",
                      // color:theme.colors.secondary,
                      fontSize: 16,
                   }}>
@@ -348,7 +347,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   <Text
                      style={{
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         //  color:theme.colors.secondary,
                         fontSize: 13,
@@ -358,11 +357,11 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                </Button>
             </View>
 
-            <View style={{ alignItems: "center", margin: 2 }}>
+            <View style={{ alignItems: "center", margin: 4 }}>
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
+                     fontFamily: "Poppins_500Medium",
                      //  color:theme.colors.secondary,
                      fontSize: 15,
                   }}>
@@ -373,7 +372,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         fontSize: 13,
                      }}>
@@ -381,11 +380,11 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   </Text>
                </Button>
             </View>
-            <View style={{ alignItems: "center", margin: 2 }}>
+            <View style={{ alignItems: "center", margin: 4 }}>
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
+                     fontFamily: "Poppins_500Medium",
                      // color:theme.colors.secondary,
                      fontSize: 15,
                   }}>
@@ -396,8 +395,9 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
+                        fontSize: 13,
                      }}>
                      Likes
                   </Text>

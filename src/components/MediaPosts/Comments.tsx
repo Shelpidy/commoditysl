@@ -263,7 +263,6 @@ const Comments = ({
       <View style={{ flex: 1, gap: 4 }}>
          <View>
             <LikesComponent blogId={blogId} numberOfLikes={likesCount} />
-            <Divider />
             <View style={styles.likeCommentAmountCon}>
                <Button
                   disabled={loading}
@@ -335,7 +334,6 @@ const Comments = ({
                   </Text>
                </Button>
             </View>
-            <Divider />
 
             {/* <View
                   style={{

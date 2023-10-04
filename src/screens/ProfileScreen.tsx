@@ -12,12 +12,14 @@ import {
    ActivityIndicator,
    Avatar,
    Button,
+   TextInput,
    useTheme,
 } from "react-native-paper";
 import BlogComponent from "../components/MediaPosts/BlogComponent";
 import ProfileNavComponent from "../components/ProfileNavComponent";
 import {
    EvilIcons,
+   Ionicons,
    MaterialCommunityIcons,
    MaterialIcons,
 } from "@expo/vector-icons";
@@ -237,19 +239,23 @@ const ProfileScreen = ({ navigation, route }: any) => {
                )}
             </View>
             <View
-               style={{ flexDirection: "row", gap: 3, alignItems: "center" }}>
+               style={{
+                  flexDirection: "row",
+                  gap: 3,
+                  alignItems: "center",
+                  marginTop: 10,
+               }}>
                <Text
                   style={{
                      textAlign: "center",
-                     marginTop: 10,
-                     fontFamily: "Poppins_400Regular",
+                     fontFamily: "Poppins_500Medium",
                      color: theme.colors.secondary,
                   }}>
                   {user?.personal?.fullName}
                </Text>
                {user.personal.verificationRank && (
                   <MaterialIcons
-                     size={16}
+                     size={15}
                      color={
                         user.personal.verificationRank === "low"
                            ? "orange"
@@ -262,14 +268,15 @@ const ProfileScreen = ({ navigation, route }: any) => {
                )}
             </View>
          </View>
+
          <View style={styles.mediaContainer}>
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
+                     fontFamily: "Poppins_600SemiBold",
                      // color: theme.colors.secondary,
-                     fontSize: 16,
+                     fontSize: 18,
                   }}>
                   {user?.followers?.count}
                </Text>
@@ -283,7 +290,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         fontSize: 13,
                      }}>
@@ -296,9 +303,9 @@ const ProfileScreen = ({ navigation, route }: any) => {
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
-                     // color:theme.colors.secondary,
-                     fontSize: 16,
+                     fontFamily: "Poppins_600SemiBold",
+                     // color: theme.colors.secondary,
+                     fontSize: 18,
                   }}>
                   {user?.followings?.count}
                </Text>
@@ -311,7 +318,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   <Text
                      style={{
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         //  color:theme.colors.secondary,
                         fontSize: 13,
@@ -325,18 +332,18 @@ const ProfileScreen = ({ navigation, route }: any) => {
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
-                     //  color:theme.colors.secondary,
-                     fontSize: 15,
+                     fontFamily: "Poppins_600SemiBold",
+                     // color: theme.colors.secondary,
+                     fontSize: 18,
                   }}>
                   {user?.totalPosts}
                </Text>
-               <Button>
+               <Button mode="text">
                   <Text
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         fontSize: 13,
                      }}>
@@ -348,9 +355,9 @@ const ProfileScreen = ({ navigation, route }: any) => {
                <Text
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_400Regular",
-                     // color:theme.colors.secondary,
-                     fontSize: 15,
+                     fontFamily: "Poppins_600SemiBold",
+                     // color: theme.colors.secondary,
+                     fontSize: 18,
                   }}>
                   {user?.totalLikes}
                </Text>
@@ -359,7 +366,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_400Regular",
+                        fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         fontSize: 13,
                      }}>
@@ -368,7 +375,35 @@ const ProfileScreen = ({ navigation, route }: any) => {
                </Button>
             </View>
          </View>
+         <View
+            style={{
+               flexDirection: "row",
+               justifyContent: "center",
+               alignItems: "center",
+               gap:8
+               
+            }}>
+            {user?.personal.bio && (
+               <View
+                  style={{
+                     alignItems: "center",
+                     justifyContent: "center",
+                  }}>
+                  <Text style={{fontFamily:"Poppins_300Light",textAlign:"center"}}>{user?.personal.bio}</Text>
+               </View>
+            )}
 
+            <Button
+               style={{
+              
+                  justifyContent: "center",
+                  alignItems:"center"
+               }}
+               icon="pencil"
+               >
+               
+            </Button>
+         </View>
          <View style={{ alignItems: "center", marginBottom: 5 }}>
             <ProfileNavComponent user={user?.personal} />
          </View>

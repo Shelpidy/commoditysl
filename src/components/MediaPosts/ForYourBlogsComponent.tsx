@@ -26,10 +26,10 @@ type BlogComponentProps = {
    liked: boolean;
 };
 
-const ForYouBlogsComponent = () => {
-   const [blogs, setBlogs] = useState<BlogComponentProps[] | null>(null);
+const ForYouBlogsComponent = ({ blogs: _blogs }: { blogs: BlogComponentProps[] }) => {
+   const [blogs, setBlogs] = useState<BlogComponentProps[] | null>(_blogs);
    const [allBlogs, setAllBlogs] = useState<BlogComponentProps[] | null>(null);
-   const page = React.useRef<number>(1);
+   const page = React.useRef<number>(2);
    const [numberOfblogsPerPage, setNumberOfblogsPerPage] = useState<number>(5);
    const [loading, setLoading] = useState<boolean>(false);
    const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -108,24 +108,13 @@ const ForYouBlogsComponent = () => {
       );
    };
 
-   useEffect(
-      function () {
-         fetchData(1);
-      },
-      [currentUser]
-   );
+   // useEffect(
+   //    function () {
+   //       fetchData(1);
+   //    },
+   //    [currentUser]
+   // );
 
-   if (!blogs) {
-      return (
-         <View style={{ padding: 2 }}>
-            <LoadingBlogComponent />
-            <Divider />
-            <LoadingBlogComponent />
-            <Divider />
-            <LoadingBlogComponent />
-         </View>
-      );
-   }
 
    return (
       <FlatList

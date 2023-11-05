@@ -42,7 +42,7 @@ const CustomHeader = () => {
       function () {
          console.log("Fetching header user");
          setLoading(true);
-         let fetchData = async () => {
+         let _fetchData = async () => {
             // console.log("Fetching user")
             try {
                if (currentUser) {
@@ -70,7 +70,7 @@ const CustomHeader = () => {
                setLoading(false);
             }
          };
-         fetchData();
+         _fetchData();
       },
       [currentUser]
    );

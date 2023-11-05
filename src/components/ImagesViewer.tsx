@@ -111,8 +111,8 @@ const styles = StyleSheet.create({
       bottom: -15,
    },
    indicator: {
-      width: 8,
-      height: 8,
+      width: 6,
+      height: 6,
       borderRadius: 5,
       margin: 4,
    },

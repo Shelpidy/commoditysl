@@ -1,14 +1,7 @@
-import {
-   StyleSheet,
-   Text,
-   View,
-   Pressable,
-   Dimensions,
-   Alert,
-} from "react-native";
+import { StyleSheet, View, Pressable, Dimensions, Alert } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Skeleton } from "@rneui/base";
-import { Avatar, Badge, useTheme } from "react-native-paper";
+import { Avatar, Badge, useTheme, Text } from "react-native-paper";
 import { Image } from "react-native";
 import axios from "axios";
 import moment from "moment";
@@ -89,7 +82,7 @@ const ConversationComponent = ({
    useEffect(() => {
       if (socket && conversation && currentUser) {
          socket.emit("joinRoom", {
-            room: conversation.roomId,
+            roomId: conversation.roomId,
             userId: currentUser.userId,
          });
       }
@@ -274,7 +267,14 @@ const ConversationComponent = ({
                   alignItems: "center",
                   paddingTop: 1,
                }}>
-               <TextEllipse
+               <Text variant="titleMedium" style={{}} numberOfLines={1}>
+                  {secondUser.firstName +
+                     " " +
+                     secondUser.middleName +
+                     " " +
+                     secondUser.lastName}
+               </Text>
+               {/* <TextEllipse
                   text={
                      secondUser.firstName +
                      " " +
@@ -291,9 +291,10 @@ const ConversationComponent = ({
                      marginHorizontal: 3,
                   }}
                   textLength={15}
-               />
+               /> */}
 
                <Text
+                  variant="bodyMedium"
                   style={{
                      fontFamily: "Poppins_300Light",
                      color: theme.colors.secondary,
@@ -302,7 +303,7 @@ const ConversationComponent = ({
                   {gesture}
                </Text>
 
-               <Text>{lastSeen}</Text>
+               <Text variant="bodySmall">{lastSeen}</Text>
             </View>
 
             {newConversation.lastText && (
@@ -326,7 +327,20 @@ const ConversationComponent = ({
                            {newConversation.numberOfUnreadText}
                         </Badge>
                      )}
-                  <TextEllipse
+                  <Text
+                     numberOfLines={1}
+                     variant="bodyLarge"
+                     style={{
+                        fontFamily:
+                           currentUser?.userId == newConversation.recipientId &&
+                           !newConversation.recipientReadStatus
+                              ? "Poppins_500Medium"
+                              : "Poppins_300Light",
+                        marginHorizontal: 3,
+                     }}>
+                     {newConversation.lastText}
+                  </Text>
+                  {/* <TextEllipse
                      text={newConversation.lastText}
                      style={{
                         fontFamily:
@@ -337,7 +351,7 @@ const ConversationComponent = ({
                         marginHorizontal: 3,
                      }}
                      textLength={38}
-                  />
+                  /> */}
                </View>
             )}
          </View>

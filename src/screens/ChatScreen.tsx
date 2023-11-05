@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useNavigationState } from "@react-navigation/native";
 import moment from "moment";
@@ -9,7 +10,6 @@ import {
    Pressable,
    StatusBar,
    StyleSheet,
-   Text,
    TextInput,
    TouchableOpacity,
    View,
@@ -22,12 +22,19 @@ import {
    IconButton,
    ProgressBar,
    useTheme,
+   Text,
 } from "react-native-paper";
-import { Socket, io } from "socket.io-client";
 import TextEllipse from "../components/TextEllipse";
 import { useCurrentUser, useNetworkStatus } from "../utils/CustomHooks";
-import RNRSA from "react-native-rsa-native";
-
+import { Crypt } from "hybrid-crypto-js";
+import { AVPlaybackStatus, Audio, ResizeMode, Video } from "expo-av";
+import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
+import config from ".././aws-config";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { setSocket } from "../redux/action";
+import { dateAgo } from "../utils/util";
 import {
    getStorage,
    ref,
@@ -60,14 +67,8 @@ const analytics = getAnalytics(app);
 const storage = getStorage();
 // import { ImagePicker } from "expo-image-multiple-picker";
 // import AWS from "aws-sdk";
-import { AVPlaybackStatus, Audio, ResizeMode, Video } from "expo-av";
-import * as FileSystem from "expo-file-system";
-import * as ImagePicker from "expo-image-picker";
-import config from ".././aws-config";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { setSocket } from "../redux/action";
-import { dateAgo } from "../utils/util";
+
+let crypt = new Crypt();
 
 type ChatBoxProps = {
    onSend: () => void;
@@ -311,7 +312,7 @@ const ChatScreen = ({ route, navigation }: any) => {
          let roomId = route.params?.roomId;
          socket.emit("activeRoom", {
             userId: currentUser.userId,
-            activeRoom: roomId,
+            roomId: roomId,
          });
       }
    }, [socket, currentUser]);
@@ -360,7 +361,7 @@ const ChatScreen = ({ route, navigation }: any) => {
          if (socket && currentUser) {
             socket.emit("activeRoom", {
                userId: currentUser.userId,
-               activeRoom: null,
+               roomId: null,
             });
          }
       });
@@ -444,26 +445,33 @@ const ChatScreen = ({ route, navigation }: any) => {
          ////////////////////  Chat message listener ///////////////
 
          socket.on("msg", async (message: IMessage) => {
-            // Decrypt data with the private key
-            if (message.text && currentUser) {
-               const privateKey = currentUser?.keys.privateKey;
-               const decryptedData = await RNRSA.RSA.decrypt(
-                  message.text,
-                  privateKey
-               );
+            try {
+               // Decrypt data with the private key
+               console.log({ "From Server": message });
+               if (message.text && currentUser) {
+                  const privateKey = currentUser?.keys.privateKey;
+                  console.log({ privateKey });
+                  const decryptedData = await crypt.decrypt(
+                     privateKey,
+                     message.text
+                  );
 
-               // console.log('Encrypted Data:', encryptedData);
-               console.log("Decrypted Data:", decryptedData);
-               message.text = decryptedData;
-            }
-
-            // console.log("From Server", message);
-            setMessages((previousMessages) => {
-               if (previousMessages) {
-                  return GiftedChat.append(previousMessages, [message]);
+                  // console.log('Encrypted Data:', encryptedData);
+                  console.log("Decrypted Data:", decryptedData);
+                  message.text = decryptedData.message;
                }
-               return GiftedChat.append([], [message]);
-            });
+
+               console.log("Decrypted From Server", message);
+
+               setMessages((previousMessages) => {
+                  if (previousMessages) {
+                     return GiftedChat.append(previousMessages, [message]);
+                  }
+                  return GiftedChat.append([], [message]);
+               });
+            } catch (err) {
+               console.log(err);
+            }
          });
 
          ///////////// Online Status listener ///////////
@@ -526,10 +534,10 @@ const ChatScreen = ({ route, navigation }: any) => {
                   let decryptedMessages = await Promise.all(
                      chatMessages.map(async (message: IMessage) => {
                         if (message.text) {
-                           message.text = await RNRSA.RSA.decrypt(
-                              message.text,
-                              privateKey
-                           );
+                           message.text = crypt.decrypt(
+                              privateKey,
+                              message.text
+                           ).message;
                         }
                         return message;
                      })
@@ -773,28 +781,29 @@ const ChatScreen = ({ route, navigation }: any) => {
    }
 
    const onSend = async (_audio?: any, _video?: any, _image?: any) => {
-      console.log("Onsend loading");
+      try {
+         console.log("Onsend loading");
 
-      const secondUserPublicKey = secondUser?.EncryptionKey?.publicKey;
-      let encryptedText = await RNRSA.RSA.encrypt(
-         textValue,
-         secondUserPublicKey!
-      );
-      let roomId = route.params.roomId;
-      let sendData = {
-         senderId: currentUser?.userId,
-         recipientId: route.params.user.userId,
-         text: encryptedText,
-         roomId: roomId,
-         image: _image,
-         video: _video,
-         audio: _audio,
-         notificationTokens: currentUser?.notificationTokens,
-      };
-      console.log(sendData, roomId);
-      socket?.emit("msg", sendData);
-      setTextValue("");
-      setSent(true);
+         const secondUserPublicKey = secondUser?.EncryptionKey?.publicKey;
+         let encryptedText = crypt.encrypt(secondUserPublicKey!, textValue);
+         let roomId = route.params.roomId;
+         let sendData = {
+            senderId: currentUser?.userId,
+            recipientId: route.params.user.userId,
+            text: encryptedText,
+            roomId: roomId,
+            image: _image,
+            video: _video,
+            audio: _audio,
+            notificationTokens: currentUser?.notificationTokens,
+         };
+         console.log(sendData, roomId);
+         socket?.emit("msg", sendData);
+         setTextValue("");
+         setSent(true);
+      } catch (err) {
+         console.log(err);
+      }
    };
 
    const handleEmojiSelect = (emoji: any) => {
@@ -857,8 +866,20 @@ const ChatScreen = ({ route, navigation }: any) => {
                         source={{ uri: secondUser.profileImage }}
                      />
                   </Pressable>
-                  <View>
-                     <TextEllipse
+
+                  <Text
+                     variant="titleMedium"
+                     numberOfLines={1}
+                     style={{
+                        textAlign: "center",
+                        marginHorizontal: 3,
+                        marginVertical: 10,
+                        // fontFamily: "Poppins_500Medium",
+                        color: theme.colors.inversePrimary,
+                     }}>
+                     {secondUser.fullName}
+                  </Text>
+                  {/* <TextEllipse
                         style={{
                            fontFamily: "Poppins_500Medium",
                            marginLeft: 5,
@@ -866,8 +887,7 @@ const ChatScreen = ({ route, navigation }: any) => {
                         }}
                         text={secondUser.fullName}
                         textLength={10}
-                     />
-                  </View>
+                     /> */}
                   <View
                      style={{
                         flex: 1,
@@ -877,6 +897,7 @@ const ChatScreen = ({ route, navigation }: any) => {
                         marginRight: 2,
                      }}>
                      <Text
+                        variant="bodySmall"
                         style={{
                            fontFamily: "Poppins_300Light",
                            color: theme.colors.secondary,
@@ -886,22 +907,22 @@ const ChatScreen = ({ route, navigation }: any) => {
                      </Text>
                      {typeof lastSeen === typeof Date ? (
                         <Text
+                           variant="bodySmall"
                            style={{
                               fontFamily: "Poppins_300Light",
                               color: theme.colors.inversePrimary,
                               marginRight: 10,
-                              fontSize: 12,
                               alignSelf: "flex-end",
                            }}>
                            {dateAgo(lastSeen as Date)}
                         </Text>
                      ) : (
                         <Text
+                           variant="bodySmall"
                            style={{
                               fontFamily: "Poppins_300Light",
                               color: theme.colors.inversePrimary,
                               marginRight: 10,
-                              fontSize: 12,
                               alignSelf: "flex-end",
                            }}>
                            {lastSeen as string}
@@ -1054,7 +1075,7 @@ const ChatScreen = ({ route, navigation }: any) => {
                               fontFamily: "Poppins_300Light",
                            },
                            left: {
-                              color: "#000",
+                              color: theme.colors.primary,
                               fontFamily: "Poppins_300Light",
                            },
                         }}

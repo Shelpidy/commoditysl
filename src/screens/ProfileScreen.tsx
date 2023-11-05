@@ -1,37 +1,34 @@
+import {
+   MaterialIcons
+} from "@expo/vector-icons";
+import axios from "axios";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
    Alert,
    Dimensions,
+   // TextInput,
+   FlatList,
    ScrollView,
    StyleSheet,
-   Text,
    View,
-   FlatList,
 } from "react-native";
 import {
    ActivityIndicator,
    Avatar,
    Button,
+   Text,
    TextInput,
-   useTheme,
+   useTheme
 } from "react-native-paper";
+import { useSelector } from "react-redux";
 import BlogComponent from "../components/MediaPosts/BlogComponent";
-import ProfileNavComponent from "../components/ProfileNavComponent";
-import {
-   EvilIcons,
-   Ionicons,
-   MaterialCommunityIcons,
-   MaterialIcons,
-} from "@expo/vector-icons";
-import SearchForm from "../components/SearchForm";
-import SharedBlogComponent from "../components/MediaPosts/SharedBlogComponent";
 import {
    LoadingBlogComponent,
    LoadingProfileComponent,
 } from "../components/MediaPosts/LoadingComponents";
-import { useSelector } from "react-redux";
-import moment from "moment";
-import axios from "axios";
+import ProfileNavComponent from "../components/ProfileNavComponent";
+import SearchForm from "../components/SearchForm";
 import { useCurrentUser } from "../utils/CustomHooks";
 
 const { width, height } = Dimensions.get("window");
@@ -57,53 +54,14 @@ const ProfileScreen = ({ navigation, route }: any) => {
    const [hasMore, setHasMore] = useState(true);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
    const [lastSeen, setLastSeen] = useState<"online" | any>("");
+   const [searchValue, setSearchValue] = useState<string>("");
+   const [bio, setBio] = useState<string>("");
+   const [showEditBio, setShowEditBio] = useState<boolean>(false);
    const currentUser = useCurrentUser();
    const { socket } = useSelector((state: any) => state.rootReducer);
 
-   // GETTING POSTS
-
-   let fetchData = async (pageNum?: number) => {
-      console.log("Fetching user blogs...");
-      let pageNumber = pageNum ?? page.current;
-      if (!hasMore) return;
-      let userId = route.params.userId;
-      if (!userId) return;
-      console.log({ userId });
-      try {
-         let { status, data } = await axios.get(
-            `http://192.168.1.98:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfBlogsPerPage}`,
-            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-         );
-
-         if (status === 200) {
-            // console.log(data.data)
-            // setPosts(data.data);
-            let fetchedPost: BlogComponent[] = data.data;
-
-            setAllPosts((prev) =>
-               prev ? [...prev, ...fetchedPost] : fetchedPost
-            );
-            setPosts((prev) =>
-               prev ? [...prev, ...fetchedPost] : fetchedPost
-            );
-
-            if (fetchedPost.length > 0) page.current++;
-            if (data.length < numberOfBlogsPerPage) {
-               setHasMore(false);
-            }
-            setLoadingFetch(false);
-         } else {
-            Alert.alert("Failed", data.message);
-         }
-         setLoadingFetch(false);
-      } catch (err) {
-         console.log(err);
-         Alert.alert("Failed", String(err));
-         setLoadingFetch(false);
-      }
-   };
-
    const searchPosts = (_token: string) => {
+      setSearchValue(_token);
       console.log("From profile", _token);
       let token = _token.toLowerCase();
       let newPosts = allPosts?.filter(
@@ -114,6 +72,48 @@ const ProfileScreen = ({ navigation, route }: any) => {
       setPosts(newPosts);
    };
    const handleLoadMore = () => {
+      // GETTING POSTS
+
+      let fetchData = async (pageNum?: number) => {
+         console.log("Fetching user blogs...");
+         let pageNumber = pageNum ?? page.current;
+         if (!hasMore) return;
+         let userId = route.params.userId;
+         if (!userId) return;
+         console.log({ userId });
+         try {
+            let { status, data } = await axios.get(
+               `http://192.168.1.98:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfBlogsPerPage}`,
+               { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+            );
+
+            if (status === 200) {
+               // console.log(data.data)
+               // setPosts(data.data);
+               let fetchedPost: BlogComponent[] = data.data;
+
+               setAllPosts((prev) =>
+                  prev ? [...prev, ...fetchedPost] : fetchedPost
+               );
+               setPosts((prev) =>
+                  prev ? [...prev, ...fetchedPost] : fetchedPost
+               );
+
+               if (fetchedPost.length > 0) page.current++;
+               if (data.length < numberOfBlogsPerPage) {
+                  setHasMore(false);
+               }
+               setLoadingFetch(false);
+            } else {
+               Alert.alert("Failed", "Error");
+            }
+            setLoadingFetch(false);
+         } catch (err) {
+            console.log(err);
+            Alert.alert("Failed", "Blog Error");
+            setLoadingFetch(false);
+         }
+      };
       console.log("blogs Reached end");
       if (loadingFetch) {
       } else if (posts && posts.length < numberOfBlogsPerPage) {
@@ -141,45 +141,94 @@ const ProfileScreen = ({ navigation, route }: any) => {
       );
    };
 
-   // FETCHING USER PROFILE INFO ////
+   const handleEditBio = async () => {};
 
-   useEffect(function () {
-      console.log("Fetching user profile details");
-      setLoading(true);
-      let fetchData = async () => {
-         // console.log("Fetching user")
-         //  let activeUserId = 1
-         try {
-            let { status, data } = await axios.get(
-               `http://192.168.1.98:5000/auth/users/${route.params.userId}`,
-               { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-            );
-            if (status === 200) {
-               console.log("User----", data.data);
-               setUser(data.data);
-               setLastSeen(data.data.personal.lastSeenStatus);
-               // Alert.alert("Success",data.message)
-               setLoading(false);
-            } else {
-               Alert.alert("Failed", data.message);
-            }
-            setLoading(false);
-         } catch (err) {
-            console.log(err);
-            Alert.alert("Failed", String(err));
-            setLoading(false);
-         }
-      };
-      fetchData();
-   }, []);
+   // FETCHING USER PROFILE INFO ////
 
    useEffect(
       function () {
-         if (currentUser) {
+         console.log("Fetching user profile details");
+         setLoading(true);
+         let _fetchData = async () => {
+            // console.log("Fetching user")
+            //  let activeUserId = 1
+            // if(!route.params.userId) return
+            try {
+               let { status, data } = await axios.get(
+                  `http://192.168.1.98:5000/auth/users/${route.params.userId}`,
+                  { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+               );
+               if (status === 200) {
+                  console.log("User----", data.data);
+                  setUser(data.data);
+                  setBio(data.data.personal.bio);
+                  setLastSeen(data.data.personal.lastSeenStatus);
+                  // Alert.alert("Success",data.message)
+                  setLoading(false);
+               } else {
+                  Alert.alert("Failed", "My message");
+               }
+               setLoading(false);
+            } catch (err) {
+               console.log(err);
+               Alert.alert("Failed", "New Error");
+               setLoading(false);
+            }
+         };
+         _fetchData();
+      },
+      [route.params.userId]
+   );
+
+   useEffect(
+      function () {
+         // GETTING POSTS
+
+         let fetchData = async (pageNum?: number) => {
+            console.log("Fetching user blogs...");
+            let pageNumber = pageNum ?? page.current;
+            if (!hasMore) return;
+            let userId = route.params.userId;
+            if (!userId) return;
+            console.log({ userId });
+            try {
+               let { status, data } = await axios.get(
+                  `http://192.168.1.98:6000/blogs/users/${userId}?pageNumber=${pageNumber}&numberOfRecords=${numberOfBlogsPerPage}`,
+                  { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+               );
+
+               if (status === 200) {
+                  // console.log(data.data)
+                  // setPosts(data.data);
+                  let fetchedPost: BlogComponent[] = data.data;
+
+                  setAllPosts((prev) =>
+                     prev ? [...prev, ...fetchedPost] : fetchedPost
+                  );
+                  setPosts((prev) =>
+                     prev ? [...prev, ...fetchedPost] : fetchedPost
+                  );
+
+                  if (fetchedPost.length > 0) page.current++;
+                  if (data.length < numberOfBlogsPerPage) {
+                     setHasMore(false);
+                  }
+                  setLoadingFetch(false);
+               } else {
+                  Alert.alert("Failed", "Error");
+               }
+               setLoadingFetch(false);
+            } catch (err) {
+               console.log(err);
+               Alert.alert("Failed", "Blog Error");
+               setLoadingFetch(false);
+            }
+         };
+         if (currentUser && route.params.userId) {
             fetchData(1);
          }
       },
-      [currentUser]
+      [currentUser, route.params.userId]
    );
 
    useEffect(() => {
@@ -243,12 +292,16 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   flexDirection: "row",
                   gap: 3,
                   alignItems: "center",
-                  marginTop: 10,
+                  marginTop: 5,
                }}>
                <Text
+                  variant="titleMedium"
+                  numberOfLines={1}
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_500Medium",
+                     marginHorizontal: 3,
+                     marginVertical: 10,
+                     // fontFamily: "Poppins_500Medium",
                      color: theme.colors.secondary,
                   }}>
                   {user?.personal?.fullName}
@@ -272,11 +325,11 @@ const ProfileScreen = ({ navigation, route }: any) => {
          <View style={styles.mediaContainer}>
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_600SemiBold",
+
                      // color: theme.colors.secondary,
-                     fontSize: 18,
                   }}>
                   {user?.followers?.count}
                </Text>
@@ -301,11 +354,11 @@ const ProfileScreen = ({ navigation, route }: any) => {
 
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_600SemiBold",
+
                      // color: theme.colors.secondary,
-                     fontSize: 18,
                   }}>
                   {user?.followings?.count}
                </Text>
@@ -330,11 +383,11 @@ const ProfileScreen = ({ navigation, route }: any) => {
 
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_600SemiBold",
+
                      // color: theme.colors.secondary,
-                     fontSize: 18,
                   }}>
                   {user?.totalPosts}
                </Text>
@@ -353,11 +406,11 @@ const ProfileScreen = ({ navigation, route }: any) => {
             </View>
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_600SemiBold",
+
                      // color: theme.colors.secondary,
-                     fontSize: 18,
                   }}>
                   {user?.totalLikes}
                </Text>
@@ -380,29 +433,55 @@ const ProfileScreen = ({ navigation, route }: any) => {
                flexDirection: "row",
                justifyContent: "center",
                alignItems: "center",
-               gap:8
-               
+               gap: 8,
             }}>
-            {user?.personal.bio && (
+            {showEditBio && (
+               <View
+                  style={{
+                     paddingHorizontal: 10,
+                     flexDirection: "row",
+                     alignItems: "center",
+                     justifyContent: "center",
+                     gap: 5,
+                  }}>
+                  <TextInput
+                     label="Bio"
+                     value={bio}
+                     multiline
+                     mode="flat"
+                     onChangeText={(v) => setBio(v)}
+                     style={{
+                        width: 0.7 * width,
+                     }}
+                  />
+                  <Button
+                     elevation={0}
+                     mode="contained"
+                     onPress={handleEditBio}>
+                     Done
+                  </Button>
+                  {/* <AntDesign  onPress={handleEditBio} name="checkcircleo" size={30} /> */}
+               </View>
+            )}
+            {user?.personal.bio && !showEditBio && (
                <View
                   style={{
                      alignItems: "center",
                      justifyContent: "center",
+                     flexDirection: "row",
                   }}>
-                  <Text style={{fontFamily:"Poppins_300Light",textAlign:"center"}}>{user?.personal.bio}</Text>
+                  <Text variant="bodyMedium" style={{ textAlign: "center" }}>
+                     {user?.personal.bio}
+                  </Text>
+                  <Button
+                     onPress={() => setShowEditBio(true)}
+                     style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                     }}
+                     icon="pencil"></Button>
                </View>
             )}
-
-            <Button
-               style={{
-              
-                  justifyContent: "center",
-                  alignItems:"center"
-               }}
-               icon="pencil"
-               >
-               
-            </Button>
          </View>
          <View style={{ alignItems: "center", marginBottom: 5 }}>
             <ProfileNavComponent user={user?.personal} />
@@ -416,27 +495,19 @@ const ProfileScreen = ({ navigation, route }: any) => {
          )}
          {posts && posts.length > 1 && (
             <SearchForm setSearchValue={(v) => searchPosts(v)} />
+            // <Searchbar style={{marginHorizontal:20}} value={searchValue} onChangeText={searchPosts} placeholder="Search" />
          )}
          {posts && (
             <FlatList
                keyExtractor={(item) => String(item.blog.blogId)}
                data={posts}
                renderItem={({ item, index, separators }) => {
-                  if (item.blog?.fromBlogId) {
-                     return (
-                        <SharedBlogComponent
-                           key={String(item.blog.blogId)}
-                           {...item}
-                        />
-                     );
-                  } else {
-                     return (
-                        <BlogComponent
-                           key={String(item.blog.blogId)}
-                           {...item}
-                        />
-                     );
-                  }
+                  return (
+                     <BlogComponent
+                        // key={String(item.blog.blogId)}
+                        {...item}
+                     />
+                  );
                }}
                onEndReached={handleLoadMore}
                onEndReachedThreshold={0.9}

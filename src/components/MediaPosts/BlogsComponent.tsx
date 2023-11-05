@@ -27,9 +27,9 @@ type BlogComponentProps = {
    liked: boolean;
 };
 
-const BlogsComponent = () => {
-   const [blogs, setBlogs] = useState<BlogComponentProps[] | null>(null);
-   const page = React.useRef<number>(1);
+const BlogsComponent = ({ blogs: _blogs }: { blogs: BlogComponentProps[] }) => {
+   const [blogs, setBlogs] = useState<BlogComponentProps[] | null>(_blogs);
+   const page = React.useRef<number>(2);
    const [numberOfblogsPerPage, setNumberOfblogsPerPage] = useState<number>(5);
    const [loading, setLoading] = useState<boolean>(false);
    const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -114,44 +114,21 @@ const BlogsComponent = () => {
       );
    };
 
-   useEffect(
-      function () {
-         if (currentUser) {
-            fetchData();
-         }
-      },
-      [currentUser]
-   );
-
-   if (!blogs) {
-      return (
-         <View style={{ padding: 2 }}>
-            <LoadingBlogComponent />
-            <Divider />
-            <LoadingBlogComponent />
-            <Divider />
-            <LoadingBlogComponent />
-         </View>
-      );
-   }
+   // useEffect(
+   //    function () {
+   //       if (currentUser) {
+   //          fetchData();
+   //       }
+   //    },
+   //    [currentUser]
+   // );
 
    return (
       <FlatList
          keyExtractor={(item) => String(item.blog.blogId)}
          data={blogs}
          renderItem={({ item, index, separators }) => {
-            if (item.blog?.fromBlogId) {
-               return (
-                  <SharedBlogComponent
-                     key={String(item.blog.blogId)}
-                     {...item}
-                  />
-               );
-            } else {
-               return (
-                  <BlogComponent key={String(item.blog.blogId)} {...item} />
-               );
-            }
+            return <BlogComponent key={String(item.blog.blogId)} {...item} />;
          }}
          onEndReached={handleLoadMore}
          onEndReachedThreshold={0.9}

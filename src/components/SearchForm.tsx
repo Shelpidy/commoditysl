@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, TextInput, Pressable } from "react-native";
+import {
+   StyleSheet,
+   Text,
+   View,
+   TextInput,
+   Pressable,
+   useWindowDimensions,
+} from "react-native";
 import React, { useState } from "react";
 import { EvilIcons } from "@expo/vector-icons";
 import { useTheme } from "react-native-paper";
@@ -9,6 +16,7 @@ type SearchProps = {
 const SearchForm = ({ setSearchValue }: SearchProps) => {
    const [searchValue, _setSearchValue] = useState("");
    const theme = useTheme();
+   const { width } = useWindowDimensions();
    const handleSearch = () => {
       setSearchValue(searchValue);
       console.log(searchValue);
@@ -16,7 +24,7 @@ const SearchForm = ({ setSearchValue }: SearchProps) => {
    return (
       <View
          style={{
-            paddingHorizontal: 10,
+            paddingHorizontal: 15,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
@@ -30,7 +38,8 @@ const SearchForm = ({ setSearchValue }: SearchProps) => {
                borderTopLeftRadius: 20,
                borderBottomLeftRadius: 20,
                height: 50,
-               paddingHorizontal: 25,
+               paddingHorizontal: 10,
+               width: 0.7 * width,
                borderColor: theme.colors.inverseOnSurface,
                borderWidth: 1,
             }}

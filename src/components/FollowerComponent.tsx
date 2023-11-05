@@ -4,27 +4,24 @@ import {
    Image,
    Pressable,
    StyleSheet,
-   Text,
    View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Button, IconButton, useTheme } from "react-native-paper";
+import { Button, IconButton, useTheme, Text, List } from "react-native-paper";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { useCurrentUser } from "../utils/CustomHooks";
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
-type FollowerComponentProps = User & { route: any; navigation: any };
+type FollowerComponentProps = { user: any };
 
-const FollowerComponent = ({
-   route,
-   navigation,
-   ...user
-}: FollowerComponentProps) => {
+const FollowerComponent = ({ user }: FollowerComponentProps) => {
    const theme = useTheme();
    const [followed, setFollowed] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
+   const navigation = useNavigation<any>();
    const currentUser = useCurrentUser();
 
    useEffect(() => {
@@ -63,27 +60,19 @@ const FollowerComponent = ({
    };
 
    return (
-      <View style={styles.container}>
-         <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Pressable onPress={gotoUserProfile}>
-               <Image
-                  resizeMode="cover"
-                  style={styles.profileImage}
-                  source={{ uri: user.profileImage }}
-               />
-            </Pressable>
-
-            <Text style={styles.nameText}>{user.fullName}</Text>
-         </View>
-
-         {/* <Text style={styles.nameText}>{user.lastName}</Text> */}
-         <View style={styles.followerContainer}>
-            <Button
-               loading={loading}
-               disabled={loading}
-               onPress={() => handleFollow(user.userId)}
-               mode={followed ? "contained-tonal" : "outlined"}
-               style={{ borderColor: theme.colors.primary }}>
+      <List.Item
+         onPress={gotoUserProfile}
+         left={() => (
+            <List.Image
+               style={styles.profileImage}
+               source={{ uri: user.profileImage }}
+            />
+         )}
+         titleStyle={{ color: "red" }}
+         title={user.fullName}
+         titleNumberOfLines={1}
+         right={() => (
+            <Button onPress={() => handleFollow(user.userId)}>
                <SimpleLineIcons
                   name={followed ? "user-following" : "user-follow"}
                />
@@ -94,8 +83,8 @@ const FollowerComponent = ({
                   {followed ? " Unfollow" : " Follow"}
                </Text>
             </Button>
-         </View>
-      </View>
+         )}
+      />
    );
 };
 

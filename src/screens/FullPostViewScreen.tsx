@@ -1,6 +1,5 @@
 import {
    StyleSheet,
-   Text,
    View,
    Modal,
    Dimensions,
@@ -24,6 +23,7 @@ import {
    IconButton,
    Divider,
    Avatar,
+   Text,
 } from "react-native-paper";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import {
@@ -282,16 +282,17 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                         )}
                      </View>
                   </Pressable>
-                  <TextEllipse
+                  <Text
+                     variant="titleMedium"
+                     numberOfLines={1}
                      style={{
-                        fontFamily: "Poppins_400Regular",
-                        margin: 5,
+                        textAlign: "center",
+                        marginHorizontal: 3,
+                        // fontFamily: "Poppins_500Medium",
                         color: theme.colors.secondary,
-                        fontSize: 12,
-                     }}
-                     textLength={23}
-                     text={createdBy.fullName}
-                  />
+                     }}>
+                     {createdBy.fullName}
+                  </Text>
                   {createdBy.verificationRank && (
                      <MaterialIcons
                         size={14}
@@ -335,7 +336,10 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                <View style={{ paddingHorizontal: 8 }}>
                   <HTML
                      contentWidth={width}
-                     baseStyle={{ fontFamily: "Poppins_300Light" }}
+                     baseStyle={{
+                        fontFamily: "Poppins_300Light",
+                        fontSize: 15,
+                     }}
                      systemFonts={["Poppins_300Light", "sans-serif"]}
                      source={{ html: blog.text }}
                   />

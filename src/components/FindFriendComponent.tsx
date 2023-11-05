@@ -4,11 +4,17 @@ import {
    Image,
    Pressable,
    StyleSheet,
-   Text,
    View,
 } from "react-native";
 import React, { useState } from "react";
-import { Avatar, Button, Card, IconButton, useTheme } from "react-native-paper";
+import {
+   Avatar,
+   Button,
+   Card,
+   IconButton,
+   useTheme,
+   Text,
+} from "react-native-paper";
 import { MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { useCurrentUser } from "../utils/CustomHooks";
@@ -61,63 +67,79 @@ const FindFriendComponent = ({ user }: FindFriendProps) => {
    };
 
    return (
-      <Pressable onPress={gotoUserProfile}>
-         <Card
-            mode="contained"
-            style={[
-               styles.container,
-               { backgroundColor: theme.colors.background },
-            ]}>
-            <Image
-               style={styles.profileImage}
-               source={{ uri: user.profileImage }}
-            />
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-               <TextEllipse
-                  style={styles.nameText}
-                  text={user.fullName}
-                  textLength={15}
+      <Card
+         onPress={gotoUserProfile}
+         mode="contained"
+         style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+         ]}>
+         <Card.Cover
+            style={styles.profileImage}
+            source={{ uri: user.profileImage }}
+         />
+         <View
+            style={{
+               flexDirection: "row",
+               alignItems: "center",
+               margin: 4,
+               justifyContent: "center",
+               gap: 2,
+            }}>
+            <Text
+               variant="titleMedium"
+               numberOfLines={1}
+               style={{
+                  textAlign: "center",
+                  marginHorizontal: 5,
+                  marginVertical: 3,
+                  // fontFamily: "Poppins_500Medium",
+                  color: theme.colors.secondary,
+               }}>
+               {user.fullName}
+            </Text>
+
+            {user.verificationRank && (
+               <MaterialIcons
+                  size={14}
+                  color={
+                     user.verificationRank === "low"
+                        ? "orange"
+                        : user.verificationRank === "medium"
+                        ? "green"
+                        : "blue"
+                  }
+                  name="verified"
                />
+            )}
+         </View>
 
-               {user.verificationRank && (
-                  <MaterialIcons
-                     size={14}
-                     color={
-                        user.verificationRank === "low"
-                           ? "orange"
-                           : user.verificationRank === "medium"
-                           ? "green"
-                           : "blue"
-                     }
-                     name="verified"
-                  />
-               )}
-            </View>
+         {/* <Text style={styles.nameText}>{user.lastName}</Text> */}
 
-            {/* <Text style={styles.nameText}>{user.lastName}</Text> */}
-            <View style={styles.followerContainer}>
-               <Button
-                  style={{ justifyContent: "center", alignItems: "center" }}
-                  labelStyle={{
-                     textAlign: "center",
-                     textAlignVertical: "center",
-                     fontFamily: "Poppins_300Light",
-                     fontSize: 12,
-                  }}
-                  loading={loading}
-                  disabled={loading}
-                  onPress={handleFollow}
-                  mode={followed ? "text" : "contained"}>
-                  {/* <SimpleLineIcons
+         <Button
+            style={{
+               justifyContent: "center",
+               alignItems: "center",
+               marginVertical: 3,
+               marginHorizontal: 6,
+            }}
+            labelStyle={{
+               textAlign: "center",
+               textAlignVertical: "center",
+               fontSize: 12,
+            }}
+            loading={loading}
+            disabled={loading}
+            onPress={handleFollow}
+            mode={followed ? "text" : "contained"}>
+            {/* <SimpleLineIcons
                      size={13}
                      name={followed ? "user-following" : "user-follow"}
                   /> */}
 
-                  {followed ? " Unfollow" : " Follow"}
-               </Button>
-            </View>
-         </Card>
-      </Pressable>
+            {followed ? " Unfollow" : " Follow"}
+         </Button>
+      </Card>
    );
 };
 
@@ -125,13 +147,11 @@ export default React.memo(FindFriendComponent);
 
 const styles = StyleSheet.create({
    profileImage: {
-      width: width * 0.35,
-      height: height * 0.21,
-      borderBottomLeftRadius: 5,
-      borderBottomRightRadius: 5,
+      width: width * 0.4,
+      height: height * 0.24,
    },
    container: {
-      borderRadius: 5,
+      width: width * 0.4,
       margin: 4,
       alignItems: "center",
       paddingBottom: 6,
@@ -139,10 +159,7 @@ const styles = StyleSheet.create({
    },
    followerContainer: {
       padding: 4,
-   },
-   nameText: {
-      fontFamily: "Poppins_400Regular",
-      margin: 5,
-      fontSize: 11,
+      justifyContent: "center",
+      alignItems: "center",
    },
 });

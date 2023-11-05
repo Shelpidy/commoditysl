@@ -290,11 +290,7 @@ const Comments = ({
                      alignItems: "center",
                      flexDirection: "row",
                   }}
-                  onPress={() =>
-                     navigation.navigate("FullPostViewScreen", {
-                        ...blog,
-                     })
-                  }
+                  onPress={() => setShowTextInput(true)}
                   textColor={theme.colors.secondary}
                   style={{
                      backgroundColor: theme.colors.background,

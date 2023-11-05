@@ -1,6 +1,5 @@
 import {
    StyleSheet,
-   Text,
    View,
    Alert,
    Pressable,
@@ -16,7 +15,7 @@ import {
    MaterialIcons,
 } from "@expo/vector-icons";
 import { Skeleton } from "@rneui/base";
-import { Avatar, Button, useTheme } from "react-native-paper";
+import { Avatar, Button, useTheme, Text } from "react-native-paper";
 import TextEllipse from "./TextEllipse";
 import axios from "axios";
 import { useCurrentUser } from "../utils/CustomHooks";
@@ -40,16 +39,13 @@ const UserComponent = ({ _user }: UserComponentProps) => {
    let theme = useTheme();
 
    useEffect(() => {
-      console.log("USER COMPONENT");
-      console.log(_user.userId);
-      console.log(currentUser?.followingIds);
-      if (currentUser?.followingIds?.includes(_user.userId)) {
-         console.log(_user.userId, currentUser?.followingIds);
-         setFollowed(true);
+
+      if (_user.following) {
+         setFollowed(_user?.following)
       }
       // dispatchPostComment({ type: "", payload: "" });
       SetUser(_user);
-   }, [currentUser, _user]);
+   }, [ _user]);
 
    useEffect(() => {
       socket.on(String(_user.userId), (data: any) => {
@@ -106,83 +102,91 @@ const UserComponent = ({ _user }: UserComponentProps) => {
       );
    }
    return (
-      <View
-         style={{
-            backgroundColor: theme.colors.background,
-            margin: 0,
-            width: width,
-         }}>
-         <View
-            style={{
-               flexDirection: "row",
-               alignItems: "center",
-               paddingHorizontal: 5,
-               paddingVertical: 5,
-            }}>
-            <Pressable
-               style={{ position: "relative" }}
-               onPress={gotoUserProfile}>
-               <Avatar.Image
-                  style={{
-                     position: "absolute",
-                     top: 0,
-                     bottom: 0,
-                     left: 0,
-                     right: 0,
-                  }}
-                  size={45}
-                  source={{ uri: user.profileImage }}
-               />
-               {lastSeen === "online" ? (
-                  <View
-                     style={{
-                        width: 4,
-                        height: 4,
-                        borderRadius: 4,
-                        backgroundColor: "green",
-                        position: "absolute",
-                        bottom: 0,
-                        left: "90%",
-                     }}></View>
-               ) : (
-                  <Text>{lastSeen}</Text>
-               )}
-            </Pressable>
             <View
                style={{
-                  flex: 1,
                   flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  margin: 4,
-                  paddingHorizontal: 2,
+                  padding:10,
+                  backgroundColor:theme.colors.background
                }}>
-               {/* <View><Text style={{fontFamily:"Poppins_400Regular"}}>{user?.firstName} {user?.lastName}</Text> </View> */}
-               <View>
-                  <TextEllipse
-                     text={user.fullName}
-                     style={{
-                        fontFamily: "Poppins_400Regular",
-                        marginHorizontal: 3,
-                     }}
-                     textLength={18}
-                  />
-                  {user.verified && (
-                     <MaterialIcons
-                        size={15}
-                        color={
-                           user.verificationRank === "low"
-                              ? "yellow"
-                              : user.verificationRank === "medium"
-                              ? "green"
-                              : "blue"
-                        }
-                        name="verified"
+               <Pressable onPress={gotoUserProfile}>
+                  <View style={{ position: "relative",alignItems:'center' }}>
+                     <Avatar.Image
+                        size={40}
+                        source={{ uri: "https://picsum.photos/200/300" }}
                      />
-                  )}
-               </View>
-               {/* <Pressable style={{marginHorizontal:5}}><Text><EvilIcons name='external-link' size={26} /></Text></Pressable> */}
-               {user.userId !== currentUser?.userId && (
+                     {lastSeen === "online" && (
+                        <View
+                           style={{
+                              width: 17,
+                              height: 17,
+                              borderRadius: 8,
+                              backgroundColor: "#fff",
+                              position: "absolute",
+                              bottom: -2,
+                              right: -2,
+                              zIndex: 10,
+                              justifyContent: "center",
+                              alignItems: "center",
+                           }}>
+                           <View
+                              style={{
+                                 width: 12,
+                                 height: 12,
+                                 borderRadius: 8,
+                                 backgroundColor: "#11a100",
+                              }}></View>
+                        </View>
+                     )}
+                  </View>
+               </Pressable>
+
+               <Text
+                 onPress={gotoUserProfile}
+                  variant="titleMedium"
+                  numberOfLines={1}
+                  style={{
+                     textAlign: "center",
+                     marginHorizontal: 4,
+                     verticalAlign:"middle",
+                     // fontFamily: "Poppins_500Medium",
+                     color: theme.colors.secondary,
+                  }}>
+                  {user.fullName}
+               </Text>
+               {/* <TextEllipse
+                  style={{
+                     fontFamily: "Poppins_400Regular",
+                     margin: 5,
+                     color: theme.colors.secondary,
+                     fontSize: 12,
+                  }}
+                  textLength={23}
+                  text={user.fullName}
+               /> */}
+               {user.verificationRank && (
+                  <MaterialIcons
+                     size={14}
+                     color={
+                        user.verificationRank === "low"
+                           ? "orange"
+                           : user.verificationRank === "medium"
+                           ? "green"
+                           : "blue"
+                     }
+                     name="verified"
+                  />
+               )}
+               <View
+                  style={{
+                     flex: 1,
+                     justifyContent: "flex-end",
+                     alignItems: "flex-end",
+                     marginBottom: 2,
+                     paddingHorizontal: 0,
+                     borderRadius: 3,
+                  }}>
+                  {user.userId !== currentUser?.userId && (
                   <Button
                      onPress={handleFollow}
                      style={{ marginVertical: 5, alignSelf: "flex-end" }}
@@ -190,9 +194,8 @@ const UserComponent = ({ _user }: UserComponentProps) => {
                      {followed ? "unfollow" : "follow"}
                   </Button>
                )}
+               </View>
             </View>
-         </View>
-      </View>
    );
 };
 

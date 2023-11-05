@@ -1,11 +1,4 @@
-import {
-   Alert,
-   Dimensions,
-   Pressable,
-   StyleSheet,
-   Text,
-   View,
-} from "react-native";
+import { Alert, Dimensions, Pressable, StyleSheet, View } from "react-native";
 import React, { useState, useEffect } from "react";
 import {
    AntDesign,
@@ -14,7 +7,7 @@ import {
    MaterialCommunityIcons,
    MaterialIcons,
 } from "@expo/vector-icons";
-import { Button, useTheme, Card } from "react-native-paper";
+import { Button, useTheme, Card, Text } from "react-native-paper";
 import { useCurrentUser } from "../utils/CustomHooks";
 import { useNavigation } from "@react-navigation/native";
 
@@ -38,7 +31,6 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Settings
@@ -54,7 +46,7 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
             />
             <Text
                style={{
-                  fontFamily: "Poppins_400Regular",
+                  
                   color: theme.colors.secondary,
                }}>
                Products
@@ -77,7 +69,6 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Send Commodity
@@ -95,7 +86,6 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Buy Commodity
@@ -115,7 +105,6 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Check Balance
@@ -131,7 +120,6 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                />
                <Text
                   style={{
-                     fontFamily: "Poppins_400Regular",
                      color: theme.colors.secondary,
                   }}>
                   Logout
@@ -153,6 +141,7 @@ const styles = StyleSheet.create({
       // marginBottom:120,
       paddingVertical: 15,
       paddingHorizontal: 0,
+      gap: 3,
       flexWrap: "wrap",
    },
    navLink: {

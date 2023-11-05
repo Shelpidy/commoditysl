@@ -23,7 +23,7 @@ import { useCurrentUser } from "../../utils/CustomHooks";
 import LikesComponent from "../LikesComponent";
 import UpdatePostForm from "./UpdatePostForm";
 
-type BlogComponentProps = {
+type NewBlogComponentProps = {
    blog: Blog;
    commentsCount: number;
    likesCount: number;
@@ -33,7 +33,7 @@ type BlogComponentProps = {
    liked: boolean;
 };
 
-const BlogComponent = (props: BlogComponentProps) => {
+const NewBlogComponent = (props: NewBlogComponentProps) => {
    const currentUser = useCurrentUser();
    const [openModal, setOpenModal] = useState<boolean>(false);
    const [openShareModal, setOpenShareModal] = useState<boolean>(false);
@@ -460,7 +460,7 @@ const BlogComponent = (props: BlogComponentProps) => {
    );
 };
 
-export default BlogComponent;
+export default NewBlogComponent;
 
 const styles = StyleSheet.create({
    postContainer: {

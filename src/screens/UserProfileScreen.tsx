@@ -7,7 +7,6 @@ import {
    FlatList,
    ScrollView,
    StyleSheet,
-   Text,
    View,
 } from "react-native";
 import {
@@ -15,6 +14,7 @@ import {
    Avatar,
    Button,
    useTheme,
+   Text,
 } from "react-native-paper";
 import { useSelector } from "react-redux";
 import BlogComponent from "../components/MediaPosts/BlogComponent";
@@ -274,15 +274,16 @@ const UserProfileScreen = ({ navigation, route }: any) => {
             <View
                style={{ flexDirection: "row", gap: 3, alignItems: "center" }}>
                <Text
+                  numberOfLines={1}
                   style={{
                      textAlign: "center",
-                     marginTop: 5,
                      fontFamily: "Poppins_500Medium",
-                     fontSize: 14,
                      color: theme.colors.secondary,
+                     marginVertical: 10,
                   }}>
                   {user?.personal?.fullName}
                </Text>
+
                {user.personal.verificationRank && (
                   <MaterialIcons
                      size={17}
@@ -301,11 +302,11 @@ const UserProfileScreen = ({ navigation, route }: any) => {
          <View style={styles.mediaContainer}>
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_500Medium",
+
                      // color: theme.colors.secondary,
-                     fontSize: 16,
                   }}>
                   {user?.followers?.count}
                </Text>
@@ -330,11 +331,11 @@ const UserProfileScreen = ({ navigation, route }: any) => {
 
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_500Medium",
-                     // color:theme.colors.secondary,
-                     fontSize: 16,
+
+                     // color: theme.colors.secondary,
                   }}>
                   {user?.followings?.count}
                </Text>
@@ -359,11 +360,11 @@ const UserProfileScreen = ({ navigation, route }: any) => {
 
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_500Medium",
-                     //  color:theme.colors.secondary,
-                     fontSize: 15,
+
+                     // color: theme.colors.secondary,
                   }}>
                   {user?.totalPosts}
                </Text>
@@ -382,11 +383,11 @@ const UserProfileScreen = ({ navigation, route }: any) => {
             </View>
             <View style={{ alignItems: "center", margin: 4 }}>
                <Text
+                  variant="titleMedium"
                   style={{
                      textAlign: "center",
-                     fontFamily: "Poppins_500Medium",
-                     // color:theme.colors.secondary,
-                     fontSize: 15,
+
+                     // color: theme.colors.secondary,
                   }}>
                   {user?.totalLikes}
                </Text>
@@ -417,13 +418,12 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                disabled={loading}
                labelStyle={{ color: theme.colors.primary }}
                onPress={handleFollow}
-               style={{ flex: 1, borderColor: theme.colors.primary }}
+               style={{ borderColor: theme.colors.primary }}
                mode={followed ? "outlined" : "contained-tonal"}>
                {followed ? "unfollow" : "follow"}
             </Button>
             <Button
                mode="contained"
-               style={{ flex: 2 }}
                onPress={() =>
                   navigation.navigate("ChatScreen", {
                      user: user?.personal as User,

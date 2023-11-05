@@ -20,7 +20,6 @@ import {
    Pressable,
    ScrollView,
    StyleSheet,
-   Text,
    TextInput,
    View,
 } from "react-native";
@@ -30,10 +29,12 @@ import {
    Button,
    Divider,
    useTheme,
+   Text,
 } from "react-native-paper";
 import { useCurrentUser } from "../../utils/CustomHooks";
 import { dateAgo } from "../../utils/util";
 import TextEllipse from "../TextEllipse";
+import CommentTextEllipse from "./CommentTextEllipse";
 
 type CommentProps = {
    comment: BlogComment;
@@ -504,7 +505,7 @@ const CommentComponent = (props: CommentProps) => {
             <View style={styles.commentorMedia}>
                <Pressable onPress={gotoUserProfile}>
                   <Avatar.Image
-                     size={35}
+                     size={props.size === "small"?30:35}
                      source={{ uri: commentor.profileImage }}
                   />
                   {/* <Image
@@ -535,16 +536,17 @@ const CommentComponent = (props: CommentProps) => {
                            alignItems: "center",
                            // justifyContent: "space-between",
                         }}>
-                        <TextEllipse
+                        <Text
+                           variant="titleMedium"
+                           numberOfLines={1}
                            style={{
-                              fontFamily: "Poppins_400Regular",
-                              margin: 5,
+                              textAlign: "center",
+                              marginHorizontal: 3,
+                              // fontFamily: "Poppins_500Medium",
                               color: theme.colors.secondary,
-                              fontSize: 12,
-                           }}
-                           textLength={23}
-                           text={commentor.fullName}
-                        />
+                           }}>
+                           {commentor.fullName}
+                        </Text>
                         {commentor.verificationRank && (
                            <MaterialIcons
                               size={14}
@@ -564,12 +566,23 @@ const CommentComponent = (props: CommentProps) => {
                         <SimpleLineIcons
                            style={{ alignSelf: "center", right: 5 }}
                            onPress={() => setOpenModal(true)}
-                           name="options"
+                           name="options-vertical"
                         />
                      )}
                   </View>
-
-                  <TextEllipse
+                  <CommentTextEllipse
+                     numberOfLines={2}
+                     style={{
+                        fontFamily: "Poppins_300Light",
+                        fontSize:14,
+                        paddingHorizontal: 5,
+                     }}
+                     text={comment.content}
+                     variant={
+                        props.size === "small" ? "bodyMedium" : "bodyLarge"
+                     }
+                  />
+                  {/* <TextEllipse
                      text={comment.content}
                      textLength={80}
                      showViewMore
@@ -578,7 +591,7 @@ const CommentComponent = (props: CommentProps) => {
                         paddingHorizontal: 5,
                         fontSize: props.size === "small" ? 11 : 13,
                      }}
-                  />
+                  /> */}
                   {/* <Divider/> */}
                   {/* <Text>Comment Likes</Text>  */}
                   <View
@@ -594,8 +607,9 @@ const CommentComponent = (props: CommentProps) => {
                      }}>
                      {comment.createdAt && (
                         <Text
+                           numberOfLines={1}
+                           variant="bodySmall"
                            style={{
-                              fontSize: 10,
                               fontFamily: "Poppins_300Light",
                               marginRight: 5,
                            }}>
@@ -626,7 +640,7 @@ const CommentComponent = (props: CommentProps) => {
                         }}
                         onPress={() => setOpenRepliesModal(true)}>
                         <Ionicons
-                           size={props.size === "small" ? 14 : 15}
+                           size= {15}
                            color={theme.colors.secondary}
                            name="chatbox-outline"
                         />
@@ -642,7 +656,7 @@ const CommentComponent = (props: CommentProps) => {
                         }}
                         onPress={() => handleLike(comment.commentId)}>
                         <AntDesign
-                           size={props.size === "small" ? 14 : 15}
+                           size={15}
                            name={liked ? "like1" : "like2"}
                            color={theme.colors.secondary}
                         />

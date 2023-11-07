@@ -42,6 +42,7 @@ type BlogComponentProps = {
    likesCount: number;
    sharesCount: number;
    liked: boolean;
+   reposted:boolean;
 };
 
 const { width, height } = Dimensions.get("window");

@@ -37,6 +37,7 @@ type BlogComponent = {
    createdBy: User;
    ownedBy: User;
    liked: boolean;
+   reposted:boolean
 };
 
 const UserProfileScreen = ({ navigation, route }: any) => {
@@ -316,13 +317,14 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                         userId: user?.personal.userId,
                      })
                   }>
-                  <Text
+               <Text
+                     variant="bodyMedium"
                      style={{
-                        // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
-                        fontSize: 13,
+                        //  color:theme.colors.secondary,
+                        // fontSize: 13,
                      }}>
                      Followers
                   </Text>
@@ -345,13 +347,14 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                         userId: user?.personal.userId,
                      })
                   }>
-                  <Text
+               <Text
+                     variant="bodyMedium"
                      style={{
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         //  color:theme.colors.secondary,
-                        fontSize: 13,
+                        // fontSize: 13,
                      }}>
                      Following
                   </Text>
@@ -369,13 +372,14 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalPosts}
                </Text>
                <Button>
-                  <Text
+               <Text
+                     variant="bodyMedium"
                      style={{
-                        // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
-                        fontSize: 13,
+                        //  color:theme.colors.secondary,
+                        // fontSize: 13,
                      }}>
                      Posts
                   </Text>
@@ -392,13 +396,14 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalLikes}
                </Text>
                <Button>
-                  <Text
+               <Text
+                     variant="bodyMedium"
                      style={{
-                        // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
-                        fontSize: 13,
+                        //  color:theme.colors.secondary,
+                        // fontSize: 13,
                      }}>
                      Likes
                   </Text>

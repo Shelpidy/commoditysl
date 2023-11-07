@@ -41,6 +41,7 @@ type BlogComponent = {
    createdBy: User;
    ownedBy: User;
    liked: boolean;
+   reposted:boolean
 };
 
 const ProfileScreen = ({ navigation, route }: any) => {
@@ -340,12 +341,13 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      })
                   }>
                   <Text
+                     variant="bodyMedium"
                      style={{
                         // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
-                        fontSize: 13,
+                        // fontSize: 13,
                      }}>
                      Followers
                   </Text>
@@ -369,12 +371,13 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      })
                   }>
                   <Text
+                     variant="bodyMedium"
                      style={{
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
                         //  color:theme.colors.secondary,
-                        fontSize: 13,
+                        // fontSize: 13,
                      }}>
                      Following
                   </Text>
@@ -392,13 +395,14 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalPosts}
                </Text>
                <Button mode="text">
-                  <Text
+                 <Text
+                     variant="bodyMedium"
                      style={{
-                        // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
-                        fontSize: 13,
+                        //  color:theme.colors.secondary,
+                        // fontSize: 13,
                      }}>
                      Posts
                   </Text>
@@ -415,13 +419,14 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalLikes}
                </Text>
                <Button>
-                  <Text
+                 <Text
+                     variant="bodyMedium"
                      style={{
-                        // fontWeight: "bold",
                         textAlign: "center",
-                        fontFamily: "Poppins_300Light",
+                        // fontFamily: "Poppins_300Light",
                         color: theme.colors.secondary,
-                        fontSize: 13,
+                        //  color:theme.colors.secondary,
+                        // fontSize: 13,
                      }}>
                      Likes
                   </Text>
@@ -470,11 +475,11 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      justifyContent: "center",
                      flexDirection: "row",
                   }}>
-                  <Text variant="bodyMedium" style={{ textAlign: "center" }}>
+                  <Text variant="bodyLarge" style={{ textAlign: "center" }}>
                      {user?.personal.bio}
                   </Text>
                   <Button
-                     onPress={() => setShowEditBio(true)}
+                     onPress={()=> setShowEditBio(true)}
                      style={{
                         justifyContent: "center",
                         alignItems: "center",
@@ -494,7 +499,10 @@ const ProfileScreen = ({ navigation, route }: any) => {
             </ScrollView>
          )}
          {posts && posts.length > 1 && (
-            <SearchForm setSearchValue={(v) => searchPosts(v)} />
+            <View style={{paddingHorizontal:10}}>
+               <SearchForm setSearchValue={(v) => searchPosts(v)} />
+ 
+            </View>
             // <Searchbar style={{marginHorizontal:20}} value={searchValue} onChangeText={searchPosts} placeholder="Search" />
          )}
          {posts && (

@@ -27,11 +27,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                <AntDesign
                   name="setting"
                   size={20}
-                  color={theme.colors.secondary}
+                  // color={theme.colors.secondary}
                />
                <Text
                   style={{
-                     color: theme.colors.secondary,
+                     // color: theme.colors.secondary,
                   }}>
                   Settings
                </Text>
@@ -42,12 +42,12 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
             <Feather
                name="shopping-cart"
                size={20}
-               color={theme.colors.secondary}
+               // color={theme.colors.secondary}
             />
             <Text
                style={{
                   
-                  color: theme.colors.secondary,
+                  // color: theme.colors.secondary,
                }}>
                Products
             </Text>
@@ -65,11 +65,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                <MaterialCommunityIcons
                   name="transfer"
                   size={20}
-                  color={theme.colors.secondary}
+                  // color={theme.colors.secondary}
                />
                <Text
                   style={{
-                     color: theme.colors.secondary,
+                     // color: theme.colors.secondary,
                   }}>
                   Send Commodity
                </Text>
@@ -82,11 +82,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                <MaterialCommunityIcons
                   name="transfer"
                   size={20}
-                  color={theme.colors.secondary}
+                  // color={theme.colors.secondary}
                />
                <Text
                   style={{
-                     color: theme.colors.secondary,
+                     // color: theme.colors.secondary,
                   }}>
                   Buy Commodity
                </Text>
@@ -101,11 +101,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                <MaterialIcons
                   name="account-balance"
                   size={20}
-                  color={theme.colors.secondary}
+                  // color={theme.colors.secondary}
                />
                <Text
                   style={{
-                     color: theme.colors.secondary,
+                     // color: theme.colors.secondary,
                   }}>
                   Check Balance
                </Text>
@@ -116,11 +116,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                <AntDesign
                   name="logout"
                   size={20}
-                  color={theme.colors.secondary}
+                  // color={theme.colors.secondary}
                />
                <Text
                   style={{
-                     color: theme.colors.secondary,
+                     // color: theme.colors.secondary,
                   }}>
                   Logout
                </Text>
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
       // justifyContent: "space-between",
       marginVertical: 0,
       // backgroundColor:"#f5f5f5",
-      paddingVertical: 8,
+      paddingVertical:6,
       paddingHorizontal: 10,
       borderRadius: 20,
    },

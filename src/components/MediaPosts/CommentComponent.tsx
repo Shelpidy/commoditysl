@@ -174,7 +174,7 @@ const CommentComponent = (props: CommentProps) => {
             setLiked(liked);
             setLikesCount(numberOfLikes);
 
-            Alert.alert("Success", data.message);
+            // Alert.alert("Success", data.message);
          } else {
             Alert.alert("Failed", data.message);
          }
@@ -315,7 +315,7 @@ const CommentComponent = (props: CommentProps) => {
    };
 
    return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <KeyboardAvoidingView style={[styles.container,{backgroundColor:theme.colors.background}]} behavior="padding">
          <Modal visible={openRepliesModal}>
             <View
                style={{
@@ -537,7 +537,7 @@ const CommentComponent = (props: CommentProps) => {
                            // justifyContent: "space-between",
                         }}>
                         <Text
-                           variant="titleMedium"
+                           variant="titleSmall"
                            numberOfLines={1}
                            style={{
                               textAlign: "center",
@@ -573,14 +573,10 @@ const CommentComponent = (props: CommentProps) => {
                   <CommentTextEllipse
                      numberOfLines={2}
                      style={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize:14,
                         paddingHorizontal: 5,
                      }}
                      text={comment.content}
-                     variant={
-                        props.size === "small" ? "bodyMedium" : "bodyLarge"
-                     }
+                     variant="bodyMedium"
                   />
                   {/* <TextEllipse
                      text={comment.content}
@@ -644,7 +640,9 @@ const CommentComponent = (props: CommentProps) => {
                            color={theme.colors.secondary}
                            name="chatbox-outline"
                         />
-                        {replies.length}
+                        <Text>
+                        {" "}{replies.length}
+                        </Text>
                      </Button>
                      <Button
                         disabled={loading}
@@ -655,12 +653,14 @@ const CommentComponent = (props: CommentProps) => {
                            color: theme.colors.secondary,
                         }}
                         onPress={() => handleLike(comment.commentId)}>
-                        <AntDesign
-                           size={15}
-                           name={liked ? "like1" : "like2"}
-                           color={theme.colors.secondary}
-                        />
-                        {likesCount}
+                        <Ionicons
+                              size={18}
+                              color={liked?theme.colors.primary:theme.colors.secondary}
+                              name={liked ? "heart-sharp" : "heart-outline"}
+                           />
+                        <Text>
+                        {" "}{likesCount}
+                        </Text>
                      </Button>
                   </View>
                   {replies.length > 0 && (
@@ -684,7 +684,6 @@ export default CommentComponent;
 
 const styles = StyleSheet.create({
    container: {
-      backgroundColor: "#ffffff",
       marginVertical: 3,
    },
    profileImage: {

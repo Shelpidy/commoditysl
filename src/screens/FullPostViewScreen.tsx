@@ -46,6 +46,7 @@ import { LoadingBlogComponent } from "../components/MediaPosts/LoadingComponents
 import TextEllipse from "../components/TextEllipse";
 import { dateAgo } from "../utils/util";
 import { useSelector } from "react-redux";
+import ImageCarousel from "../components/MediaPosts/ImageCarousel";
 
 type FullBlogComponentProps = { navigation: any; route: any };
 
@@ -58,6 +59,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    const [likesCount, setLikesCount] = useState<number>(0);
    const [sharesCount, setSharesCount] = useState<number>(0);
    const [liked, setLiked] = useState<boolean>(false);
+   const [reposted, setReposted] = useState<boolean>(false);
    const [createdBy, setCreatedBy] = useState<User | null>(null);
    const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
@@ -105,10 +107,12 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                      liked,
                      likesCount,
                      sharesCount,
+                     reposted,
                      commentsCount,
                   } = data.data;
                   setCreatedBy(createdBy);
                   setLiked(liked);
+                  setReposted(reposted)
                   setLikesCount(likesCount);
                   setSharesCount(sharesCount);
                   setCommentsCount(commentsCount);
@@ -146,70 +150,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       }
    };
 
-   const handleShareBlog = async () => {
-      let activeUserId = currentUser?.userId;
-      setLoadingShare(true);
-      setShared(false);
-      // let images = props.blog.images?.map(image => image?.trimEnd())
-      let blogObj = {
-         title: blog?.title,
-         images: JSON.parse(String(blog?.images)),
-         video: blog?.video,
-         text: blog?.text,
-         fromUserId: blog?.userId,
-         fromblogId: blog?.blogId,
-         shared: true,
-      };
-      console.log(blogObj);
-      try {
-         let response = await axios.post(
-            "http://192.168.1.98:6000/blogs/",
-            blogObj
-         );
-         if (response.status === 201) {
-            console.log(response.data);
-            setLoadingShare(false);
-            setShared(true);
-            setSharesCount((prev) => prev + 1);
-         } else {
-            setLoadingShare(false);
-            Alert.alert("Failed", "blog Failed");
-         }
-      } catch (err) {
-         setLoadingShare(false);
-         console.log(err);
-      }
-
-      // console.log(blogState);
-   };
-
-   const handleLike = async (blogId: string) => {
-      console.log(blogId);
-      try {
-         setLoading(true);
-         let activeUserId = currentUser?.userId;
-         let { data, status } = await axios.put(
-            `http://192.168.1.98:6000/blogs/${blogId}/likes/`,
-            { userId: activeUserId },
-            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-         );
-         if (status === 202) {
-            let { liked, likesCount: numberOfLikes } = data.data;
-            setLiked(liked);
-            setLikesCount(numberOfLikes);
-
-            Alert.alert("Success", data.message);
-         } else {
-            Alert.alert("Failed", data.message);
-         }
-         setLoading(false);
-      } catch (err) {
-         console.log(err);
-         Alert.alert("Failed", String(err));
-         setLoading(false);
-      }
-   };
-
+  
    const toggleEmojiPicker = () => {
       setShowEmojiPicker(!showEmojiPicker);
    };
@@ -224,12 +165,12 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
 
    return (
       <View>
-         <ScrollView style={styles.blogContainer}>
+         <ScrollView style={[styles.blogContainer,{backgroundColor:theme.colors.background}]}>
             <Modal visible={openModal}>
                <View
                   style={{
                      flex: 1,
-                     backgroundColor: "#ffffff88",
+                     backgroundColor:theme.colors.background,
                      justifyContent: "center",
                      alignItems: "center",
                   }}>
@@ -283,7 +224,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                      </View>
                   </Pressable>
                   <Text
-                     variant="titleMedium"
+                     variant="titleSmall"
                      numberOfLines={1}
                      style={{
                         textAlign: "center",
@@ -327,20 +268,21 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                </View>
             )}
 
-            {blog.images && <ImagesViewer images={blog.images} />}
+            {blog.images && <ImageCarousel images={blog.images} />}
             {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
             {blog.video && <VideoPlayer video={blog?.video} />}
-            {blog?.title && <Text style={styles.title}>{blog?.title}</Text>}
+            {blog?.title && <Text variant="titleMedium" style={styles.title}>{blog?.title}</Text>}
 
             {blog?.text && (
                <View style={{ paddingHorizontal: 8 }}>
                   <HTML
                      contentWidth={width}
+                     
                      baseStyle={{
-                        fontFamily: "Poppins_300Light",
-                        fontSize: 15,
+                        fontFamily: "Poppins_400Regular",
+                        fontSize: 14,
                      }}
-                     systemFonts={["Poppins_300Light", "sans-serif"]}
+                     systemFonts={["Poppins_400Regular", "sans-serif"]}
                      source={{ html: blog.text }}
                   />
                </View>
@@ -350,6 +292,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                   _likesCount={likesCount}
                   _commentsCount={commentsCount}
                   _liked={liked}
+                  _reposted = {reposted}
                   userId={blog?.userId}
                   blogId={blog.blogId}
                />
@@ -363,13 +306,8 @@ export default FullBlogComponent;
 
 const styles = StyleSheet.create({
    blogContainer: {
-      backgroundColor: "#ffffff",
-      // marginHorizontal:6,
       marginTop: 3,
-      borderRadius: 4,
       paddingTop: 10,
-      borderWidth: 1,
-      borderColor: "#f3f3f3",
       // paddingBottom:20,
       // marginBottom:30
    },
@@ -381,7 +319,6 @@ const styles = StyleSheet.create({
       paddingHorizontal: 15,
    },
    title: {
-      fontFamily: "Poppins_500Medium",
       marginHorizontal: 10,
       marginTop: 6,
    },

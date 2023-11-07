@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import { useCurrentUser } from "../../utils/CustomHooks";
 import LikesComponent from "../LikesComponent";
 import UpdatePostForm from "./UpdatePostForm";
+import ImageCarousel from "./ImageCarousel";
 
 type BlogComponentProps = {
    blog: Blog;
@@ -31,6 +32,7 @@ type BlogComponentProps = {
    createdBy: User;
    ownedBy: User;
    liked: boolean;
+   reposted:boolean;
 };
 
 const BlogComponent = (props: BlogComponentProps) => {
@@ -41,6 +43,7 @@ const BlogComponent = (props: BlogComponentProps) => {
    const [likesCount, setLikesCount] = useState<number>(props.likesCount);
    const [sharesCount, setSharesCount] = useState<number>(props.sharesCount);
    const [liked, setLiked] = useState<boolean>(props.liked);
+   const [reposted, setReposted] = useState<boolean>(props.reposted);
    const [createdBy, setCreatedBy] = useState<User | null>(props.createdBy);
    const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
@@ -114,13 +117,18 @@ const BlogComponent = (props: BlogComponentProps) => {
       }
    };
 
-   const handleSharedPost = async () => {
+   const handleRepost = async () => {
+
+      if(reposted){
+         Alert.alert("Repost Limit Reached","You can only repost once per a post")
+         return
+      }
       setLoadingShare(true);
-      setShared(false);
+       
       // let images = props.blog.images?.map(image => image?.trimEnd())
       let postObj = {
          title: props.blog.title,
-         images: JSON.parse(String(props.blog.images)),
+         images:props.blog.images,
          video: props.blog.video,
          text: props.blog.text,
          fromUserId: props.blog.userId,
@@ -129,24 +137,26 @@ const BlogComponent = (props: BlogComponentProps) => {
       };
       console.log(postObj);
       try {
-         let response = await axios.post(
+         let {data,status} = await axios.post(
             "http://192.168.1.98:6000/blogs/",
-            postObj
+            postObj,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
-         if (response.status === 201) {
-            console.log(response.data);
+         if (status === 201) {
+            console.log(data);
 
             setLoadingShare(false);
-            setShared(true);
-            setRelaodCLS(reloadCLS + 1);
-            // Alert.alert("Successful", "Post successfully");
+            setReposted(true);
+            setSharesCount(prev => prev + 1)
+            // setRelaodCLS(reloadCLS + 1);
+            // Alert.alert("Successful", "Repost successfully");
          } else {
             setLoadingShare(false);
-            Alert.alert("Failed", "Post Failed");
+            Alert.alert("Failed", "Repost Failed");
          }
       } catch (err) {
          setLoadingShare(false);
-         console.log(err);
+         console.log({Error:String(err)});
       }
 
       // console.log(postState);
@@ -159,52 +169,6 @@ const BlogComponent = (props: BlogComponentProps) => {
             styles.postContainer,
             { backgroundColor: theme.colors.background },
          ]}>
-         <Modal visible={openShareModal}>
-            <View
-               style={{
-                  flex: 1,
-                  backgroundColor: theme.colors.background,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  paddingVertical: 4,
-               }}>
-               <View
-                  style={{
-                     backgroundColor: theme.colors.background,
-                     padding: 10,
-                     width: width * 0.95,
-                     borderRadius: 5,
-                     gap: 20,
-                  }}>
-                  {/* <IconButton name='plus'/> */}
-                  <Button mode="text" onPress={() => setOpenShareModal(false)}>
-                     <Feather size={26} name="x" />
-                  </Button>
-                  <Button
-                     style={{
-                        backgroundColor: shared
-                           ? "green"
-                           : theme.colors.primary,
-                     }}
-                     disabled={loadingShare}
-                     loading={loadingShare}
-                     onPress={handleSharedPost}
-                     mode="contained">
-                     <Ionicons />
-                     <Ionicons
-                        style={{ marginHorizontal: 4 }}
-                        size={18}
-                        name={shared ? "checkmark" : "share-social-outline"}
-                     />
-                     <Text>
-                        {shared
-                           ? "Shared Post Successfully"
-                           : "Continue to share as a post"}
-                     </Text>
-                  </Button>
-               </View>
-            </View>
-         </Modal>
          <Modal
             visible={openModal}
             style={{
@@ -282,7 +246,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                </Pressable>
 
                <Text
-                  variant="titleMedium"
+                  variant="titleSmall"
                   numberOfLines={1}
                   style={{
                      textAlign: "center",
@@ -351,28 +315,32 @@ const BlogComponent = (props: BlogComponentProps) => {
                      textAlignVertical: "center",
                      color: theme.colors.secondary,
                      fontFamily: "Poppins_300Light",
+                     width:width
                   }}>
                   {moment(props.blog.createdAt).fromNow()}
                </Text>
             </View>
          </View>
 
-         {props.blog.images && <ImagesViewer images={props.blog.images} />}
+         {props.blog.images && <ImageCarousel images={props.blog.images} />}
          {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
          {props?.blog.video && <VideoPlayer video={props.blog?.video} />}
 
          {props.blog.title && (
-            <Text style={styles.title}>{props.blog?.title}</Text>
+            <Text style={styles.title} variant="titleMedium">{props.blog?.title}</Text>
          )}
 
          {props.blog?.text && (
             <View style={{ paddingHorizontal: 8 }}>
                <HTML
-                  contentWidth={width}
-                  baseStyle={{ fontFamily: "Poppins_300Light", fontSize: 15 }}
-                  systemFonts={["Poppins_300Light", "sans-serif"]}
-                  source={{ html: props.blog.text }}
-               />
+                     contentWidth={width}
+                     baseStyle={{
+                        fontFamily: "Poppins_400Regular",
+                        fontSize: 14,
+                     }}
+                     systemFonts={["Poppins_400Regular", "sans-serif"]}
+                     source={{ html: props.blog.text }}
+                  />
             </View>
          )}
          <View style={{ marginBottom: 1 }}>
@@ -397,11 +365,11 @@ const BlogComponent = (props: BlogComponentProps) => {
                   }}>
                   <Ionicons
                      size={18}
-                     color={theme.colors.secondary}
+                     color={liked?theme.colors.primary:theme.colors.secondary}
                      name={liked ? "heart-sharp" : "heart-outline"}
                   />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {likesCount}
+                  <Text>
+                  {" "}{likesCount}
                   </Text>
                </Button>
 
@@ -424,22 +392,23 @@ const BlogComponent = (props: BlogComponentProps) => {
                   <MaterialCommunityIcons
                      name="comment-outline"
                      size={16}
+                     style={{marginHorizontal:2}}
                      color={theme.colors.secondary}
                   />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {commentsCount}
+                  <Text>
+                  {" "}{commentsCount}
                   </Text>
                </Button>
                <Button
-                  onPress={() => setOpenShareModal(true)}
-                  textColor={theme.colors.secondary}
+                  onPress={handleRepost}
+                  textColor={reposted?theme.colors.primary:theme.colors.secondary}
                   style={{
                      backgroundColor: theme.colors.background,
                      flex: 1,
                   }}>
-                  <AntDesign size={18} name="retweet" />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {sharesCount}
+                  <AntDesign size={18} color={reposted?theme.colors.primary:theme.colors.secondary} name="retweet" />
+                  <Text>
+                  {" "}{sharesCount}
                   </Text>
                </Button>
                <Button
@@ -450,8 +419,8 @@ const BlogComponent = (props: BlogComponentProps) => {
                      flex: 1,
                   }}>
                   <Ionicons size={18} name="share-outline" />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {sharesCount}
+                  <Text>
+                  {" "}{sharesCount}
                   </Text>
                </Button>
             </View>
@@ -476,8 +445,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 15,
    },
    title: {
-      fontFamily: "Poppins_500Medium",
-      marginHorizontal: 10,
+      marginHorizontal:8,
       marginTop: 6,
    },
    commentInputField: {

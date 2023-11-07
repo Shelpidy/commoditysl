@@ -87,7 +87,7 @@ const FindFriendComponent = ({ user }: FindFriendProps) => {
                gap: 2,
             }}>
             <Text
-               variant="titleMedium"
+               variant="titleSmall"
                numberOfLines={1}
                style={{
                   textAlign: "center",

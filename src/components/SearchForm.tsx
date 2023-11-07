@@ -38,7 +38,7 @@ const SearchForm = ({ setSearchValue }: SearchProps) => {
                borderTopLeftRadius: 20,
                borderBottomLeftRadius: 20,
                height: 50,
-               paddingHorizontal: 10,
+               paddingHorizontal: 20,
                width: 0.7 * width,
                borderColor: theme.colors.inverseOnSurface,
                borderWidth: 1,

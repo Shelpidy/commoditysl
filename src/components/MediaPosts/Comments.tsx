@@ -1,6 +1,5 @@
 import {
    StyleSheet,
-   Text,
    View,
    Alert,
    FlatList,
@@ -15,6 +14,7 @@ import {
    Divider,
    ActivityIndicator,
    useTheme,
+   Text
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useCurrentUser } from "../../utils/CustomHooks";
@@ -28,6 +28,7 @@ import {
    MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import LikesComponent from "../LikesComponent";
+import { useHandler } from "react-native-reanimated";
 
 type CommentsProps = {
    blogId: string;
@@ -36,6 +37,7 @@ type CommentsProps = {
    _commentsCount: number;
    _likesCount: number;
    _liked: boolean;
+   _reposted:boolean;
 };
 
 type FetchComment = {
@@ -54,6 +56,7 @@ const Comments = ({
    _liked,
    _commentsCount,
    _likesCount,
+   _reposted
 }: CommentsProps) => {
    const [comments, setComments] = useState<BlogComment[] | null>(null);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
@@ -71,6 +74,7 @@ const Comments = ({
    const [likesCount, setLikesCount] = useState<number>(_likesCount);
    const [sharesCount, setSharesCount] = useState<number>(0);
    const [liked, setLiked] = useState<boolean>(_liked);
+   const [reposted, setReposted] = useState<boolean>(_reposted);
    const [createdBy, setCreatedBy] = useState<User | null>(null);
    const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
@@ -140,12 +144,16 @@ const Comments = ({
       setShowTextInput(true);
    };
 
-   const handleShareBlog = async () => {
-      let activeUserId = currentUser?.userId;
+   const handleRepost = async () => {
+
+      if(reposted){
+         Alert.alert("Repost Limit Reached","You can only repost once per a post")
+         return
+      }
       setLoadingShare(true);
-      setShared(false);
+       
       // let images = props.blog.images?.map(image => image?.trimEnd())
-      let blogObj = {
+      let postObj = {
          title: blog?.title,
          images: JSON.parse(String(blog?.images)),
          video: blog?.video,
@@ -154,29 +162,32 @@ const Comments = ({
          fromblogId: blog?.blogId,
          shared: true,
       };
-      console.log(blogObj);
+      console.log(postObj);
       try {
-         let response = await axios.post(
+         let {data,status} = await axios.post(
             "http://192.168.1.98:6000/blogs/",
-            blogObj
+            postObj,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
-         if (response.status === 201) {
-            console.log(response.data);
+         if (status === 201) {
+            console.log(data);
+
             setLoadingShare(false);
-            setShared(true);
-            setSharesCount((prev) => prev + 1);
+            setReposted(true);
+            setSharesCount(prev => prev + 1)
+            // setRelaodCLS(reloadCLS + 1);
+            // Alert.alert("Successful", "Post successfully");
          } else {
             setLoadingShare(false);
-            Alert.alert("Failed", "blog Failed");
+            Alert.alert("Failed", "Post Failed");
          }
       } catch (err) {
          setLoadingShare(false);
          console.log(err);
       }
 
-      // console.log(blogState);
+      // console.log(postState);
    };
-
    const handleLike = async (blogId: string) => {
       console.log(blogId);
       try {
@@ -192,7 +203,7 @@ const Comments = ({
             setLiked(liked);
             setLikesCount(numberOfLikes);
 
-            Alert.alert("Success", data.message);
+            // Alert.alert("Success", data.message);
          } else {
             Alert.alert("l Failed", data.message);
          }
@@ -260,14 +271,15 @@ const Comments = ({
    );
 
    return (
-      <View style={{ flex: 1, gap: 4 }}>
-         <View>
+      <View style={{ flex: 1, gap: 4,backgroundColor:theme.colors.background }}>
+         <View style={{backgroundColor:theme.colors.background }}>
             <LikesComponent blogId={blogId} numberOfLikes={likesCount} />
             <View style={styles.likeCommentAmountCon}>
                <Button
                   disabled={loading}
                   onPress={() => handleLike(blogId)}
-                  textColor={theme.colors.secondary}
+                  // textColor={theme.colors.secondary}
+                  textColor={liked?theme.colors.primary:theme.colors.secondary}
                   style={{
                      backgroundColor: theme.colors.background,
                      flex: 1,
@@ -276,11 +288,11 @@ const Comments = ({
                   }}>
                   <Ionicons
                      size={18}
-                     color={theme.colors.secondary}
+                     color={liked?theme.colors.primary:theme.colors.secondary}
                      name={liked ? "heart-sharp" : "heart-outline"}
                   />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {likesCount}
+                  <Text>
+                  {" "}{likesCount}
                   </Text>
                </Button>
 
@@ -301,8 +313,8 @@ const Comments = ({
                      size={16}
                      color={theme.colors.secondary}
                   />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {commentsCount}
+                  <Text>
+                  {" "}{commentsCount}
                   </Text>
                </Button>
                <Button
@@ -312,21 +324,21 @@ const Comments = ({
                      backgroundColor: theme.colors.background,
                      flex: 1,
                   }}>
-                  <AntDesign size={18} name="retweet" />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {sharesCount}
+                  <AntDesign color={reposted?theme.colors.primary:theme.colors.secondary} size={18} name="retweet" />
+                  <Text>
+                  {" "}{sharesCount}
                   </Text>
                </Button>
                <Button
-                  onPress={() => setOpenShareModal(true)}
+                  onPress={handleRepost}
                   textColor={theme.colors.secondary}
                   style={{
                      backgroundColor: theme.colors.background,
                      flex: 1,
                   }}>
                   <Ionicons size={18} name="share-outline" />
-                  <Text style={{ fontSize: 16, fontWeight: "300" }}>
-                     {sharesCount}
+                  <Text>
+                  {" "}{sharesCount}
                   </Text>
                </Button>
             </View>
@@ -464,7 +476,7 @@ const Comments = ({
                      }}
                      disabled={loadingShare}
                      loading={loadingShare}
-                     onPress={handleShareBlog}
+                     onPress={handleRepost}
                      mode="contained">
                      <Ionicons />
                      <Ionicons

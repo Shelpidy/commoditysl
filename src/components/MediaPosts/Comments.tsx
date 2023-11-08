@@ -159,7 +159,7 @@ const Comments = ({
          video: blog?.video,
          text: blog?.text,
          fromUserId: blog?.userId,
-         fromblogId: blog?.blogId,
+         fromBlogId: blog?.blogId,
          shared: true,
       };
       console.log(postObj);
@@ -281,7 +281,7 @@ const Comments = ({
                   // textColor={theme.colors.secondary}
                   textColor={liked?theme.colors.primary:theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                      justifyContent: "center",
                      alignItems: "center",
@@ -305,7 +305,7 @@ const Comments = ({
                   onPress={() => setShowTextInput(true)}
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
                   <MaterialCommunityIcons
@@ -321,7 +321,7 @@ const Comments = ({
                   onPress={() => setOpenShareModal(true)}
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
                   <AntDesign color={reposted?theme.colors.primary:theme.colors.secondary} size={18} name="retweet" />
@@ -333,7 +333,7 @@ const Comments = ({
                   onPress={handleRepost}
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
                   <Ionicons size={18} name="share-outline" />

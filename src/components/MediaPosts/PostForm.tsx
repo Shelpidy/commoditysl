@@ -119,7 +119,13 @@ const PostForm = () => {
          );
          if (response.status === 201) {
             console.log(response.data);
+            
             setLoading(false);
+            postDispatch({type:"IMAGES",payload:null})
+            postDispatch({type:"VIDEO",payload:null})
+            postDispatch({type:"TITLE",payload:null})
+            postDispatch({type:"TEXT",payload:null})
+
             Alert.alert("Successful", "Post successfully");
 
             // Alert.alert("Successful", "Post successfully");
@@ -328,6 +334,7 @@ const PostForm = () => {
                   actions.indent,
                   actions.setSuperscript,
                   actions.setSubscript,
+                  actions.insertImage,
                ]}
             />
             <RichEditor

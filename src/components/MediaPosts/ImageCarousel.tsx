@@ -21,7 +21,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
           flex: 1,
           resizeMode: 'contain',
           width:width,
-          height:height * 0.65
+          height:height * 0.6
         }}
       />
     </View>
@@ -40,7 +40,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         dotsLength={images.length}
         activeDotIndex={activeSlide}
        
-      dotColor={theme.colors.primary}
+      dotColor="black"
       inactiveDotColor={theme.colors.secondary}
       inactiveDotOpacity={0.4}
       inactiveDotScale={0.6}
@@ -52,7 +52,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
           top: 20,
           right: 20,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          borderRadius: 10,
+          borderRadius:10,
           padding: 5,
         }}
       >

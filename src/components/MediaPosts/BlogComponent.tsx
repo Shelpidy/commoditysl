@@ -132,7 +132,7 @@ const BlogComponent = (props: BlogComponentProps) => {
          video: props.blog.video,
          text: props.blog.text,
          fromUserId: props.blog.userId,
-         fromblogId: props.blog.blogId,
+         fromBlogId: props.blog.blogId,
          shared: true,
       };
       console.log(postObj);
@@ -358,7 +358,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                   onPress={() => handleLike(props.blog.blogId)}
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                      justifyContent: "center",
                      alignItems: "center",
@@ -386,7 +386,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                   }
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
                   <MaterialCommunityIcons
@@ -403,7 +403,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                   onPress={handleRepost}
                   textColor={reposted?theme.colors.primary:theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
                   <AntDesign size={18} color={reposted?theme.colors.primary:theme.colors.secondary} name="retweet" />
@@ -415,7 +415,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                   onPress={() => setOpenShareModal(true)}
                   textColor={theme.colors.secondary}
                   style={{
-                     backgroundColor: theme.colors.background,
+                     backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
                   <Ionicons size={18} name="share-outline" />

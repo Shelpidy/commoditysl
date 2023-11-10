@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, useTheme } from "react-native-paper";
 import axios, { AxiosError } from "axios";
 import { useCurrentUser } from "../../utils/CustomHooks";
+import { useToast } from "react-native-toast-notifications";
 
 const ChangePasswordForm = () => {
    const [oldPassword, setOldPassword] = useState("");
@@ -13,14 +14,57 @@ const ChangePasswordForm = () => {
    const currentUser = useCurrentUser();
    const theme = useTheme();
 
+   const toast = useToast()
+  
+
+   const handleUpdate = async () => {
+      setLoading(true);
+
+      try {
+         const response = await axios.put(
+            "http://192.168.1.98:5000/auth/users/personal/",
+            {
+               key: "password",
+               value: password,
+            },
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
+
+         if (response.status === 202) {
+            toast.show("Firstname updated", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
+         } else {
+            toast.show("Update Failed", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
+         }
+      } catch (error) {
+         console.log(error);
+         toast.show("Update Failed", {
+            type: "normal",
+            placement: "top",
+            duration:2000
+         });
+      }finally{
+         setLoading(false);
+      };
+
+   }
+
+
    const handleCheckPassword = async () => {
       try {
          const response = await axios.post(
             "http://192.168.1.98:5000/auth/users/checkpassword/",
             {
                password: oldPassword,
-               userId: currentUser?.userId, // Replace with the actual user ID
-            }
+            },
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
          if (response.status === 422) {
@@ -47,36 +91,7 @@ const ChangePasswordForm = () => {
       }
    };
 
-   const handleUpdate = async () => {
-      if (password !== confirmPassword) {
-         Alert.alert("Error", "Passwords do not match");
-         return;
-      }
 
-      setLoading(true);
-
-      try {
-         const response = await axios.put(
-            "http://192.168.1.98:5000/auth/users/personal/",
-            {
-               key: "password",
-               value: password,
-               userId: currentUser?.userId, // Replace with the actual user ID
-            }
-         );
-
-         if (response.status === 202) {
-            Alert.alert("Success", "Password changed successfully");
-         } else {
-            Alert.alert("Error", "Failed to change password");
-         }
-      } catch (error) {
-         console.log(error);
-         Alert.alert("Error", "An error occurred while changing password");
-      }
-
-      setLoading(false);
-   };
 
    return (
       <View style={styles.container}>

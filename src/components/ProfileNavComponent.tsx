@@ -30,9 +30,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                   // color={theme.colors.secondary}
                />
                <Text
-                  style={{
-                     // color: theme.colors.secondary,
-                  }}>
+                  style={
+                     {
+                        // color: theme.colors.secondary,
+                     }
+                  }>
                   Settings
                </Text>
             </Pressable>
@@ -68,9 +70,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                   // color={theme.colors.secondary}
                />
                <Text
-                  style={{
-                     // color: theme.colors.secondary,
-                  }}>
+                  style={
+                     {
+                        // color: theme.colors.secondary,
+                     }
+                  }>
                   Send Commodity
                </Text>
             </Pressable>
@@ -85,9 +89,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                   // color={theme.colors.secondary}
                />
                <Text
-                  style={{
-                     // color: theme.colors.secondary,
-                  }}>
+                  style={
+                     {
+                        // color: theme.colors.secondary,
+                     }
+                  }>
                   Buy Commodity
                </Text>
             </Pressable>
@@ -104,9 +110,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                   // color={theme.colors.secondary}
                />
                <Text
-                  style={{
-                     // color: theme.colors.secondary,
-                  }}>
+                  style={
+                     {
+                        // color: theme.colors.secondary,
+                     }
+                  }>
                   Check Balance
                </Text>
             </Pressable>
@@ -119,9 +127,11 @@ const ProfileNavComponent = ({ user }: { user: User }) => {
                   // color={theme.colors.secondary}
                />
                <Text
-                  style={{
-                     // color: theme.colors.secondary,
-                  }}>
+                  style={
+                     {
+                        // color: theme.colors.secondary,
+                     }
+                  }>
                   Logout
                </Text>
             </Pressable>
@@ -151,7 +161,7 @@ const styles = StyleSheet.create({
       // justifyContent: "space-between",
       marginVertical: 0,
       // backgroundColor:"#f5f5f5",
-      paddingVertical:6,
+      paddingVertical: 6,
       paddingHorizontal: 10,
       borderRadius: 20,
    },

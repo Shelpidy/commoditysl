@@ -37,7 +37,7 @@ type BlogComponent = {
    createdBy: User;
    ownedBy: User;
    liked: boolean;
-   reposted:boolean
+   reposted: boolean;
 };
 
 const UserProfileScreen = ({ navigation, route }: any) => {
@@ -317,7 +317,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                         userId: user?.personal.userId,
                      })
                   }>
-               <Text
+                  <Text
                      variant="bodyMedium"
                      style={{
                         textAlign: "center",
@@ -347,7 +347,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                         userId: user?.personal.userId,
                      })
                   }>
-               <Text
+                  <Text
                      variant="bodyMedium"
                      style={{
                         textAlign: "center",
@@ -372,7 +372,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalPosts}
                </Text>
                <Button>
-               <Text
+                  <Text
                      variant="bodyMedium"
                      style={{
                         textAlign: "center",
@@ -396,7 +396,7 @@ const UserProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalLikes}
                </Text>
                <Button>
-               <Text
+                  <Text
                      variant="bodyMedium"
                      style={{
                         textAlign: "center",

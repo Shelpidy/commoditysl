@@ -24,10 +24,14 @@ type BlogComponentProps = {
    likesCount: number;
    sharesCount: number;
    liked: boolean;
-   reposted:boolean;
+   reposted: boolean;
 };
 
-const ForYouBlogsComponent = ({ blogs: _blogs }: { blogs: BlogComponentProps[] }) => {
+const ForYouBlogsComponent = ({
+   blogs: _blogs,
+}: {
+   blogs: BlogComponentProps[];
+}) => {
    const [blogs, setBlogs] = useState<BlogComponentProps[] | null>(_blogs);
    const [allBlogs, setAllBlogs] = useState<BlogComponentProps[] | null>(null);
    const page = React.useRef<number>(2);
@@ -115,7 +119,6 @@ const ForYouBlogsComponent = ({ blogs: _blogs }: { blogs: BlogComponentProps[] }
    //    },
    //    [currentUser]
    // );
-
 
    return (
       <FlatList

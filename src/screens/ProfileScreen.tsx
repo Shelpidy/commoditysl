@@ -1,6 +1,4 @@
-import {
-   MaterialIcons
-} from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -20,7 +18,7 @@ import {
    IconButton,
    Text,
    TextInput,
-   useTheme
+   useTheme,
 } from "react-native-paper";
 import { useSelector } from "react-redux";
 import BlogComponent from "../components/MediaPosts/BlogComponent";
@@ -31,7 +29,7 @@ import {
 import ProfileNavComponent from "../components/ProfileNavComponent";
 import SearchForm from "../components/SearchForm";
 import { useCurrentUser } from "../utils/CustomHooks";
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 import {
    getStorage,
    ref,
@@ -75,7 +73,7 @@ type BlogComponent = {
    createdBy: User;
    ownedBy: User;
    liked: boolean;
-   reposted:boolean
+   reposted: boolean;
 };
 
 const ProfileScreen = ({ navigation, route }: any) => {
@@ -87,7 +85,8 @@ const ProfileScreen = ({ navigation, route }: any) => {
    const [numberOfBlogsPerPage, setNumberOfBlogsPerPage] = useState<number>(5);
    const [loading, setLoading] = useState<boolean>(false);
    const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
-   const [loadingProfileImage, setLoadingProfileImage] = useState<boolean>(false);
+   const [loadingProfileImage, setLoadingProfileImage] =
+      useState<boolean>(false);
    const [hasMore, setHasMore] = useState(true);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
    const [lastSeen, setLastSeen] = useState<"online" | any>("");
@@ -98,61 +97,59 @@ const ProfileScreen = ({ navigation, route }: any) => {
    const currentUser = useCurrentUser();
    const { socket } = useSelector((state: any) => state.rootReducer);
 
-
    const pickImage = async () => {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
+         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+         allowsEditing: true,
+         aspect: [4, 3],
+         quality: 1,
       });
-  
+
       if (result.assets) {
-        let image = result.assets[0]
-        uploadImage(image.uri);
+         let image = result.assets[0];
+         uploadImage(image.uri);
       }
-    };
-  
-    const uploadImage = async (uri:string) => {
-      const storageRef = ref(storage, 'ProfileImages/' + uri.split('/').pop());
+   };
+
+   const uploadImage = async (uri: string) => {
+      const storageRef = ref(storage, "ProfileImages/" + uri.split("/").pop());
       const response = await fetch(uri);
       const blob = await response.blob();
-  
+
       try {
-        setLoadingProfileImage(true)
-        await uploadBytes(storageRef, blob);
-        const url = await getDownloadURL(storageRef);
-        console.log('File available at', url);
+         setLoadingProfileImage(true);
+         await uploadBytes(storageRef, blob);
+         const url = await getDownloadURL(storageRef);
+         console.log("File available at", url);
 
-        let imageData = {
-         key:"profileImage",
-         value:url
-      }
+         let imageData = {
+            key: "profileImage",
+            value: url,
+         };
 
-      let { status, data } = await axios.put(
-         `http://192.168.1.98:5000/auth/users/personal`,imageData,
-         { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-      );
+         let { status, data } = await axios.put(
+            `http://192.168.1.98:5000/auth/users/personal`,
+            imageData,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
 
-      if(status === 202){
-         // Alert.alert("Update Successful","You have successfully updated a comment")
-         setProfileImage(data.data.profileImage)
-      }else{
-         console.log(data)
+         if (status === 202) {
+            // Alert.alert("Update Successful","You have successfully updated a comment")
+            setProfileImage(data.data.profileImage);
+         } else {
+            console.log(data);
 
-         Alert.alert("Update Failed",data.message)
-      }
+            Alert.alert("Update Failed", data.message);
+         }
 
-        // You can now save the URL to your database or perform other actions
+         // You can now save the URL to your database or perform other actions
       } catch (error) {
-
-         setLoadingProfileImage(false)
-        console.error('Error uploading image: ', error);
-      }finally{
-         setLoadingProfileImage(false)
+         setLoadingProfileImage(false);
+         console.error("Error uploading image: ", error);
+      } finally {
+         setLoadingProfileImage(false);
       }
-    };
-   
+   };
 
    const searchPosts = (_token: string) => {
       setSearchValue(_token);
@@ -236,34 +233,34 @@ const ProfileScreen = ({ navigation, route }: any) => {
    };
 
    const handleEditBio = async () => {
-      try{
-         setLoadingUpdate(true)
+      try {
+         setLoadingUpdate(true);
          let bioData = {
-            key:"bio",
-            value:bio
-         }
+            key: "bio",
+            value: bio,
+         };
 
          let { status, data } = await axios.put(
-            `http://192.168.1.98:5000/auth/users/personal`,bioData,
+            `http://192.168.1.98:5000/auth/users/personal`,
+            bioData,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
-         if(status === 202){
+         if (status === 202) {
             // Alert.alert("Update Successful","You have successfully updated a comment")
-            setBio(data.data.bio)
-            setShowEditBio(false)
-         }else{
-            console.log(data)
-            Alert.alert("Update Failed",data.message)
+            setBio(data.data.bio);
+            setShowEditBio(false);
+         } else {
+            console.log(data);
+            Alert.alert("Update Failed", data.message);
          }
-      
-      }catch(err){
-         console.log(err)
-          
-         Alert.alert("Update Failed",String(err))
-         setShowEditBio(false)
-      }finally{
-         setLoadingUpdate(false)
+      } catch (err) {
+         console.log(err);
+
+         Alert.alert("Update Failed", String(err));
+         setShowEditBio(false);
+      } finally {
+         setLoadingUpdate(false);
       }
    };
 
@@ -385,51 +382,44 @@ const ProfileScreen = ({ navigation, route }: any) => {
          <View style={{ justifyContent: "center", alignItems: "center" }}>
             <View style={{ position: "relative" }}>
                <Avatar.Image
-                  style={{position:"relative"}}
+                  style={{ position: "relative" }}
                   size={100}
-                  source={{ uri:profileImage}}
-               >
-
-               </Avatar.Image>
-               {
-                  loadingProfileImage &&
-                   <View
-                   style={{
-                     width:"auto",
-                     top:0,
-                     height:"auto",
-                     borderRadius:100,
-                     backgroundColor:"rgba(255,255,255,0.3)",
-                     position: "absolute",
-                     bottom: 0,
-                     right: 0,
-                     left:0,
-                     zIndex: 999,
-                     justifyContent: "center",
-                     alignItems: "center",
-                  }}
-                   
-                   >
-                     <ActivityIndicator/>
-                     </View>
-               }
-               {lastSeen === "online" && (
+                  source={{ uri: profileImage }}></Avatar.Image>
+               {loadingProfileImage && (
                   <View
                      style={{
-                        width: 35,
-                        height: 35,
-                        borderRadius: 20,
-                        backgroundColor: theme.colors.inverseOnSurface,
+                        width: "auto",
+                        top: 0,
+                        height: "auto",
+                        borderRadius: 100,
+                        backgroundColor: "rgba(255,255,255,0.3)",
                         position: "absolute",
                         bottom: 0,
-                        right: 3,
-                        zIndex: 10,
+                        right: 0,
+                        left: 0,
+                        zIndex: 999,
                         justifyContent: "center",
                         alignItems: "center",
                      }}>
-                       <IconButton onPress={pickImage} size={18} icon='camera' />
+                     <ActivityIndicator />
                   </View>
                )}
+
+               <View
+                  style={{
+                     width: 35,
+                     height: 35,
+                     borderRadius: 20,
+                     backgroundColor: theme.colors.inverseOnSurface,
+                     position: "absolute",
+                     bottom: 0,
+                     right: 3,
+                     zIndex: 10,
+                     justifyContent: "center",
+                     alignItems: "center",
+                  }}>
+                  <IconButton onPress={pickImage} size={18} icon="camera" />
+               </View>
             </View>
             <View
                style={{
@@ -538,7 +528,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalPosts}
                </Text>
                <Button mode="text">
-                 <Text
+                  <Text
                      variant="bodyMedium"
                      style={{
                         textAlign: "center",
@@ -562,7 +552,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   {user?.totalLikes}
                </Text>
                <Button>
-                 <Text
+                  <Text
                      variant="bodyMedium"
                      style={{
                         textAlign: "center",
@@ -603,8 +593,8 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      }}
                   />
                   <Button
-                    loading={loadingUpdate}
-                    disabled={loadingUpdate}
+                     loading={loadingUpdate}
+                     disabled={loadingUpdate}
                      elevation={0}
                      mode="contained"
                      onPress={handleEditBio}>
@@ -619,22 +609,20 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      // alignItems: "center",
                      justifyContent: "center",
                      flexDirection: "row",
-                     width:"70%"
+                     width: "70%",
                   }}>
                   <View>
-                  <Text  variant="bodyLarge" style={{ textAlign: "center" }}>
-                     {bio}
-                  </Text>
+                     <Text variant="bodyLarge" style={{ textAlign: "center" }}>
+                        {bio}
+                     </Text>
                   </View>
                   <Button
-                     onPress={()=> setShowEditBio(true)}
+                     onPress={() => setShowEditBio(true)}
                      style={{
                         justifyContent: "center",
                         alignItems: "center",
                      }}
-                     icon="pencil">
-
-                     </Button>
+                     icon="pencil">{}</Button>
                </View>
             )}
          </View>
@@ -649,9 +637,8 @@ const ProfileScreen = ({ navigation, route }: any) => {
             </ScrollView>
          )}
          {posts && posts.length > 1 && (
-            <View style={{paddingHorizontal:10}}>
+            <View style={{ paddingHorizontal: 10 }}>
                <SearchForm setSearchValue={(v) => searchPosts(v)} />
- 
             </View>
             // <Searchbar style={{marginHorizontal:20}} value={searchValue} onChangeText={searchPosts} placeholder="Search" />
          )}

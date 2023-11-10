@@ -8,19 +8,20 @@ import {
    Ionicons,
    MaterialCommunityIcons,
    MaterialIcons,
-   SimpleLineIcons
+   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import moment from "moment";
 import { Pressable, useWindowDimensions } from "react-native";
-import { Avatar, Button, Text, useTheme } from "react-native-paper";
+import { Avatar, Button, Card, Divider, Text, useTheme } from "react-native-paper";
 import HTML from "react-native-render-html";
 import { useSelector } from "react-redux";
 import { useCurrentUser } from "../../utils/CustomHooks";
 import LikesComponent from "../LikesComponent";
 import ImageCarousel from "./ImageCarousel";
 import UpdatePostForm from "./UpdatePostForm";
+import { useToast } from "react-native-toast-notifications";
 
 type BlogComponentProps = {
    blog: Blog;
@@ -30,14 +31,17 @@ type BlogComponentProps = {
    createdBy: User;
    ownedBy: User;
    liked: boolean;
-   reposted:boolean;
+   reposted: boolean;
 };
 
 const BlogComponent = (props: BlogComponentProps) => {
    const currentUser = useCurrentUser();
    const [openModal, setOpenModal] = useState<boolean>(false);
    const [openShareModal, setOpenShareModal] = useState<boolean>(false);
-   const [commentsCount, setCommentsCount] = useState<number>(props.commentsCount);
+   const [openEdit, setOpenEdit] = useState<boolean>(false);
+   const [commentsCount, setCommentsCount] = useState<number>(
+      props.commentsCount
+   );
    const [likesCount, setLikesCount] = useState<number>(props.likesCount);
    const [sharesCount, setSharesCount] = useState<number>(props.sharesCount);
    const [liked, setLiked] = useState<boolean>(props.liked);
@@ -46,13 +50,19 @@ const BlogComponent = (props: BlogComponentProps) => {
    const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
    const [loadingShare, setLoadingShare] = useState<boolean>(false);
-   const [lastSeen, setLastSeen] = useState<"online" | any>(props.createdBy.lastSeenStatus);
+   const [lastSeen, setLastSeen] = useState<"online" | any>(
+      props.createdBy.lastSeenStatus
+   );
    const theme = useTheme();
    const [reloadCLS, setRelaodCLS] = useState<number>(0);
    const { socket } = useSelector((state: any) => state.rootReducer);
    const { width } = useWindowDimensions();
-   const [blog,setBlog] = useState<Blog>(props.blog)
+   const [blog, setBlog] = useState<Blog>(props.blog);
    const navigation = useNavigation<any>();
+   const [deleted,setDeleted] = useState<boolean>(false)
+
+   const toast = useToast()
+
 
    // useEffect(() => {
    //    setLiked(props.liked);
@@ -63,10 +73,10 @@ const BlogComponent = (props: BlogComponentProps) => {
    //    setLastSeen(props.createdBy.lastSeenStatus);
    // }, [props]);
 
-   const handleUpdateComplete = (blog:Blog)=>{
-      setBlog(blog)
-      setOpenModal(false)
-   }
+   const handleUpdateComplete = (blog: Blog) => {
+      setBlog(blog);
+      setOpenModal(false);
+   };
 
    const gotoUserProfile = () => {
       if (currentUser?.userId === createdBy?.userId) {
@@ -92,7 +102,6 @@ const BlogComponent = (props: BlogComponentProps) => {
          });
       }
    }, [socket, createdBy]);
-
 
    const handleLike = async (blogId: string) => {
       console.log("Like function runnning...");
@@ -122,17 +131,19 @@ const BlogComponent = (props: BlogComponentProps) => {
    };
 
    const handleRepost = async () => {
-
-      if(reposted){
-         Alert.alert("Repost Limit Reached","You can only repost once per a post")
-         return
+      if (reposted) {
+         Alert.alert(
+            "Repost Limit Reached",
+            "You can only repost once per a post"
+         );
+         return;
       }
       setLoadingShare(true);
-       
+
       // let images = props.blog.images?.map(image => image?.trimEnd())
       let postObj = {
          title: props.blog.title,
-         images:props.blog.images,
+         images: props.blog.images,
          video: props.blog.video,
          text: props.blog.text,
          fromUserId: props.blog.userId,
@@ -141,7 +152,7 @@ const BlogComponent = (props: BlogComponentProps) => {
       };
       console.log(postObj);
       try {
-         let {data,status} = await axios.post(
+         let { data, status } = await axios.post(
             "http://192.168.1.98:6000/blogs/",
             postObj,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
@@ -151,7 +162,7 @@ const BlogComponent = (props: BlogComponentProps) => {
 
             setLoadingShare(false);
             setReposted(true);
-            setSharesCount(prev => prev + 1)
+            setSharesCount((prev) => prev + 1);
             // setRelaodCLS(reloadCLS + 1);
             // Alert.alert("Successful", "Repost successfully");
          } else {
@@ -160,15 +171,57 @@ const BlogComponent = (props: BlogComponentProps) => {
          }
       } catch (err) {
          setLoadingShare(false);
-         console.log({Error:String(err)});
+         console.log({ Error: String(err) });
       }
 
       // console.log(postState);
    };
 
 
+   const handleDeleteBlog = async () => {
+      setLoading(true);
+      try {
+     
+         let response = await axios.delete(
+            `http://192.168.1.98:6000/blogs/${blog.blogId}`,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
+         if (response.status == 203) {
+          
+            setOpenModal(false);
+            setOpenEdit(false)
+            setDeleted(true)
+            toast.show("Blog Deleted",{
+               type:"normal",
+               placement:"top"
+            })
+        
+         } else {
+            toast.show("Delete Failed",{
+               type:"warning",
+               placement:"top"
+            })
+          
+         }
+         setLoading(false);
+      } catch (err) {
+         console.log(err);
+         toast.show("Delete Failed",{
+            type:"warning",
+            placement:"top"
+         })
+         setLoading(false);
+      }
+   };
+
+   if(deleted){
+      return null
+   }
+
    return (
+      <Pressable onPress={()=> setOpenEdit(false)}>
       <View
+        
          style={[
             styles.postContainer,
             { backgroundColor: theme.colors.background },
@@ -206,7 +259,10 @@ const BlogComponent = (props: BlogComponentProps) => {
                         <AntDesign size={18} name="close" />
                      </Button>
                   </View>
-                  <UpdatePostForm onUpdateComplete={handleUpdateComplete}  blog = {blog} />
+                  <UpdatePostForm
+                     onUpdateComplete={handleUpdateComplete}
+                     blog={blog}
+                  />
                </View>
             </View>
          </Modal>
@@ -221,7 +277,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                   <View style={{ position: "relative" }}>
                      <Avatar.Image
                         size={35}
-                        source={{ uri:createdBy.profileImage }}
+                        source={{ uri: createdBy.profileImage }}
                      />
                      {lastSeen === "online" && (
                         <View
@@ -293,8 +349,17 @@ const BlogComponent = (props: BlogComponentProps) => {
                      borderRadius: 3,
                   }}>
                   {currentUser?.userId == props.blog?.userId && (
-                     <Pressable onPress={() => setOpenModal(true)}>
+                     <Pressable style={{position:"relative"}} onPress={() => setOpenEdit(!openEdit)}>
                         <SimpleLineIcons name="options-vertical" />
+                        {
+                              openEdit &&
+                              <Card style={{position:"absolute",top:-5,right:20,zIndex:2147483649}}>
+                              <Button icon='pencil' disabled={loading} onPress={() => setOpenModal(true)}>Edit</Button>
+                              <Divider/>
+                              <Button icon='delete' disabled={loading} loading={loading} onPress={handleDeleteBlog}>Delete</Button>
+                           </Card>
+                           }
+
                      </Pressable>
                   )}
                </View>
@@ -307,19 +372,18 @@ const BlogComponent = (props: BlogComponentProps) => {
                   flexDirection: "row",
                   alignItems: "center",
                   paddingHorizontal: 8,
-                  paddingBottom: 8,
+                  paddingBottom: 25,
                   gap: 4,
                }}>
                {/* <Text style={{textAlignVertical:"center",color:theme.colors.secondary,fontFamily:"Poppins_300Light",marginRight:2}}>posted</Text> */}
                <AntDesign color={theme.colors.secondary} name="clockcircleo" />
                <Text
-                  
                   variant="bodySmall"
                   style={{
                      textAlignVertical: "center",
                      color: theme.colors.secondary,
                      fontFamily: "Poppins_300Light",
-                     width:width
+                     width: width,
                   }}>
                   {moment(blog.createdAt).fromNow()}
                </Text>
@@ -331,20 +395,22 @@ const BlogComponent = (props: BlogComponentProps) => {
          {blog.video && <VideoPlayer video={blog?.video} />}
 
          {blog.title && (
-            <Text style={styles.title} variant="titleMedium">{blog?.title}</Text>
+            <Text style={styles.title} variant="titleMedium">
+               {blog?.title}
+            </Text>
          )}
 
          {blog?.text && (
             <View style={{ paddingHorizontal: 8 }}>
                <HTML
-                     contentWidth={width}
-                     baseStyle={{
-                        fontFamily: "Poppins_400Regular",
-                        fontSize: 14,
-                     }}
-                     systemFonts={["Poppins_400Regular", "sans-serif"]}
-                     source={{ html: blog.text }}
-                  />
+                  contentWidth={width}
+                  baseStyle={{
+                     fontFamily: "Poppins_400Regular",
+                     fontSize: 14,
+                  }}
+                  systemFonts={["Poppins_400Regular", "sans-serif"]}
+                  source={{ html: blog.text }}
+               />
             </View>
          )}
          <View style={{ marginBottom: 1 }}>
@@ -369,12 +435,12 @@ const BlogComponent = (props: BlogComponentProps) => {
                   }}>
                   <Ionicons
                      size={18}
-                     color={liked?theme.colors.primary:theme.colors.secondary}
+                     color={
+                        liked ? theme.colors.primary : theme.colors.secondary
+                     }
                      name={liked ? "heart-sharp" : "heart-outline"}
                   />
-                  <Text>
-                  {" "}{likesCount}
-                  </Text>
+                  <Text> {likesCount}</Text>
                </Button>
 
                <Button
@@ -396,24 +462,28 @@ const BlogComponent = (props: BlogComponentProps) => {
                   <MaterialCommunityIcons
                      name="comment-outline"
                      size={16}
-                     style={{marginHorizontal:2}}
+                     style={{ marginHorizontal: 2 }}
                      color={theme.colors.secondary}
                   />
-                  <Text>
-                  {" "}{commentsCount}
-                  </Text>
+                  <Text> {commentsCount}</Text>
                </Button>
                <Button
                   onPress={handleRepost}
-                  textColor={reposted?theme.colors.primary:theme.colors.secondary}
+                  textColor={
+                     reposted ? theme.colors.primary : theme.colors.secondary
+                  }
                   style={{
                      backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
-                  <AntDesign size={18} color={reposted?theme.colors.primary:theme.colors.secondary} name="retweet" />
-                  <Text>
-                  {" "}{sharesCount}
-                  </Text>
+                  <AntDesign
+                     size={18}
+                     color={
+                        reposted ? theme.colors.primary : theme.colors.secondary
+                     }
+                     name="retweet"
+                  />
+                  <Text> {sharesCount}</Text>
                </Button>
                <Button
                   onPress={() => setOpenShareModal(true)}
@@ -430,6 +500,7 @@ const BlogComponent = (props: BlogComponentProps) => {
             </View>
          </View>
       </View>
+      </Pressable>
    );
 };
 
@@ -449,7 +520,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 15,
    },
    title: {
-      marginHorizontal:8,
+      marginHorizontal: 8,
       marginTop: 6,
    },
    commentInputField: {

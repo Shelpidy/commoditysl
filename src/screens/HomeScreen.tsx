@@ -42,41 +42,38 @@ type BlogComponentProps = {
    likesCount: number;
    sharesCount: number;
    liked: boolean;
-   reposted:boolean;
+   reposted: boolean;
 };
 
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
    const [blogs, setBlogs] = useState<BlogComponentProps[] | null>(null);
-   const [forYouBlogs, setForYouBlogs] = useState<BlogComponentProps[] | null>(null);
+   const [forYouBlogs, setForYouBlogs] = useState<BlogComponentProps[] | null>(
+      null
+   );
    const currentUser = useCurrentUser();
 
-   useEffect(()=>{
-
+   useEffect(() => {
       let fetchData = async (pageNum?: number) => {
-         
          try {
             if (currentUser) {
-             
                let activeUserId = currentUser?.userId;
                let { data, status } = await axios.get(
                   `http://192.168.1.98:6000/blogs?pageNumber=1&numberOfRecords=5`,
                   { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
-   
+
                if (status === 200) {
                   console.log(data);
                   // setBlogs(data.data);
                   let fetchedPost: BlogComponentProps[] = data.data;
-   
+
                   setForYouBlogs((prev) =>
                      prev ? [...prev, ...fetchedPost] : fetchedPost
                   );
-                 
                } else {
                   Alert.alert("For U Failed", data.message);
-                 
                }
             }
          } catch (err) {
@@ -87,8 +84,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       if (currentUser) {
          fetchData();
       }
-
-   },[currentUser])
+   }, [currentUser]);
 
    useEffect(
       function () {

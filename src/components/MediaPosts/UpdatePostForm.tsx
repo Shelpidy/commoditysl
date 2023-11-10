@@ -69,12 +69,11 @@ const postReducer = (state: Partial<Blog> = initialState, action: Action) => {
 };
 
 type NBlogComponentProps = {
-   blog:Blog,
-   onUpdateComplete:(newBlog:Blog)=>void
-}
-   ;
+   blog: Blog;
+   onUpdateComplete: (newBlog: Blog) => void;
+};
 
-const UpdatePostForm = ({blog,onUpdateComplete}: NBlogComponentProps) => {
+const UpdatePostForm = ({ blog, onUpdateComplete }: NBlogComponentProps) => {
    const [loading, setLoading] = useState<boolean>(false);
    const [postState, postDispatch] = useReducer(postReducer, initialState);
    const [imageOpen, setImageOpen] = useState(false);
@@ -85,9 +84,9 @@ const UpdatePostForm = ({blog,onUpdateComplete}: NBlogComponentProps) => {
    const theme = useTheme();
    const navigation = useNavigation<any>();
    const richText = React.useRef<any>(null);
-   const [toastMessage,setToastMessage] = useState<string>("")
+   const [toastMessage, setToastMessage] = useState<string>("");
 
-   const toast = useToast()
+   const toast = useToast();
 
    useEffect(() => {
       postDispatch({ type: "TEXT", payload: blog.text });
@@ -99,7 +98,7 @@ const UpdatePostForm = ({blog,onUpdateComplete}: NBlogComponentProps) => {
 
    const handleUpdate = async (
       fileURLs: string[] | null = null,
-      fileType: "image" | "video"| null = "image"
+      fileType: "image" | "video" | null = "image"
    ) => {
       let activeUserId = currentUser?.userId;
       setLoading(true);
@@ -112,36 +111,36 @@ const UpdatePostForm = ({blog,onUpdateComplete}: NBlogComponentProps) => {
 
       console.log(postObj);
       try {
-         let {data,status} = await axios.put(
+         let { data, status } = await axios.put(
             `http://192.168.1.98:6000/blogs/${blog.blogId}`,
             postObj,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
          if (status === 202) {
             console.log(data);
-            onUpdateComplete(data.data)
+            onUpdateComplete(data.data);
             setLoading(false);
-            toast.show("Updated Successfully",{
-               type:"normal",
-               placement:"top",
-               
-            })
+            toast.show("Updated Successfully", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          } else {
             setLoading(false);
-            toast.show("Update Failed",{
-               type:"normal",
-               placement:"top",
-               duration:2000
-            })
+            toast.show("Update Failed", {
+               type: "normal",
+               placement: "top",
+               duration: 2000,
+            });
          }
       } catch (err) {
          setLoading(false);
          console.log(err);
-         toast.show("Update Failed",{
-            type:"normal",
-            placement:"top",
-            duration:2000
-         })
+         toast.show("Update Failed", {
+            type: "normal",
+            placement: "top",
+            duration: 2000,
+         });
       }
 
       // console.log(postState);
@@ -153,7 +152,7 @@ const UpdatePostForm = ({blog,onUpdateComplete}: NBlogComponentProps) => {
    ) {
       try {
          if (chooseFile.current === false) {
-            handleUpdate(null,null);
+            handleUpdate(null, null);
             return;
          }
          let fileType: "image" | "video" = postState.images
@@ -273,8 +272,13 @@ const UpdatePostForm = ({blog,onUpdateComplete}: NBlogComponentProps) => {
    };
 
    return (
-      <View style={{ borderRadius: 3, margin: 8, backgroundColor:theme.colors.background}}>
-         <CustomToast message={toastMessage}/>
+      <View
+         style={{
+            borderRadius: 3,
+            margin: 8,
+            backgroundColor: theme.colors.background,
+         }}>
+         <CustomToast message={toastMessage} />
          <Modal visible={imageOpen}>
             <ImagePicker
                onSave={chooseImage}

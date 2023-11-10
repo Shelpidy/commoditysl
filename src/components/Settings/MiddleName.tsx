@@ -3,12 +3,16 @@ import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Divider, useTheme } from "react-native-paper";
 import axios from "axios";
 import { useCurrentUser } from "../../utils/CustomHooks";
+import { useToast } from "react-native-toast-notifications";
 
 const MiddleNameForm = () => {
    const [middleName, setMiddleName] = useState("");
    const [loading, setLoading] = useState(false);
    const currentUser = useCurrentUser();
    const theme = useTheme();
+
+   const toast = useToast()
+  
 
    const handleUpdate = async () => {
       setLoading(true);
@@ -19,22 +23,35 @@ const MiddleNameForm = () => {
             {
                key: "middleName",
                value: middleName,
-               userId: currentUser?.userId, // Replace with the actual user ID
-            }
+            },
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
          if (response.status === 202) {
-            Alert.alert("Success", "Middle name changed successfully");
+            toast.show("Firstname updated", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          } else {
-            Alert.alert("Error", "Failed to change middle name");
+            toast.show("Update Failed", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          }
       } catch (error) {
          console.log(error);
-         Alert.alert("Error", "An error occurred while changing middle name");
-      }
+         toast.show("Update Failed", {
+            type: "normal",
+            placement: "top",
+            duration:2000
+         });
+      }finally{
+         setLoading(false);
+      };
 
-      setLoading(false);
-   };
+   }
 
    return (
       <View>
@@ -55,7 +72,7 @@ const MiddleNameForm = () => {
             onPress={handleUpdate}
             loading={loading}
             disabled={loading}>
-            Save Middle Name
+            SAVE
          </Button>
          <Divider />
       </View>

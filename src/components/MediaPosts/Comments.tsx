@@ -7,14 +7,14 @@ import {
    TextInput,
    Modal,
 } from "react-native";
-import React, { useEffect, useState,useCallback} from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import CommentComponent from "./CommentComponent";
 import {
    Button,
    Divider,
    ActivityIndicator,
    useTheme,
-   Text
+   Text,
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useCurrentUser } from "../../utils/CustomHooks";
@@ -37,7 +37,7 @@ type CommentsProps = {
    _commentsCount: number;
    _likesCount: number;
    _liked: boolean;
-   _reposted:boolean;
+   _reposted: boolean;
 };
 
 type FetchComment = {
@@ -56,7 +56,7 @@ const Comments = ({
    _liked,
    _commentsCount,
    _likesCount,
-   _reposted
+   _reposted,
 }: CommentsProps) => {
    const [comments, setComments] = useState<BlogComment[] | null>(null);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
@@ -84,44 +84,48 @@ const Comments = ({
 
    const inputRef = React.useRef<TextInput>(null);
 
-   const fetchComments = useCallback(async (pageNum?: number) => {
-      let pageNumber = pageNum ?? page.current;
-      console.log("New Page number", pageNumber);
-      if (!hasMore) return;
+   const fetchComments = useCallback(
+      async (pageNum?: number) => {
+         let pageNumber = pageNum ?? page.current;
+         console.log("New Page number", pageNumber);
+         if (!hasMore) return;
 
-      try {
-  
-         if (currentUser && blogId) {
-            setLoadingFetch(true);
-            let { data, status } = await axios.get(
-               `http://192.168.1.98:6000/blogs/${blogId}/comments?pageNumber=${pageNumber}&numberOfRecords=5`,
-               { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-            );
-
-            if (status === 200) {
-               setComments((prevComments) =>
-                  prevComments ? [...prevComments, ...data?.data] : data?.data
+         try {
+            if (currentUser && blogId) {
+               setLoadingFetch(true);
+               let { data, status } = await axios.get(
+                  `http://192.168.1.98:6000/blogs/${blogId}/comments?pageNumber=${pageNumber}&numberOfRecords=5`,
+                  { headers: { Authorization: `Bearer ${currentUser?.token}` } }
                );
-               if (data?.data.length > 0) {
-                  page.current++;
+
+               if (status === 200) {
+                  setComments((prevComments) =>
+                     prevComments
+                        ? [...prevComments, ...data?.data]
+                        : data?.data
+                  );
+                  if (data?.data.length > 0) {
+                     page.current++;
+                  }
+                  // console.log("Comments=>", data.data);
+                  if (data?.data.length < 5) {
+                     setHasMore(false);
+                  }
+                  setLoadingFetch(false);
+               } else {
+                  Alert.alert("c Failed", data.message);
+                  setLoadingFetch(false);
                }
-               // console.log("Comments=>", data.data);
-               if (data?.data.length < 5) {
-                  setHasMore(false);
-               }
-               setLoadingFetch(false);
-            } else {
-               Alert.alert("c Failed", data.message);
-               setLoadingFetch(false);
             }
+            // setLoadingFetch(false);
+         } catch (err) {
+            console.log("From Comments", String(err));
+            Alert.alert("c Failed", String(err));
+            setLoadingFetch(false);
          }
-         // setLoadingFetch(false);
-      } catch (err) {
-         console.log("From Comments", String(err));
-         Alert.alert("c Failed", String(err));
-         setLoadingFetch(false);
-      }
-   },[page.current,currentUser,blogId]);
+      },
+      [page.current, currentUser, blogId]
+   );
 
    useEffect(() => {
       console.log("Fetching comments");
@@ -129,8 +133,6 @@ const Comments = ({
          fetchComments(1);
       }
    }, [currentUser]);
-
-
 
    useEffect(() => {
       setLiked(_liked);
@@ -140,7 +142,7 @@ const Comments = ({
       console.log("Comments reached end");
       if (loadingFetch) return;
       fetchComments();
-   },[page.current]);
+   }, [page.current]);
 
    const handleShowTextInput = () => {
       inputRef.current?.focus();
@@ -148,12 +150,15 @@ const Comments = ({
    };
 
    const handleRepost = async () => {
-      if(reposted){
-         Alert.alert("Repost Limit Reached","You can only repost once per a post")
-         return
+      if (reposted) {
+         Alert.alert(
+            "Repost Limit Reached",
+            "You can only repost once per a post"
+         );
+         return;
       }
       setLoadingShare(true);
-       
+
       // let images = props.blog.images?.map(image => image?.trimEnd())
       let postObj = {
          title: blog?.title,
@@ -166,7 +171,7 @@ const Comments = ({
       };
       console.log(postObj);
       try {
-         let {data,status} = await axios.post(
+         let { data, status } = await axios.post(
             "http://192.168.1.98:6000/blogs/",
             postObj,
             { headers: { Authorization: `Bearer ${currentUser?.token}` } }
@@ -176,7 +181,7 @@ const Comments = ({
 
             setLoadingShare(false);
             setReposted(true);
-            setSharesCount(prev => prev + 1)
+            setSharesCount((prev) => prev + 1);
             // setRelaodCLS(reloadCLS + 1);
             // Alert.alert("Successful", "Post successfully");
          } else {
@@ -273,15 +278,18 @@ const Comments = ({
    );
 
    return (
-      <View style={{ flex: 1, gap: 4,backgroundColor:theme.colors.background }}>
-         <View style={{backgroundColor:theme.colors.background }}>
+      <View
+         style={{ flex: 1, gap: 4, backgroundColor: theme.colors.background }}>
+         <View style={{ backgroundColor: theme.colors.background }}>
             <LikesComponent blogId={blogId} numberOfLikes={likesCount} />
             <View style={styles.likeCommentAmountCon}>
                <Button
                   disabled={loading}
                   onPress={() => handleLike(blogId)}
                   // textColor={theme.colors.secondary}
-                  textColor={liked?theme.colors.primary:theme.colors.secondary}
+                  textColor={
+                     liked ? theme.colors.primary : theme.colors.secondary
+                  }
                   style={{
                      backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
@@ -290,12 +298,12 @@ const Comments = ({
                   }}>
                   <Ionicons
                      size={18}
-                     color={liked?theme.colors.primary:theme.colors.secondary}
+                     color={
+                        liked ? theme.colors.primary : theme.colors.secondary
+                     }
                      name={liked ? "heart-sharp" : "heart-outline"}
                   />
-                  <Text>
-                  {" "}{likesCount}
-                  </Text>
+                  <Text> {likesCount}</Text>
                </Button>
 
                <Button
@@ -315,9 +323,7 @@ const Comments = ({
                      size={16}
                      color={theme.colors.secondary}
                   />
-                  <Text>
-                  {" "}{commentsCount}
-                  </Text>
+                  <Text> {commentsCount}</Text>
                </Button>
                <Button
                   onPress={() => setOpenShareModal(true)}
@@ -326,10 +332,14 @@ const Comments = ({
                      backgroundColor: theme.colors.inverseOnSurface,
                      flex: 1,
                   }}>
-                  <AntDesign color={reposted?theme.colors.primary:theme.colors.secondary} size={18} name="retweet" />
-                  <Text>
-                  {" "}{sharesCount}
-                  </Text>
+                  <AntDesign
+                     color={
+                        reposted ? theme.colors.primary : theme.colors.secondary
+                     }
+                     size={18}
+                     name="retweet"
+                  />
+                  <Text> {sharesCount}</Text>
                </Button>
                <Button
                   onPress={handleRepost}
@@ -339,9 +349,7 @@ const Comments = ({
                      flex: 1,
                   }}>
                   <Ionicons size={18} name="share-outline" />
-                  <Text>
-                  {" "}{sharesCount}
-                  </Text>
+                  <Text> {sharesCount}</Text>
                </Button>
             </View>
 

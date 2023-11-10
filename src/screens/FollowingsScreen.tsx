@@ -1,16 +1,16 @@
-import { ScrollView, StyleSheet,View, Alert } from "react-native";
+import { ScrollView, StyleSheet, View, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import { users as commodityUsers } from "../data";
 import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
-import { ActivityIndicator,Text, useTheme } from "react-native-paper";
+import { ActivityIndicator, Text, useTheme } from "react-native-paper";
 import UserComponent from "../components/UserComponent";
 import SearchForm from "../components/SearchForm";
 
 const FollowingsScreen = ({ navigation, route }: any) => {
    const [users, setUsers] = useState<User[]>([]);
    const [loading, setLoading] = useState<boolean>(false);
-   const theme = useTheme()
+   const theme = useTheme();
 
    useEffect(function () {
       console.log("Fetching user");
@@ -58,11 +58,14 @@ const FollowingsScreen = ({ navigation, route }: any) => {
       );
    return (
       <View>
-         <Text style={{marginLeft:15,marginBottom:10}} variant="titleSmall">Followings</Text>
-         
-         <View style={{marginHorizontal:8}}>
-         <SearchForm setSearchValue={(v) => console.log(v)} />
+         <Text
+            style={{ marginLeft: 15, marginBottom: 10 }}
+            variant="titleSmall">
+            Followings
+         </Text>
 
+         <View style={{ marginHorizontal: 8 }}>
+            <SearchForm setSearchValue={(v) => console.log(v)} />
          </View>
          {users.length < 1 && (
             <View>
@@ -74,7 +77,11 @@ const FollowingsScreen = ({ navigation, route }: any) => {
             style={{ fontFamily: "Poppins_600SemiBold", marginHorizontal: 15 }}>
             <Feather size={20} name="users" /> Users
          </Text> */}
-         <ScrollView style={{backgroundColor:theme.colors.background,paddingHorizontal:6}}>
+         <ScrollView
+            style={{
+               backgroundColor: theme.colors.background,
+               paddingHorizontal: 6,
+            }}>
             {users?.map((user) => {
                return <UserComponent key={String(user.userId)} _user={user} />;
             })}
@@ -84,4 +91,3 @@ const FollowingsScreen = ({ navigation, route }: any) => {
 };
 
 export default FollowingsScreen;
-

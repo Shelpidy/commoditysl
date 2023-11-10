@@ -75,7 +75,7 @@ declare type User = {
    accountNumber: string;
    email: string;
    dob: string;
-   following?:boolean;
+   following?: boolean;
    verified: boolean;
    verificationRank: "low" | "medium" | "high" | string;
    EncryptionKey?: { publicKey: string };

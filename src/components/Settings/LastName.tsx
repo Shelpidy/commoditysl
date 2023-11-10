@@ -3,12 +3,16 @@ import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, useTheme } from "react-native-paper";
 import axios from "axios";
 import { useCurrentUser } from "../../utils/CustomHooks";
+import { useToast } from "react-native-toast-notifications";
 
 const LastNameForm = () => {
    const [lastName, setLastName] = useState("");
    const [loading, setLoading] = useState(false);
    const currentUser = useCurrentUser();
    const theme = useTheme();
+
+   const toast = useToast()
+  
 
    const handleUpdate = async () => {
       setLoading(true);
@@ -19,22 +23,36 @@ const LastNameForm = () => {
             {
                key: "lastName",
                value: lastName,
-               userId: currentUser?.userId, // Replace with the actual user ID
-            }
+            },
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
          if (response.status === 202) {
-            Alert.alert("Success", "Last name changed successfully");
+            toast.show("Firstname updated", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          } else {
-            Alert.alert("Error", "Failed to change last name");
+            toast.show("Update Failed", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          }
       } catch (error) {
          console.log(error);
-         Alert.alert("Error", "An error occurred while changing last name");
-      }
+         toast.show("Update Failed", {
+            type: "normal",
+            placement: "top",
+            duration:2000
+         });
+      }finally{
+         setLoading(false);
+      };
 
-      setLoading(false);
-   };
+   }
+
 
    return (
       <View>
@@ -55,7 +73,7 @@ const LastNameForm = () => {
             onPress={handleUpdate}
             loading={loading}
             disabled={loading}>
-            Save Last Name
+            SAVE
          </Button>
       </View>
    );

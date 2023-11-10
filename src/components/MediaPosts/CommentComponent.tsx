@@ -31,11 +31,13 @@ import {
    useTheme,
    Text,
    IconButton,
+   Card,
 } from "react-native-paper";
 import { useCurrentUser } from "../../utils/CustomHooks";
 import { dateAgo } from "../../utils/util";
 import TextEllipse from "../TextEllipse";
 import CommentTextEllipse from "./CommentTextEllipse";
+import { useToast } from "react-native-toast-notifications";
 
 type CommentProps = {
    comment: BlogComment;
@@ -52,7 +54,9 @@ const CommentComponent = (props: CommentProps) => {
    const [commentor, setCommentor] = useState<User | null>(null);
    const [loading, setLoading] = useState<boolean>(false);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
-   const [commentText, setCommentText] = useState<string>(props.comment.content);
+   const [commentText, setCommentText] = useState<string>(
+      props.comment.content
+   );
    const [replyText, setReplyText] = useState<string>("");
    const [comment, setComment] = useState<BlogComment>(props.comment);
    const [replies, setReplies] = useState<BlogComment[]>([]);
@@ -63,10 +67,13 @@ const CommentComponent = (props: CommentProps) => {
    const [hasMore, setHasMore] = useState(true);
    const [showTextInput, setShowTextInput] = useState<boolean>(false);
    const [showReplies, setShowReplies] = useState<boolean>(false);
+   const [openEdit, setOpenEdit] = useState<boolean>(false);
+   const [deleted,setDeleted] = useState<boolean>(false)
 
    const theme = useTheme();
    const inputRef = useRef<TextInput>(null);
    const navigation = useNavigation<any>();
+   const toast = useToast()
 
    let fetchData = async (pageNum?: number) => {
       let pageNumber = pageNum ?? page.current;
@@ -87,7 +94,7 @@ const CommentComponent = (props: CommentProps) => {
                );
                if (data.data.length > 0) {
                   page.current++;
-                  setShowReplies(true)
+                  setShowReplies(true);
                }
                console.log("Replies=>", data.data);
                setLoadingFetch(false);
@@ -120,16 +127,14 @@ const CommentComponent = (props: CommentProps) => {
       setRepliesCount(props.comment.repliesCount);
    }, []);
 
-
-   useEffect(()=>{
-      if(replies.length >= 5){
-         setHasMore(true)
+   useEffect(() => {
+      if (replies.length >= 5) {
+         setHasMore(true);
       }
-   },[replies])
-
+   }, [replies]);
 
    const handleReplyButton = () => {
-      setShowTextInput(!showTextInput)
+      setShowTextInput(!showTextInput);
       inputRef.current?.focus();
    };
 
@@ -191,36 +196,83 @@ const CommentComponent = (props: CommentProps) => {
       }
    };
 
-   const handleCommentButton = ()=>{
-      if(replies.length < 1){
-         loadMore()
-      }else{
-         setShowReplies(true)
+   const handleCommentButton = () => {
+      if (replies.length < 1) {
+         loadMore();
+      } else {
+         setShowReplies(true);
       }
-   }
+   };
 
-   const handleUpdateComment = async() => {
+   const handleUpdateComment = async () => {
       setLoading(true);
-         try {
-            let putObj = { content: commentText, userId: comment?.userId };
-            let response = await axios.put(
-               `http://192.168.1.98:6000/comments/${comment.commentId}`,
-               putObj
-            );
-            if (response.status == 202) {
-               setComment({ ...comment, content: commentText });
-               setOpenModal(false)
-               Alert.alert("Success", "Comment Updated");
-            } else {
-               Alert.alert("Failed", response.data.message);
-            }
-            setLoading(false);
-         } catch (err) {
-            console.log(err);
-            Alert.alert("Failed", String(err));
-            setLoading(false);
+      try {
+         let putObj = { content: commentText, userId: comment?.userId };
+         let response = await axios.put(
+            `http://192.168.1.98:6000/comments/${comment.commentId}`,
+            putObj,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
+         if (response.status == 202) {
+            setComment({ ...comment, content: commentText });
+            setOpenModal(false);
+            setOpenEdit(false)
+            toast.show("Comment Updated",{
+               type:"normal",
+               placement:"top"
+            })
+        
+         } else {
+            toast.show("Update Failed",{
+               type:"warning",
+               placement:"top"
+            })
+          
          }
-     
+         setLoading(false);
+      } catch (err) {
+         console.log(err);
+         toast.show("Delete Failed",{
+            type:"warning",
+            placement:"top"
+         })
+         setLoading(false);
+      }
+   };
+
+   const handleDeleteComment = async () => {
+      setLoading(true);
+      try {
+         let response = await axios.delete(
+            `http://192.168.1.98:6000/comments/${comment.commentId}`,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
+         if (response.status == 203) {
+            setComment({ ...comment, content: commentText });
+            setOpenModal(false);
+            setOpenEdit(false)
+            setDeleted(true)
+            toast.show("Comment Deleted",{
+               type:"normal",
+               placement:"top"
+            })
+        
+         } else {
+            toast.show("Delete Failed",{
+               type:"warning",
+               placement:"top"
+            })
+          
+         }
+         setLoading(false);
+      } catch (err) {
+         console.log(err);
+         toast.show("Delete Failed",{
+            type:"warning",
+            placement:"top"
+         })
+         setLoading(false);
+      }
    };
 
    const gotoUserProfile = () => {
@@ -234,15 +286,25 @@ const CommentComponent = (props: CommentProps) => {
    };
 
    const renderFooter = () => {
-      if(hasMore){
-         return <Button onPress={loadMore} disabled={loadingFetch} loading={loadingFetch}>Load more</Button>;
+      if (hasMore) {
+         return (
+            <Button
+               onPress={loadMore}
+               disabled={loadingFetch}
+               loading={loadingFetch}>
+               Load more
+            </Button>
+         );
       }
-      return null
-
+      return null;
    };
 
    const renderItem = ({ item }: any) => (
-      <CommentComponent size="small" comment={item} blogOwnerId={props.blogOwnerId} />
+      <CommentComponent
+         size="small"
+         comment={item}
+         blogOwnerId={props.blogOwnerId}
+      />
    );
 
    const renderSkeleton = () => {
@@ -317,31 +379,48 @@ const CommentComponent = (props: CommentProps) => {
       );
    };
 
+   if(deleted){
+      return null
+   }
+
    return (
-      <KeyboardAvoidingView style={[styles.container,{backgroundColor:theme.colors.background}]} behavior="padding">
+      <Pressable onPress={()=> setOpenEdit(false)}>
+      <KeyboardAvoidingView
          
+         style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+         ]}
+         behavior="padding">
          <Modal visible={openModal}>
             <View
                style={{
-                 flex:1,
+                  flex: 1,
                   backgroundColor: "rgba(0,0,0,0.5)",
                   justifyContent: "center",
                   alignItems: "center",
                }}>
                <View
                   style={{
-                    backgroundColor:theme.colors.background,
-                    width:"90%",
+                     backgroundColor: theme.colors.background,
+                     width: "90%",
                      padding: 2,
-                     justifyContent:"center",
-                     alignItems:"center",
+                     justifyContent: "center",
+                     alignItems: "center",
                      borderRadius: 4,
                   }}>
-                     <View style={{justifyContent:"flex-end",alignItems:"flex-end",width:"100%"}}>
-                         <IconButton icon='close' onPress={() => setOpenModal(false)} />
+                  <View
+                     style={{
+                        justifyContent: "flex-end",
+                        alignItems: "flex-end",
+                        width: "100%",
+                     }}>
+                     <IconButton
+                        icon="close"
+                        onPress={() => setOpenModal(false)}
+                     />
+                  </View>
 
-                     </View>
-                    
                   {/* <Button  icon='close'></Button> */}
                   <View style={{ margin: 6 }}>
                      <Text
@@ -357,7 +436,7 @@ const CommentComponent = (props: CommentProps) => {
                      style={{
                         width: "90%",
                         paddingHorizontal: 10,
-                        marginBottom:height * 0.1,
+                        marginBottom: height * 0.1,
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "center",
@@ -379,7 +458,6 @@ const CommentComponent = (props: CommentProps) => {
                      />
                      <View
                         style={{
-                     
                            height: 50,
                            alignItems: "center",
                            justifyContent: "center",
@@ -388,13 +466,12 @@ const CommentComponent = (props: CommentProps) => {
                            backgroundColor: theme.colors.inverseOnSurface,
                         }}>
                         <Button onPress={handleUpdateComment}>
-                        <FontAwesome
-                           color={theme.colors.primary}
-                           name="send"
-                           size={21}
-                        />
+                           <FontAwesome
+                              color={theme.colors.primary}
+                              name="send"
+                              size={21}
+                           />
                         </Button>
-
                      </View>
                   </View>
                </View>
@@ -404,7 +481,7 @@ const CommentComponent = (props: CommentProps) => {
             <View style={styles.commentorMedia}>
                <Pressable onPress={gotoUserProfile}>
                   <Avatar.Image
-                     size={props.size === "small"?25:35}
+                     size={props.size === "small" ? 25 : 35}
                      source={{ uri: commentor.profileImage }}
                   />
                   {/* <Image
@@ -462,11 +539,18 @@ const CommentComponent = (props: CommentProps) => {
                      </View>
                      {(currentUser?.userId == commentor.userId ||
                         currentUser?.userId == props?.blogOwnerId) && (
-                        <SimpleLineIcons
-                           style={{ alignSelf: "center", right: 5 }}
-                           onPress={() => setOpenModal(true)}
-                           name="options-vertical"
-                        />
+                           <Pressable style={{position:"relative"}} onPress={() => setOpenEdit(!openEdit)}>
+                           <SimpleLineIcons name="options-vertical" />
+                           {
+                              openEdit &&
+                              <Card style={{position:"absolute",top:0,right:10,zIndex:10}}>
+                              <Button icon='pencil' disabled={loading} onPress={() => setOpenModal(true)}>Edit</Button>
+                              <Divider/>
+                              <Button icon='delete' disabled={loading} loading={loading} onPress={handleDeleteComment}>Delete</Button>
+                           </Card>
+                           }
+   
+                        </Pressable>
                      )}
                   </View>
                   <CommentTextEllipse
@@ -535,13 +619,11 @@ const CommentComponent = (props: CommentProps) => {
                         }}
                         onPress={handleCommentButton}>
                         <Ionicons
-                           size= {15}
+                           size={15}
                            color={theme.colors.secondary}
                            name="chatbox-outline"
                         />
-                        <Text>
-                        {" "}{Math.max(repliesCount,replies.length)}
-                        </Text>
+                        <Text> {Math.max(repliesCount, replies.length)}</Text>
                      </Button>
                      <Button
                         disabled={loading}
@@ -553,82 +635,85 @@ const CommentComponent = (props: CommentProps) => {
                         }}
                         onPress={() => handleLike(comment.commentId)}>
                         <Ionicons
-                              size={18}
-                              color={liked?theme.colors.primary:theme.colors.secondary}
-                              name={liked ? "heart-sharp" : "heart-outline"}
-                           />
-                        <Text>
-                        {" "}{likesCount}
-                        </Text>
+                           size={18}
+                           color={
+                              liked
+                                 ? theme.colors.primary
+                                 : theme.colors.secondary
+                           }
+                           name={liked ? "heart-sharp" : "heart-outline"}
+                        />
+                        <Text> {likesCount}</Text>
                      </Button>
                   </View>
-                  
-                  {showReplies && <Button onPress={()=>setShowReplies(false)} >hide replies</Button>}
-                  {replies.length > 0 && showReplies &&(
+
+                  {showReplies && (
+                     <Button onPress={() => setShowReplies(false)}>
+                        hide replies
+                     </Button>
+                  )}
+                  {replies.length > 0 && showReplies && (
                      <FlatList
-                    
-                     data={replies}
-                     renderItem={renderItem}
-                     keyExtractor={(item) => String(item?.commentId)}
-                     ListFooterComponent={renderFooter}
-                     ListEmptyComponent={renderSkeleton}
-                     
+                        data={replies}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => String(item?.commentId)}
+                        ListFooterComponent={renderFooter}
+                        ListEmptyComponent={renderSkeleton}
                      />
                   )}
-                    {
-                     showTextInput &&
-
+                  {showTextInput && (
                      <View
-                     style={{
-                        width: "100%",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginVertical:4,
-                        zIndex: 1,
-                     }}>
-                     <TextInput
-                        multiline
-                        ref={inputRef}
-                        value={replyText}
-                        placeholder="Reply here..."
-                        onChangeText={(v) => setReplyText(v)}
                         style={{
-                           flex: 1,
-                           borderTopLeftRadius: 20,
-                           borderBottomLeftRadius: 20,
-                           height: 50,
-                           paddingHorizontal: 25,
-                           backgroundColor: theme.colors.inverseOnSurface,
-                        }}
-                     />
-                     <Button
-                        mode="text"
-                        onPress={handleReply}
-                        style={{
-                           paddingHorizontal: 5,
-                           height: 50,
+                           width: "100%",
+                           flexDirection: "row",
                            alignItems: "center",
                            justifyContent: "center",
-                           backgroundColor: theme.colors.inverseOnSurface,
-                           borderTopLeftRadius: 0,
-                           borderBottomLeftRadius: 0,
-                           borderTopRightRadius: 20,
-                           borderBottomRightRadius: 20,
+                           marginVertical: 4,
+                           zIndex: 1,
                         }}>
-                        <FontAwesome
-                           color={theme.colors.secondary}
-                           name="send"
-                           size={20}
+                        <TextInput
+                           multiline
+                           ref={inputRef}
+                           value={replyText}
+                           placeholder="Reply here..."
+                           onChangeText={(v) => setReplyText(v)}
+                           style={{
+                              flex: 1,
+                              borderTopLeftRadius: 20,
+                              borderBottomLeftRadius: 20,
+                              height: 50,
+                              paddingHorizontal: 25,
+                              backgroundColor: theme.colors.inverseOnSurface,
+                           }}
                         />
-                     </Button>
-                  </View>
-                  }
+                        <Button
+                           mode="text"
+                           onPress={handleReply}
+                           style={{
+                              paddingHorizontal: 5,
+                              height: 50,
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backgroundColor: theme.colors.inverseOnSurface,
+                              borderTopLeftRadius: 0,
+                              borderBottomLeftRadius: 0,
+                              borderTopRightRadius: 20,
+                              borderBottomRightRadius: 20,
+                           }}>
+                           <FontAwesome
+                              color={theme.colors.secondary}
+                              name="send"
+                              size={20}
+                           />
+                        </Button>
+                     </View>
+                  )}
                </View>
             </View>
          )}
          {/* <Divider /> */}
       </KeyboardAvoidingView>
+      </Pressable>
    );
 };
 

@@ -37,7 +37,9 @@ const NewBlogComponent = (props: NewBlogComponentProps) => {
    const currentUser = useCurrentUser();
    const [openModal, setOpenModal] = useState<boolean>(false);
    const [openShareModal, setOpenShareModal] = useState<boolean>(false);
-   const [commentsCount, setCommentsCount] = useState<number>(props.commentsCount);
+   const [commentsCount, setCommentsCount] = useState<number>(
+      props.commentsCount
+   );
    const [likesCount, setLikesCount] = useState<number>(props.likesCount);
    const [sharesCount, setSharesCount] = useState<number>(props.sharesCount);
    const [liked, setLiked] = useState<boolean>(props.liked);
@@ -45,7 +47,9 @@ const NewBlogComponent = (props: NewBlogComponentProps) => {
    const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
    const [loadingShare, setLoadingShare] = useState<boolean>(false);
-   const [lastSeen, setLastSeen] = useState<"online" | any>(props.createdBy.lastSeenStatus);
+   const [lastSeen, setLastSeen] = useState<"online" | any>(
+      props.createdBy.lastSeenStatus
+   );
    const theme = useTheme();
    const [reloadCLS, setRelaodCLS] = useState<number>(0);
    const { socket } = useSelector((state: any) => state.rootReducer);
@@ -85,7 +89,6 @@ const NewBlogComponent = (props: NewBlogComponentProps) => {
          });
       }
    }, [socket, createdBy]);
-
 
    const handleLike = async (blogId: string) => {
       console.log("Like function runnning...");
@@ -151,7 +154,6 @@ const NewBlogComponent = (props: NewBlogComponentProps) => {
 
       // console.log(postState);
    };
-
 
    return (
       <View
@@ -345,7 +347,6 @@ const NewBlogComponent = (props: NewBlogComponentProps) => {
                {/* <Text style={{textAlignVertical:"center",color:theme.colors.secondary,fontFamily:"Poppins_300Light",marginRight:2}}>posted</Text> */}
                <AntDesign color={theme.colors.secondary} name="clockcircleo" />
                <Text
-                  
                   variant="bodySmall"
                   style={{
                      textAlignVertical: "center",

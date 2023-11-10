@@ -25,7 +25,7 @@ type BlogComponentProps = {
    likesCount: number;
    sharesCount: number;
    liked: boolean;
-   reposted:boolean;
+   reposted: boolean;
 };
 
 const BlogsComponent = ({ blogs: _blogs }: { blogs: BlogComponentProps[] }) => {

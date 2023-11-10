@@ -7,23 +7,15 @@ import {
    StyleSheet,
    TextInput,
    View,
-   useWindowDimensions
+   useWindowDimensions,
 } from "react-native";
 import Comments from "../components/MediaPosts/Comments";
 import VideoPlayer from "../components/VideoPlayer";
 
-import {
-   MaterialIcons,
-   SimpleLineIcons
-} from "@expo/vector-icons";
+import { MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import axios from "axios";
 import moment from "moment";
-import {
-   Avatar,
-   Button,
-   Text,
-   useTheme
-} from "react-native-paper";
+import { Avatar, Button, Text, useTheme } from "react-native-paper";
 import HTML from "react-native-render-html";
 import { useSelector } from "react-redux";
 import ImageCarousel from "../components/MediaPosts/ImageCarousel";
@@ -65,51 +57,48 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       }
    }, [socket, createdBy]);
 
-   useEffect(
-      ()=>{
-         let fetchData = async () => {
-            let activeUserId = currentUser?.userId;
-            let blogId = route.params.blogId;
-            console.log("blogId", blogId);
-            console.log("blog", route.params);
-            // setBlogs(route.params)
-            try {
-               let { data, status } = await axios.get(
-                  `http://192.168.1.98:6000/blogs/${blogId}`,
-                  { headers: { Authorization: `Bearer ${currentUser?.token}` } }
-               );
-               if (status === 200) {
-                  console.log(data.data);
-                  let {
-                     createdBy,
-                     blog,
-                     liked,
-                     likesCount,
-                     sharesCount,
-                     reposted,
-                     commentsCount,
-                  } = data.data;
-                  setCreatedBy(createdBy);
-                  setLiked(liked);
-                  setReposted(reposted)
-                  setLikesCount(likesCount);
-                  setSharesCount(sharesCount);
-                  setCommentsCount(commentsCount);
-                  setBlogs(blog);
-                  setLastSeen(createdBy.lastSeenStatus);
+   useEffect(() => {
+      let fetchData = async () => {
+         let activeUserId = currentUser?.userId;
+         let blogId = route.params.blogId;
+         console.log("blogId", blogId);
+         console.log("blog", route.params);
+         // setBlogs(route.params)
+         try {
+            let { data, status } = await axios.get(
+               `http://192.168.1.98:6000/blogs/${blogId}`,
+               { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+            );
+            if (status === 200) {
+               console.log(data.data);
+               let {
+                  createdBy,
+                  blog,
+                  liked,
+                  likesCount,
+                  sharesCount,
+                  reposted,
+                  commentsCount,
+               } = data.data;
+               setCreatedBy(createdBy);
+               setLiked(liked);
+               setReposted(reposted);
+               setLikesCount(likesCount);
+               setSharesCount(sharesCount);
+               setCommentsCount(commentsCount);
+               setBlogs(blog);
+               setLastSeen(createdBy.lastSeenStatus);
 
-                  // Alert.alert("Success",data.message)
-               } else {
-                  Alert.alert("Failed 1", data.message);
-               }
-            } catch (err) {
-               Alert.alert("Failed 2", String(err));
+               // Alert.alert("Success",data.message)
+            } else {
+               Alert.alert("Failed 1", data.message);
             }
-         };
-         fetchData();
-      },
-      [currentUser]
-   );
+         } catch (err) {
+            Alert.alert("Failed 2", String(err));
+         }
+      };
+      fetchData();
+   }, [currentUser]);
 
    // const toggleEmojiPicker = () => {
    //    setShowEmojiPicker(!showEmojiPicker);
@@ -129,7 +118,6 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
       }
    };
 
-  
    const toggleEmojiPicker = () => {
       setShowEmojiPicker(!showEmojiPicker);
    };
@@ -144,12 +132,16 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
 
    return (
       <View>
-         <ScrollView style={[styles.blogContainer,{backgroundColor:theme.colors.background}]}>
+         <ScrollView
+            style={[
+               styles.blogContainer,
+               { backgroundColor: theme.colors.background },
+            ]}>
             <Modal visible={openModal}>
                <View
                   style={{
                      flex: 1,
-                     backgroundColor:theme.colors.background,
+                     backgroundColor: theme.colors.background,
                      justifyContent: "center",
                      alignItems: "center",
                   }}>
@@ -250,13 +242,16 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
             {blog.images && <ImageCarousel images={blog.images} />}
             {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
             {blog.video && <VideoPlayer video={blog?.video} />}
-            {blog?.title && <Text variant="titleMedium" style={styles.title}>{blog?.title}</Text>}
+            {blog?.title && (
+               <Text variant="titleMedium" style={styles.title}>
+                  {blog?.title}
+               </Text>
+            )}
 
             {blog?.text && (
                <View style={{ paddingHorizontal: 8 }}>
                   <HTML
                      contentWidth={width}
-                     
                      baseStyle={{
                         fontFamily: "Poppins_400Regular",
                         fontSize: 14,
@@ -271,7 +266,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
                   _likesCount={likesCount}
                   _commentsCount={commentsCount}
                   _liked={liked}
-                  _reposted = {reposted}
+                  _reposted={reposted}
                   userId={blog?.userId}
                   blogId={blog.blogId}
                />

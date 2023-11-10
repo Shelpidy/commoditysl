@@ -39,13 +39,12 @@ const UserComponent = ({ _user }: UserComponentProps) => {
    let theme = useTheme();
 
    useEffect(() => {
-
       if (_user.following) {
-         setFollowed(_user?.following)
+         setFollowed(_user?.following);
       }
       // dispatchPostComment({ type: "", payload: "" });
       SetUser(_user);
-   }, [ _user]);
+   }, [_user]);
 
    useEffect(() => {
       socket.on(String(_user.userId), (data: any) => {
@@ -102,59 +101,59 @@ const UserComponent = ({ _user }: UserComponentProps) => {
       );
    }
    return (
-            <View
-               style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  padding:10,
-                  backgroundColor:theme.colors.background
-               }}>
-               <Pressable onPress={gotoUserProfile}>
-                  <View style={{ position: "relative",alignItems:'center' }}>
-                     <Avatar.Image
-                        size={40}
-                        source={{ uri: "https://picsum.photos/200/300" }}
-                     />
-                     {lastSeen === "online" && (
-                        <View
-                           style={{
-                              width: 17,
-                              height: 17,
-                              borderRadius: 8,
-                              backgroundColor: "#fff",
-                              position: "absolute",
-                              bottom: -2,
-                              right: -2,
-                              zIndex: 10,
-                              justifyContent: "center",
-                              alignItems: "center",
-                           }}>
-                           <View
-                              style={{
-                                 width: 12,
-                                 height: 12,
-                                 borderRadius: 8,
-                                 backgroundColor: "#11a100",
-                              }}></View>
-                        </View>
-                     )}
+      <View
+         style={{
+            flexDirection: "row",
+            alignItems: "center",
+            padding: 10,
+            backgroundColor: theme.colors.background,
+         }}>
+         <Pressable onPress={gotoUserProfile}>
+            <View style={{ position: "relative", alignItems: "center" }}>
+               <Avatar.Image
+                  size={40}
+                  source={{ uri: "https://picsum.photos/200/300" }}
+               />
+               {lastSeen === "online" && (
+                  <View
+                     style={{
+                        width: 17,
+                        height: 17,
+                        borderRadius: 8,
+                        backgroundColor: "#fff",
+                        position: "absolute",
+                        bottom: -2,
+                        right: -2,
+                        zIndex: 10,
+                        justifyContent: "center",
+                        alignItems: "center",
+                     }}>
+                     <View
+                        style={{
+                           width: 12,
+                           height: 12,
+                           borderRadius: 8,
+                           backgroundColor: "#11a100",
+                        }}></View>
                   </View>
-               </Pressable>
+               )}
+            </View>
+         </Pressable>
 
-               <Text
-                 onPress={gotoUserProfile}
-                  variant="titleMedium"
-                  numberOfLines={1}
-                  style={{
-                     textAlign: "center",
-                     marginHorizontal: 4,
-                     verticalAlign:"middle",
-                     // fontFamily: "Poppins_500Medium",
-                     color: theme.colors.secondary,
-                  }}>
-                  {user.fullName}
-               </Text>
-               {/* <TextEllipse
+         <Text
+            onPress={gotoUserProfile}
+            variant="titleMedium"
+            numberOfLines={1}
+            style={{
+               textAlign: "center",
+               marginHorizontal: 4,
+               verticalAlign: "middle",
+               // fontFamily: "Poppins_500Medium",
+               color: theme.colors.secondary,
+            }}>
+            {user.fullName}
+         </Text>
+         {/* <TextEllipse
                   style={{
                      fontFamily: "Poppins_400Regular",
                      margin: 5,
@@ -164,38 +163,38 @@ const UserComponent = ({ _user }: UserComponentProps) => {
                   textLength={23}
                   text={user.fullName}
                /> */}
-               {user.verificationRank && (
-                  <MaterialIcons
-                     size={14}
-                     color={
-                        user.verificationRank === "low"
-                           ? "orange"
-                           : user.verificationRank === "medium"
-                           ? "green"
-                           : "blue"
-                     }
-                     name="verified"
-                  />
-               )}
-               <View
-                  style={{
-                     flex: 1,
-                     justifyContent: "flex-end",
-                     alignItems: "flex-end",
-                     marginBottom: 2,
-                     paddingHorizontal: 0,
-                     borderRadius: 3,
-                  }}>
-                  {user.userId !== currentUser?.userId && (
-                  <Button
-                     onPress={handleFollow}
-                     style={{ marginVertical: 5, alignSelf: "flex-end" }}
-                     mode={followed ? "text" : "contained"}>
-                     {followed ? "unfollow" : "follow"}
-                  </Button>
-               )}
-               </View>
-            </View>
+         {user.verificationRank && (
+            <MaterialIcons
+               size={14}
+               color={
+                  user.verificationRank === "low"
+                     ? "orange"
+                     : user.verificationRank === "medium"
+                     ? "green"
+                     : "blue"
+               }
+               name="verified"
+            />
+         )}
+         <View
+            style={{
+               flex: 1,
+               justifyContent: "flex-end",
+               alignItems: "flex-end",
+               marginBottom: 2,
+               paddingHorizontal: 0,
+               borderRadius: 3,
+            }}>
+            {user.userId !== currentUser?.userId && (
+               <Button
+                  onPress={handleFollow}
+                  style={{ marginVertical: 5, alignSelf: "flex-end" }}
+                  mode={followed ? "text" : "contained"}>
+                  {followed ? "unfollow" : "follow"}
+               </Button>
+            )}
+         </View>
+      </View>
    );
 };
 

@@ -17,6 +17,7 @@ import {
    ActivityIndicator,
    Avatar,
    Button,
+   IconButton,
    Text,
    TextInput,
    useTheme
@@ -30,6 +31,39 @@ import {
 import ProfileNavComponent from "../components/ProfileNavComponent";
 import SearchForm from "../components/SearchForm";
 import { useCurrentUser } from "../utils/CustomHooks";
+import * as ImagePicker from 'expo-image-picker';
+import {
+   getStorage,
+   ref,
+   uploadBytesResumable,
+   getDownloadURL,
+   uploadBytes,
+} from "firebase/storage";
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+   apiKey: "AIzaSyAoNT04_z-qCC4PeIaLXDJcMdpYX5Hvw_I",
+   authDomain: "commodity-aca4d.firebaseapp.com",
+   projectId: "commodity-aca4d",
+   storageBucket: "commodity-aca4d.appspot.com",
+   messagingSenderId: "966126498365",
+   appId: "1:966126498365:web:fe492c3f15370783813054",
+   measurementId: "G-2TCKRYHYB5",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const storage = getStorage();
 
 const { width, height } = Dimensions.get("window");
 
@@ -52,14 +86,73 @@ const ProfileScreen = ({ navigation, route }: any) => {
    const page = React.useRef<number>(1);
    const [numberOfBlogsPerPage, setNumberOfBlogsPerPage] = useState<number>(5);
    const [loading, setLoading] = useState<boolean>(false);
+   const [loadingUpdate, setLoadingUpdate] = useState<boolean>(false);
+   const [loadingProfileImage, setLoadingProfileImage] = useState<boolean>(false);
    const [hasMore, setHasMore] = useState(true);
    const [loadingFetch, setLoadingFetch] = useState<boolean>(false);
    const [lastSeen, setLastSeen] = useState<"online" | any>("");
    const [searchValue, setSearchValue] = useState<string>("");
    const [bio, setBio] = useState<string>("");
+   const [profileImage, setProfileImage] = useState<string>("");
    const [showEditBio, setShowEditBio] = useState<boolean>(false);
    const currentUser = useCurrentUser();
    const { socket } = useSelector((state: any) => state.rootReducer);
+
+
+   const pickImage = async () => {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (result.assets) {
+        let image = result.assets[0]
+        uploadImage(image.uri);
+      }
+    };
+  
+    const uploadImage = async (uri:string) => {
+      const storageRef = ref(storage, 'ProfileImages/' + uri.split('/').pop());
+      const response = await fetch(uri);
+      const blob = await response.blob();
+  
+      try {
+        setLoadingProfileImage(true)
+        await uploadBytes(storageRef, blob);
+        const url = await getDownloadURL(storageRef);
+        console.log('File available at', url);
+
+        let imageData = {
+         key:"profileImage",
+         value:url
+      }
+
+      let { status, data } = await axios.put(
+         `http://192.168.1.98:5000/auth/users/personal`,imageData,
+         { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+      );
+
+      if(status === 202){
+         // Alert.alert("Update Successful","You have successfully updated a comment")
+         setProfileImage(data.data.profileImage)
+      }else{
+         console.log(data)
+
+         Alert.alert("Update Failed",data.message)
+      }
+
+        // You can now save the URL to your database or perform other actions
+      } catch (error) {
+
+         setLoadingProfileImage(false)
+        console.error('Error uploading image: ', error);
+      }finally{
+         setLoadingProfileImage(false)
+      }
+    };
+   
 
    const searchPosts = (_token: string) => {
       setSearchValue(_token);
@@ -142,7 +235,37 @@ const ProfileScreen = ({ navigation, route }: any) => {
       );
    };
 
-   const handleEditBio = async () => {};
+   const handleEditBio = async () => {
+      try{
+         setLoadingUpdate(true)
+         let bioData = {
+            key:"bio",
+            value:bio
+         }
+
+         let { status, data } = await axios.put(
+            `http://192.168.1.98:5000/auth/users/personal`,bioData,
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
+         );
+
+         if(status === 202){
+            // Alert.alert("Update Successful","You have successfully updated a comment")
+            setBio(data.data.bio)
+            setShowEditBio(false)
+         }else{
+            console.log(data)
+            Alert.alert("Update Failed",data.message)
+         }
+      
+      }catch(err){
+         console.log(err)
+          
+         Alert.alert("Update Failed",String(err))
+         setShowEditBio(false)
+      }finally{
+         setLoadingUpdate(false)
+      }
+   };
 
    // FETCHING USER PROFILE INFO ////
 
@@ -163,6 +286,7 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   console.log("User----", data.data);
                   setUser(data.data);
                   setBio(data.data.personal.bio);
+                  setProfileImage(data.data.personal.profileImage);
                   setLastSeen(data.data.personal.lastSeenStatus);
                   // Alert.alert("Success",data.message)
                   setLoading(false);
@@ -261,30 +385,49 @@ const ProfileScreen = ({ navigation, route }: any) => {
          <View style={{ justifyContent: "center", alignItems: "center" }}>
             <View style={{ position: "relative" }}>
                <Avatar.Image
+                  style={{position:"relative"}}
                   size={100}
-                  source={{ uri: "https://picsum.photos/200/300" }}
-               />
+                  source={{ uri:profileImage}}
+               >
+
+               </Avatar.Image>
+               {
+                  loadingProfileImage &&
+                   <View
+                   style={{
+                     width:"auto",
+                     top:0,
+                     height:"auto",
+                     borderRadius:100,
+                     backgroundColor:"rgba(255,255,255,0.3)",
+                     position: "absolute",
+                     bottom: 0,
+                     right: 0,
+                     left:0,
+                     zIndex: 999,
+                     justifyContent: "center",
+                     alignItems: "center",
+                  }}
+                   
+                   >
+                     <ActivityIndicator/>
+                     </View>
+               }
                {lastSeen === "online" && (
                   <View
                      style={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: 11,
-                        backgroundColor: "#fff",
+                        width: 35,
+                        height: 35,
+                        borderRadius: 20,
+                        backgroundColor: theme.colors.inverseOnSurface,
                         position: "absolute",
-                        bottom: 2,
-                        right: 6,
+                        bottom: 0,
+                        right: 3,
                         zIndex: 10,
                         justifyContent: "center",
                         alignItems: "center",
                      }}>
-                     <View
-                        style={{
-                           width: 16,
-                           height: 16,
-                           borderRadius: 9,
-                           backgroundColor: "#11a100",
-                        }}></View>
+                       <IconButton onPress={pickImage} size={18} icon='camera' />
                   </View>
                )}
             </View>
@@ -460,6 +603,8 @@ const ProfileScreen = ({ navigation, route }: any) => {
                      }}
                   />
                   <Button
+                    loading={loadingUpdate}
+                    disabled={loadingUpdate}
                      elevation={0}
                      mode="contained"
                      onPress={handleEditBio}>
@@ -468,23 +613,28 @@ const ProfileScreen = ({ navigation, route }: any) => {
                   {/* <AntDesign  onPress={handleEditBio} name="checkcircleo" size={30} /> */}
                </View>
             )}
-            {user?.personal.bio && !showEditBio && (
+            {bio && !showEditBio && (
                <View
                   style={{
-                     alignItems: "center",
+                     // alignItems: "center",
                      justifyContent: "center",
                      flexDirection: "row",
+                     width:"70%"
                   }}>
-                  <Text variant="bodyLarge" style={{ textAlign: "center" }}>
-                     {user?.personal.bio}
+                  <View>
+                  <Text  variant="bodyLarge" style={{ textAlign: "center" }}>
+                     {bio}
                   </Text>
+                  </View>
                   <Button
                      onPress={()=> setShowEditBio(true)}
                      style={{
                         justifyContent: "center",
                         alignItems: "center",
                      }}
-                     icon="pencil"></Button>
+                     icon="pencil">
+
+                     </Button>
                </View>
             )}
          </View>

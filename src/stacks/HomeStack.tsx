@@ -42,7 +42,6 @@ type HomeStackProps = {
 // }
 
 const RenderHeader = () => {
-   const navigationState = useNavigationState((state) => state);
    const router = useRoute();
 
    if (router.name === "ChatScreen" || router.name === "CommentsViewerScreen")

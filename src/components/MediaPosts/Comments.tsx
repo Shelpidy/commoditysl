@@ -7,7 +7,7 @@ import {
    TextInput,
    Modal,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback} from "react";
 import CommentComponent from "./CommentComponent";
 import {
    Button,
@@ -84,14 +84,15 @@ const Comments = ({
 
    const inputRef = React.useRef<TextInput>(null);
 
-   const fetchComments = async (pageNum?: number) => {
+   const fetchComments = useCallback(async (pageNum?: number) => {
       let pageNumber = pageNum ?? page.current;
-      console.log("Page number", pageNumber);
+      console.log("New Page number", pageNumber);
       if (!hasMore) return;
 
       try {
-         setLoadingFetch(true);
+  
          if (currentUser && blogId) {
+            setLoadingFetch(true);
             let { data, status } = await axios.get(
                `http://192.168.1.98:6000/blogs/${blogId}/comments?pageNumber=${pageNumber}&numberOfRecords=5`,
                { headers: { Authorization: `Bearer ${currentUser?.token}` } }
@@ -120,7 +121,7 @@ const Comments = ({
          Alert.alert("c Failed", String(err));
          setLoadingFetch(false);
       }
-   };
+   },[page.current,currentUser,blogId]);
 
    useEffect(() => {
       console.log("Fetching comments");
@@ -129,15 +130,17 @@ const Comments = ({
       }
    }, [currentUser]);
 
+
+
    useEffect(() => {
       setLiked(_liked);
    }, [_liked]);
 
-   const handleLoadMore = () => {
+   const handleLoadMore = useCallback(() => {
       console.log("Comments reached end");
       if (loadingFetch) return;
       fetchComments();
-   };
+   },[page.current]);
 
    const handleShowTextInput = () => {
       inputRef.current?.focus();
@@ -145,7 +148,6 @@ const Comments = ({
    };
 
    const handleRepost = async () => {
-
       if(reposted){
          Alert.alert("Repost Limit Reached","You can only repost once per a post")
          return
@@ -205,12 +207,12 @@ const Comments = ({
 
             // Alert.alert("Success", data.message);
          } else {
-            Alert.alert("l Failed", data.message);
+            Alert.alert("Failed", data.message);
          }
          setLoading(false);
       } catch (err) {
          console.log(err);
-         Alert.alert("l Failed", String(err));
+         Alert.alert("Failed", String(err));
          setLoading(false);
       }
    };
@@ -302,7 +304,7 @@ const Comments = ({
                      alignItems: "center",
                      flexDirection: "row",
                   }}
-                  onPress={() => setShowTextInput(true)}
+                  onPress={handleShowTextInput}
                   textColor={theme.colors.secondary}
                   style={{
                      backgroundColor: theme.colors.inverseOnSurface,

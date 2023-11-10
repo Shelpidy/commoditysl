@@ -50,6 +50,7 @@ import { Provider } from "react-redux";
 import store from "./src/redux/store";
 import * as Linking from "expo-linking";
 import * as TaskManager from "expo-task-manager";
+import { ToastProvider } from 'react-native-toast-notifications'
 
 const BACKGROUND_NOTIFICATION_TASK = "BACKGROUND-NOTIFICATION-TASK";
 
@@ -221,7 +222,9 @@ export default function App() {
    return (
       <Provider store={store}>
          <PaperProvider theme={CombinedDefaultTheme}>
+            <ToastProvider offset={50}>
             <LayoutContainer toggleTheme={() => setIsDarkMode(!isDarkMode)} />
+            </ToastProvider>
          </PaperProvider>
       </Provider>
    );

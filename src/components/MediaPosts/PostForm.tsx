@@ -30,6 +30,7 @@ import {
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { useToast } from "react-native-toast-notifications";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -94,7 +95,13 @@ const PostForm = () => {
    const [progress, setProgress] = useState<number>(0);
    const currentUser = useCurrentUser();
    const theme = useTheme();
+   const [toastMessage,setToastMessage] = useState<string>("")
+   const [showToast, setShowToast] = useState<boolean>(false);
    const richText = React.useRef<any>(null);
+
+   const toast = useToast()
+
+   
 
    const handlePost = async (
       fileURLs: string[] | null = null,
@@ -125,17 +132,30 @@ const PostForm = () => {
             postDispatch({type:"VIDEO",payload:null})
             postDispatch({type:"TITLE",payload:null})
             postDispatch({type:"TEXT",payload:null})
-
-            Alert.alert("Successful", "Post successfully");
+            toast.show("Uploaded Successfully",{
+               type:"normal",
+               placement:"top"
+            })
+            
+            // Alert.alert("Successful", "Post successfully");
 
             // Alert.alert("Successful", "Post successfully");
          } else {
             setLoading(false);
-            Alert.alert("Failed", "Post Failed");
+            toast.show("Uploaded Failed",{
+               type:"normal",
+               placement:"top",
+               duration:2000
+            })
          }
       } catch (err) {
          setLoading(false);
          console.log(err);
+         toast.show("Uploaded Failed",{
+            type:"normal",
+            placement:"top",
+            duration:2000
+         })
       }
 
       // console.log(postState);
@@ -262,11 +282,23 @@ const PostForm = () => {
       postDispatch({ type: "TITLE", payload: v });
    };
 
+   useEffect(()=>{
+       setShowToast(true)
+   },[toastMessage])
+
    return (
       <View
          style={{
             marginVertical: 4,
+            backgroundColor:theme.colors.background
          }}>
+         <View style={{flexDirection:'row'}}>
+         <Button onPress={()=> setToastMessage("Hello")}>Show Toast</Button>
+         <Button onPress={()=> setToastMessage("Hello world")}>Show Toast</Button>
+         <Button onPress={()=> setToastMessage("Hello again")}>Show Toast</Button>
+         </View>
+        
+     
          <Modal visible={imageOpen}>
             <Button
                onPress={() => setImageOpen(false)}

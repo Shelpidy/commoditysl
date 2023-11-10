@@ -144,7 +144,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
    return (
       <TabsProvider defaultIndex={1}>
          <Tabs
-            disableSwipe={false}
+            disableSwipe
             style={{
                justifyContent: "center",
                width: width - 30,

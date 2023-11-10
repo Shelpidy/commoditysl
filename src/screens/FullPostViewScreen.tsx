@@ -1,52 +1,34 @@
+import React, { useEffect, useRef, useState } from "react";
 import {
-   StyleSheet,
-   View,
-   Modal,
-   Dimensions,
-   Image,
    Alert,
-   ScrollView,
+   Modal,
    Pressable,
-   KeyboardAvoidingView,
+   ScrollView,
+   StyleSheet,
    TextInput,
-   useWindowDimensions,
+   View,
+   useWindowDimensions
 } from "react-native";
-import React, { useState, useEffect, useReducer, useRef } from "react";
-import ImagesViewer from "../components/ImagesViewer";
-import VideoPlayer from "../components/VideoPlayer";
-import TextViewer from "../components/TextViewer";
 import Comments from "../components/MediaPosts/Comments";
+import VideoPlayer from "../components/VideoPlayer";
 
 import {
-   useTheme,
-   Button,
-   IconButton,
-   Divider,
-   Avatar,
-   Text,
-} from "react-native-paper";
-import EmojiSelector, { Categories } from "react-native-emoji-selector";
-import {
-   AntDesign,
-   Entypo,
-   FontAwesome,
-   MaterialCommunityIcons,
-   Feather,
-   Ionicons,
-   EvilIcons,
-   SimpleLineIcons,
    MaterialIcons,
+   SimpleLineIcons
 } from "@expo/vector-icons";
 import axios from "axios";
-import { useCurrentUser } from "../utils/CustomHooks";
-import LikesComponent from "../components/LikesComponent";
 import moment from "moment";
+import {
+   Avatar,
+   Button,
+   Text,
+   useTheme
+} from "react-native-paper";
 import HTML from "react-native-render-html";
-import { LoadingBlogComponent } from "../components/MediaPosts/LoadingComponents";
-import TextEllipse from "../components/TextEllipse";
-import { dateAgo } from "../utils/util";
 import { useSelector } from "react-redux";
 import ImageCarousel from "../components/MediaPosts/ImageCarousel";
+import { LoadingBlogComponent } from "../components/MediaPosts/LoadingComponents";
+import { useCurrentUser } from "../utils/CustomHooks";
 
 type FullBlogComponentProps = { navigation: any; route: any };
 
@@ -61,9 +43,6 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    const [liked, setLiked] = useState<boolean>(false);
    const [reposted, setReposted] = useState<boolean>(false);
    const [createdBy, setCreatedBy] = useState<User | null>(null);
-   const [shared, setShared] = useState<boolean>(false);
-   const [loading, setLoading] = useState<boolean>(false);
-   const [loadingShare, setLoadingShare] = useState<boolean>(false);
    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
    const { socket } = useSelector((state: any) => state.rootReducer);
    const [lastSeen, setLastSeen] = useState<"online" | any>("online");
@@ -87,7 +66,7 @@ const FullBlogComponent = ({ navigation, route }: FullBlogComponentProps) => {
    }, [socket, createdBy]);
 
    useEffect(
-      function () {
+      ()=>{
          let fetchData = async () => {
             let activeUserId = currentUser?.userId;
             let blogId = route.params.blogId;

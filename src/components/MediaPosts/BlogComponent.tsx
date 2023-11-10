@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Alert, Modal, StyleSheet, View } from "react-native";
-import ImagesViewer from "../ImagesViewer";
 import VideoPlayer from "../VideoPlayer";
 // import {SliderBox} from "react-native-image-slider-box"
 
 import {
    AntDesign,
-   Feather,
    Ionicons,
    MaterialCommunityIcons,
    MaterialIcons,
-   SimpleLineIcons,
+   SimpleLineIcons
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
@@ -21,8 +19,8 @@ import HTML from "react-native-render-html";
 import { useSelector } from "react-redux";
 import { useCurrentUser } from "../../utils/CustomHooks";
 import LikesComponent from "../LikesComponent";
-import UpdatePostForm from "./UpdatePostForm";
 import ImageCarousel from "./ImageCarousel";
+import UpdatePostForm from "./UpdatePostForm";
 
 type BlogComponentProps = {
    blog: Blog;
@@ -53,6 +51,7 @@ const BlogComponent = (props: BlogComponentProps) => {
    const [reloadCLS, setRelaodCLS] = useState<number>(0);
    const { socket } = useSelector((state: any) => state.rootReducer);
    const { width } = useWindowDimensions();
+   const [blog,setBlog] = useState<Blog>(props.blog)
    const navigation = useNavigation<any>();
 
    // useEffect(() => {
@@ -63,6 +62,11 @@ const BlogComponent = (props: BlogComponentProps) => {
    //    setCreatedBy(props.createdBy);
    //    setLastSeen(props.createdBy.lastSeenStatus);
    // }, [props]);
+
+   const handleUpdateComplete = (blog:Blog)=>{
+      setBlog(blog)
+      setOpenModal(false)
+   }
 
    const gotoUserProfile = () => {
       if (currentUser?.userId === createdBy?.userId) {
@@ -202,7 +206,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                         <AntDesign size={18} name="close" />
                      </Button>
                   </View>
-                  <UpdatePostForm {...props.blog} />
+                  <UpdatePostForm onUpdateComplete={handleUpdateComplete}  blog = {blog} />
                </View>
             </View>
          </Modal>
@@ -217,7 +221,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                   <View style={{ position: "relative" }}>
                      <Avatar.Image
                         size={35}
-                        source={{ uri: "https://picsum.photos/200/300" }}
+                        source={{ uri:createdBy.profileImage }}
                      />
                      {lastSeen === "online" && (
                         <View
@@ -317,20 +321,20 @@ const BlogComponent = (props: BlogComponentProps) => {
                      fontFamily: "Poppins_300Light",
                      width:width
                   }}>
-                  {moment(props.blog.createdAt).fromNow()}
+                  {moment(blog.createdAt).fromNow()}
                </Text>
             </View>
          </View>
 
-         {props.blog.images && <ImageCarousel images={props.blog.images} />}
+         {blog.images && <ImageCarousel images={blog.images} />}
          {/* {props.blog.images && <SliderBox images={props.blog.images} />} */}
-         {props?.blog.video && <VideoPlayer video={props.blog?.video} />}
+         {blog.video && <VideoPlayer video={blog?.video} />}
 
-         {props.blog.title && (
-            <Text style={styles.title} variant="titleMedium">{props.blog?.title}</Text>
+         {blog.title && (
+            <Text style={styles.title} variant="titleMedium">{blog?.title}</Text>
          )}
 
-         {props.blog?.text && (
+         {blog?.text && (
             <View style={{ paddingHorizontal: 8 }}>
                <HTML
                      contentWidth={width}
@@ -339,7 +343,7 @@ const BlogComponent = (props: BlogComponentProps) => {
                         fontSize: 14,
                      }}
                      systemFonts={["Poppins_400Regular", "sans-serif"]}
-                     source={{ html: props.blog.text }}
+                     source={{ html: blog.text }}
                   />
             </View>
          )}
@@ -419,9 +423,9 @@ const BlogComponent = (props: BlogComponentProps) => {
                      flex: 1,
                   }}>
                   <Ionicons size={18} name="share-outline" />
-                  <Text>
+                  {/* <Text>
                   {" "}{sharesCount}
-                  </Text>
+                  </Text> */}
                </Button>
             </View>
          </View>

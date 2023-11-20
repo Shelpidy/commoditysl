@@ -71,7 +71,7 @@ const FirstNameForm = () => {
             onPress={handleUpdate}
             loading={loading}
             disabled={loading}>
-            SAVE
+            Save
          </Button>
       </View>
    );

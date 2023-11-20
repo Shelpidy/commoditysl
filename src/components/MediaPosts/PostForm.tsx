@@ -95,11 +95,13 @@ const PostForm = () => {
    const [progress, setProgress] = useState<number>(0);
    const currentUser = useCurrentUser();
    const theme = useTheme();
-   const [toastMessage, setToastMessage] = useState<string>("");
+   const [toastMessage,setToastMessage] = useState<string>("")
    const [showToast, setShowToast] = useState<boolean>(false);
    const richText = React.useRef<any>(null);
 
-   const toast = useToast();
+   const toast = useToast()
+
+   
 
    const handlePost = async (
       fileURLs: string[] | null = null,
@@ -124,36 +126,36 @@ const PostForm = () => {
          );
          if (response.status === 201) {
             console.log(response.data);
-
+            
             setLoading(false);
-            postDispatch({ type: "IMAGES", payload: null });
-            postDispatch({ type: "VIDEO", payload: null });
-            postDispatch({ type: "TITLE", payload: null });
-            postDispatch({ type: "TEXT", payload: null });
-            toast.show("Uploaded Successfully", {
-               type: "normal",
-               placement: "top",
-            });
-
+            postDispatch({type:"IMAGES",payload:null})
+            postDispatch({type:"VIDEO",payload:null})
+            postDispatch({type:"TITLE",payload:null})
+            postDispatch({type:"TEXT",payload:null})
+            toast.show("Uploaded Successfully",{
+               type:"normal",
+               placement:"top"
+            })
+            
             // Alert.alert("Successful", "Post successfully");
 
             // Alert.alert("Successful", "Post successfully");
          } else {
             setLoading(false);
-            toast.show("Uploaded Failed", {
-               type: "normal",
-               placement: "top",
-               duration: 2000,
-            });
+            toast.show("Uploaded Failed",{
+               type:"normal",
+               placement:"top",
+               duration:2000
+            })
          }
       } catch (err) {
          setLoading(false);
          console.log(err);
-         toast.show("Uploaded Failed", {
-            type: "normal",
-            placement: "top",
-            duration: 2000,
-         });
+         toast.show("Uploaded Failed",{
+            type:"normal",
+            placement:"top",
+            duration:2000
+         })
       }
 
       // console.log(postState);
@@ -280,26 +282,12 @@ const PostForm = () => {
       postDispatch({ type: "TITLE", payload: v });
    };
 
-   useEffect(() => {
-      setShowToast(true);
-   }, [toastMessage]);
-
    return (
       <View
          style={{
             marginVertical: 4,
-            backgroundColor: theme.colors.background,
+            backgroundColor:theme.colors.background
          }}>
-         <View style={{ flexDirection: "row" }}>
-            <Button onPress={() => setToastMessage("Hello")}>Show Toast</Button>
-            <Button onPress={() => setToastMessage("Hello world")}>
-               Show Toast
-            </Button>
-            <Button onPress={() => setToastMessage("Hello again")}>
-               Show Toast
-            </Button>
-         </View>
-
          <Modal visible={imageOpen}>
             <Button
                onPress={() => setImageOpen(false)}

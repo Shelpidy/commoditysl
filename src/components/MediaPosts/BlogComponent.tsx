@@ -47,7 +47,6 @@ const BlogComponent = (props: BlogComponentProps) => {
    const [liked, setLiked] = useState<boolean>(props.liked);
    const [reposted, setReposted] = useState<boolean>(props.reposted);
    const [createdBy, setCreatedBy] = useState<User | null>(props.createdBy);
-   const [shared, setShared] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
    const [loadingShare, setLoadingShare] = useState<boolean>(false);
    const [lastSeen, setLastSeen] = useState<"online" | any>(
@@ -103,6 +102,7 @@ const BlogComponent = (props: BlogComponentProps) => {
       }
    }, [socket, createdBy]);
 
+
    const handleLike = async (blogId: string) => {
       console.log("Like function runnning...");
       console.log(blogId);
@@ -122,11 +122,12 @@ const BlogComponent = (props: BlogComponentProps) => {
          } else {
             Alert.alert("Liked Failed", data.message);
          }
-         setLoading(false);
       } catch (err) {
          console.log(err);
          Alert.alert("Failed", "Like failed");
-         setLoading(false);
+       
+      }finally{
+         setLoading(false)
       }
    };
 
@@ -159,19 +160,20 @@ const BlogComponent = (props: BlogComponentProps) => {
          );
          if (status === 201) {
             console.log(data);
-
-            setLoadingShare(false);
             setReposted(true);
             setSharesCount((prev) => prev + 1);
             // setRelaodCLS(reloadCLS + 1);
             // Alert.alert("Successful", "Repost successfully");
          } else {
-            setLoadingShare(false);
-            Alert.alert("Failed", "Repost Failed");
+            toast.show("Repost Failed",{
+               type:"warning",
+               placement:"top"
+            })
          }
       } catch (err) {
-         setLoadingShare(false);
          console.log({ Error: String(err) });
+      }finally{
+         setLoadingShare(false)
       }
 
       // console.log(postState);
@@ -203,14 +205,16 @@ const BlogComponent = (props: BlogComponentProps) => {
             })
           
          }
-         setLoading(false);
+   
       } catch (err) {
          console.log(err);
          toast.show("Delete Failed",{
             type:"warning",
             placement:"top"
          })
-         setLoading(false);
+       
+      }finally{
+         setLoading(false)
       }
    };
 

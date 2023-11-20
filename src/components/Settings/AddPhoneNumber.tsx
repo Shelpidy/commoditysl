@@ -3,12 +3,14 @@ import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Divider, useTheme } from "react-native-paper";
 import axios from "axios";
 import { useCurrentUser } from "../../utils/CustomHooks";
+import { useToast } from "react-native-toast-notifications";
 
 const PhoneNumberForm = () => {
    const [phoneNumber, setPhoneNumber] = useState("");
    const [loading, setLoading] = useState(false);
    const currentUser = useCurrentUser();
    const theme = useTheme();
+   const toast = useToast()
 
    const handleAddPhoneNumber = async () => {
       setLoading(true);
@@ -17,23 +19,36 @@ const PhoneNumberForm = () => {
          const response = await axios.put(
             "http://192.168.1.98:5000/auth/users/contact/",
             {
-               key: "phoneNumbers",
-               value: phoneNumber,
-               userId: currentUser?.userId, // Replace with the actual user ID
-            }
+               key: "phoneNumber",
+               value:phoneNumber,
+            },
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
          if (response.status === 202) {
-            Alert.alert("Success", "Phone number added successfully");
+            toast.show("Phonenumber updated", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          } else {
-            Alert.alert("Error", "Failed to add phone number");
+            toast.show("Failed to update", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          }
       } catch (error) {
          console.log(error);
-         Alert.alert("Error", "An error occurred while adding phone number");
+         toast.show("Failed to update", {
+            type: "normal",
+            placement: "top",
+            duration:2000
+         });
+      }finally{
+         setLoading(false);
       }
 
-      setLoading(false);
    };
 
    return (
@@ -55,7 +70,7 @@ const PhoneNumberForm = () => {
             onPress={handleAddPhoneNumber}
             loading={loading}
             disabled={loading}>
-            Add Phone Number
+            Save
          </Button>
       </View>
    );

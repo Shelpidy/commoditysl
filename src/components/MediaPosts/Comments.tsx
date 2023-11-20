@@ -261,7 +261,7 @@ const Comments = ({
                padding: 15,
                justifyContent: "center",
                alignItems: "center",
-               backgroundColor: "white",
+               backgroundColor: theme.colors.background,
             }}>
             <ActivityIndicator color="#cecece" size="small" />
             <Text style={{ color: "#cecece", marginLeft: 5 }}>Loading</Text>

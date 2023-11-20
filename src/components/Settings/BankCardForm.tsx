@@ -230,7 +230,7 @@ const BankCardForm = () => {
             loading={loading}
             disabled={loading}
             onPress={handleAddBankCard}>
-            Add Bank Card
+            Save
          </Button>
       </View>
    );

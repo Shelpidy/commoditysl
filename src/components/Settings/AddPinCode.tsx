@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Divider, useTheme } from "react-native-paper";
 import axios from "axios";
 import { useCurrentUser } from "../../utils/CustomHooks";
+import { useToast } from "react-native-toast-notifications";
 
 const PinCodeForm = () => {
    const [password, setPassword] = useState("");
@@ -10,7 +11,7 @@ const PinCodeForm = () => {
    const [confirmPinCode, setConfirmPinCode] = useState("");
    const [loading, setLoading] = useState(false);
    const currentUser = useCurrentUser();
-
+   const toast = useToast()
    const theme = useTheme();
 
    const handleCheckPassword = async () => {
@@ -43,18 +44,30 @@ const PinCodeForm = () => {
             {
                key: "pinCode",
                value: newPinCode,
-               userId: currentUser?.userId, // Replace with the actual user ID
-            }
+            },
+            { headers: { Authorization: `Bearer ${currentUser?.token}` } }
          );
 
          if (response.status === 202) {
-            Alert.alert("Success", "Pin code changed successfully");
+            toast.show("Pincode updated", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          } else {
-            Alert.alert("Error", "Failed to change pin code");
+            toast.show("Failed to update pincode", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          }
       } catch (error) {
          console.log(error);
-         Alert.alert("Error", "An error occurred while changing pin code");
+         toast.show("Failed to update pincode", {
+            type: "normal",
+            placement: "top",
+            duration:2000
+         });
       }
 
       setLoading(false);
@@ -109,7 +122,7 @@ const PinCodeForm = () => {
             onPress={handleCheckPassword}
             loading={loading}
             disabled={loading}>
-            Change Pin Code
+            Change pincode
          </Button>
       </View>
    );

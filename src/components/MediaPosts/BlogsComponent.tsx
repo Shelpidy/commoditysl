@@ -16,6 +16,7 @@ import { ActivityIndicator, Divider } from "react-native-paper";
 import { LoadingBlogComponent } from "./LoadingComponents";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import LoadingIndicator from "../LoadingIndicator";
 
 type BlogComponentProps = {
    blog: Blog;
@@ -99,19 +100,7 @@ const BlogsComponent = ({ blogs: _blogs }: { blogs: BlogComponentProps[] }) => {
    const renderFooter = () => {
       if (!loading) return null;
       return (
-         <View
-            style={{
-               flexDirection: "row",
-               padding: 10,
-               justifyContent: "center",
-               alignItems: "center",
-               backgroundColor: "white",
-            }}>
-            <ActivityIndicator color="#cecece" size="small" />
-            <Text style={{ color: "#cecece", marginLeft: 5 }}>
-               Loading more blogs
-            </Text>
-         </View>
+         <LoadingIndicator text="load more"/>
       );
    };
 

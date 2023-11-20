@@ -80,17 +80,31 @@ const ChangePasswordForm = () => {
             const axiosError = error as AxiosError;
             if (axiosError.response && axiosError.response.status === 422) {
                console.log("Validation Error:", axiosError.response.data);
+               toast.show("Failed to validate password", {
+                  type: "normal",
+                  placement: "top",
+                  duration:2000
+               });
                // You can access the error response data, such as error messages, from axiosError.response.data
             } else {
+               toast.show("Failed. Try again", {
+                  type: "normal",
+                  placement: "top",
+                  duration:2000
+               });
                console.log("Error:", axiosError.message);
             }
          } else {
             console.log("Error:", error);
+            toast.show("Failed. Try again", {
+               type: "normal",
+               placement: "top",
+               duration:2000
+            });
          }
          console.log(error);
       }
    };
-
 
 
    return (
@@ -113,7 +127,6 @@ const ChangePasswordForm = () => {
                />
             }
          />
-
          <TextInput
             outlineStyle={{ borderColor: theme.colors.inverseOnSurface }}
             label="New Password"
@@ -157,7 +170,7 @@ const ChangePasswordForm = () => {
             onPress={handleCheckPassword}
             loading={loading}
             disabled={loading}>
-            Save Password
+            Save
          </Button>
       </View>
    );
